@@ -27,17 +27,24 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'com.h2database:h2'
-    runtimeOnly 'com.mysql:mysql-connector-j'
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
+    /* Boot */
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.2.4'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.4'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools:3.2.4'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor:3.2.4'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.4'
+
+    /* Lombok */
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    /* Databases */
+    runtimeOnly 'com.h2database:h2:2.2.224'
+    runtimeOnly 'com.mysql:mysql-connector-j:8.3.0'
+
+    /* Security */
+    implementation 'org.springframework.boot:spring-boot-starter-security:3.2.4'
+    testImplementation 'org.springframework.security:spring-security-test:6.2.3'
 }
 
 tasks.named('test') {
