@@ -39,6 +39,9 @@ out/
 ### Ignore .DS_Store ###
 **/.DS_Store
 
+### Conventional Commit ###
+/node_modules
+
 ### application*.yml ###
 # src/main/resources/*.yml
 
