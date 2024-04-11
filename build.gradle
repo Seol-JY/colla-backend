@@ -63,6 +63,7 @@ checkstyle {
     configProperties = ["suppressionFile": "${rootDir}/rule-config/naver-checkstyle-suppressions.xml"]
     toolVersion = "8.42"
     sourceSets = [sourceSets.main]
+    ignoreFailures = false
 }
 
 checkstyleMain.source = fileTree('src/main/java')
