@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.4'
     id 'io.spring.dependency-management' version '1.1.4'
-    id 'org.ec4j.editorconfig' version '0.0.3'
+    id 'org.ec4j.editorconfig' version '0.0.2'
     id 'checkstyle'
 }
 
@@ -58,11 +58,12 @@ editorconfig {
 check.dependsOn editorconfigCheck
 
 checkstyle {
-    maxWarnings = 01
+    maxWarnings = 0
     configFile = file("${rootDir}/rule-config/naver-checkstyle-rules.xml")
     configProperties = ["suppressionFile": "${rootDir}/rule-config/naver-checkstyle-suppressions.xml"]
     toolVersion = "8.42"
     sourceSets = [sourceSets.main]
+    ignoreFailures = false
 }
 
 checkstyleMain.source = fileTree('src/main/java')
