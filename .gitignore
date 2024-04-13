@@ -45,8 +45,9 @@ out/
 ### application*.yml ###
 # src/main/resources/*.yml
 
-### docker ###
-# docker/
+##### docker ###
+docker/*
+!docker/*.yml
 
 ### RestDocs ###
 src/main/resources/static/docs/
