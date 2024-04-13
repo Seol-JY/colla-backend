@@ -45,7 +45,7 @@ out/
 ### application*.yml ###
 # src/main/resources/*.yml
 
-##### docker ###
+### docker ###
 docker/*
 !docker/*.yml
 
