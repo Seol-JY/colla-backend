@@ -30,7 +30,7 @@ public class ChatChannel extends BaseEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "teamspace_id", nullable = false)
+	@JoinColumn(name = "teamspace_id", nullable = false, updatable = false)
 	private Teamspace teamspace;
 
 	@OneToMany(mappedBy = "chatChannel", fetch = FetchType.LAZY)

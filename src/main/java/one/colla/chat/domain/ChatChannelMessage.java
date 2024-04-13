@@ -22,16 +22,17 @@ import one.colla.user.domain.User;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "chat_channel_messages")
 public class ChatChannelMessage extends BaseEntity {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false)
+	@JoinColumn(name = "user_id", nullable = false, updatable = false)
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "chat_channel_id", nullable = false)
+	@JoinColumn(name = "chat_channel_id", nullable = false, updatable = false)
 	private ChatChannel chatChannel;
 
 	@Column(name = "type", nullable = false)

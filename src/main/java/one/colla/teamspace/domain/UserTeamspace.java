@@ -26,12 +26,12 @@ public class UserTeamspace extends BaseEntity {
 
 	@MapsId("userId")
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false)
+	@JoinColumn(name = "user_id", nullable = false, updatable = false)
 	private User user;
 
 	@MapsId("teamspaceId")
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "teamspace_id", nullable = false)
+	@JoinColumn(name = "teamspace_id", nullable = false, updatable = false)
 	private Teamspace teamspace;
 
 	@ManyToOne(fetch = FetchType.LAZY)

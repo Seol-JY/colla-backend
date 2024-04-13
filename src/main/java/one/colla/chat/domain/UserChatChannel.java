@@ -26,12 +26,12 @@ public class UserChatChannel extends BaseEntity {
 
 	@MapsId("userId")
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false)
+	@JoinColumn(name = "user_id", nullable = false, updatable = false)
 	private User user;
 
 	@MapsId("chatChannelId")
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "chat_channel_id", nullable = false)
+	@JoinColumn(name = "chat_channel_id", nullable = false, updatable = false)
 	private ChatChannel chatChannel;
 
 	@Column(name = "last_read_message_id")
