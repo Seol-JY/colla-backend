@@ -110,13 +110,13 @@ bootJar {
 
     doFirst {
         def swaggerUIFile = file("${openapi3.outputDirectory}${swaggerFileName}")
-        def securitySchemesContent = "  securitySchemes:\n" +                     \
-                                                         "    APIKey:\n" +                     \
-                                                         "      type: apiKey\n" +                     \
-                                                         "      name: Authorization\n" +                     \
-                                                         "      in: header\n" +                    \
-                                                         "security:\n" +
-                "  - APIKey: []  # Apply the security scheme here"
+        def securitySchemesContent = "  securitySchemes:\n" +
+                "    APIKey:\n" +
+                "      type: apiKey\n" +
+                "      name: Authorization\n" +
+                "      in: header\n" +
+                "security:\n" +
+                "  - APIKey: []  # Apply the security scheme here\n"
 
         swaggerUIFile.append securitySchemesContent
     }
