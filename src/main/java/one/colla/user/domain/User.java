@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import one.colla.common.domain.BaseEntity;
+import one.colla.teamspace.domain.UserTeamspace;
 
 @Getter
 @Entity
@@ -30,6 +31,9 @@ public class User extends BaseEntity {
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private final List<OauthApproval> oauthApprovals = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private final List<UserTeamspace> userTeamspaces = new ArrayList<>();
 
 	@Column(name = "role", nullable = false)
 	@Enumerated(EnumType.STRING)
