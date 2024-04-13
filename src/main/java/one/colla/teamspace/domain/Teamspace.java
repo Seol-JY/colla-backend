@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import one.colla.common.domain.BaseEntity;
+import one.colla.file.domain.Attachment;
 
 @Getter
 @Entity
@@ -31,6 +32,9 @@ public class Teamspace extends BaseEntity {
 
 	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
 	private final List<Tag> tags = new ArrayList<>();
+
+	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
+	private final List<Attachment> attachments = new ArrayList<>();
 
 	@Column(name = "name", nullable = false, length = 50)
 	private String name;

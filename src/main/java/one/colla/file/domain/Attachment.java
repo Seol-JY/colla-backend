@@ -1,7 +1,9 @@
-package one.colla.user.domain;
+package one.colla.file.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,12 +15,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import one.colla.common.domain.BaseEntity;
+import one.colla.teamspace.domain.Teamspace;
+import one.colla.user.domain.User;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "oauth_approvals")
-public class OauthApproval extends BaseEntity {
+@Table(name = "attachments")
+public class Attachment extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,12 +32,21 @@ public class OauthApproval extends BaseEntity {
 	@JoinColumn(name = "user_id", nullable = false, updatable = false)
 	private User user;
 
-	@Column(name = "client_id", nullable = false)
-	private String clientId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "teamspace_id", nullable = false, updatable = false)
+	private Teamspace teamspace;
 
-	@Column(name = "provider", nullable = false)
-	private String provider;
+	@Column(name = "type", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private Type type;
 
-	@Column(name = "access_token", nullable = false)
-	private String accessToken;
+	@Column(name = "size", nullable = false)
+	private Long size;
+
+	@Column(name = "attach_type", nullable = false)
+	private String attachType;
+
+	@Column(name = "file_url", nullable = false)
+	private String fileUrl;
+
 }
