@@ -175,6 +175,7 @@ CREATE TABLE vote_feed_selections
 (
     user_id             BIGINT,
     vote_feed_option_id BIGINT,
+    created_at          DATETIME NOT NULL,
     PRIMARY KEY (user_id, vote_feed_option_id),
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (vote_feed_option_id) REFERENCES vote_feed_options (id)
@@ -195,6 +196,7 @@ CREATE TABLE scheduling_feed_available_times
     scheduling_feed_target_date_id BIGINT,
     user_id                        BIGINT,
     available_time_segment_array   VARCHAR(255),
+    created_at                     DATETIME NOT NULL,
     PRIMARY KEY (scheduling_feed_target_date_id, user_id),
     FOREIGN KEY (scheduling_feed_target_date_id) REFERENCES scheduling_feed_target_dates(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
@@ -221,7 +223,6 @@ CREATE TABLE chat_channel_messages
     type            VARCHAR(50) NOT NULL CHECK (type IN ('TEXT', 'IMAGE', 'FILE')),
     content         VARCHAR(1024),
     created_at      DATETIME NOT NULL,
-    updated_at      DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (chat_channel_id) REFERENCES chat_channels(id)
 );
