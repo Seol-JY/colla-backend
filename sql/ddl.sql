@@ -49,8 +49,8 @@ CREATE TABLE tags
     FOREIGN KEY (teamspace_id) REFERENCES teamspaces (id)
 );
 
--- Creating the 'users_teamspaces' table
-CREATE TABLE users_teamspaces
+-- Creating the 'user_teamspaces' table
+CREATE TABLE user_teamspaces
 (
     user_id      BIGINT,
     teamspace_id BIGINT,
@@ -110,55 +110,55 @@ CREATE TABLE attachments
 -- Creating the 'vote_feeds' table
 CREATE TABLE vote_feeds
 (
-    feed_id             BIGINT PRIMARY KEY,
+    id                  BIGINT PRIMARY KEY,
     due_at              DATETIME NOT NULL,
     plural              BOOLEAN  NOT NULL DEFAULT FALSE,
     anonymous           BOOLEAN  NOT NULL DEFAULT FALSE,
     num_of_participants TINYINT  NOT NULL DEFAULT 0,
-    FOREIGN KEY (feed_id) REFERENCES feeds (id)
+    FOREIGN KEY (id) REFERENCES feeds (id)
 );
 
 -- Creating the 'scheduling_feeds' table
 CREATE TABLE scheduling_feeds
 (
-    feed_id             BIGINT PRIMARY KEY,
+    id                  BIGINT PRIMARY KEY,
     due_at              DATETIME NOT NULL,
     min_time_segment    TINYINT NOT NULL DEFAULT 18 CHECK (min_time_segment >= 0 AND min_time_segment <= 47),
     max_time_segment    TINYINT NOT NULL DEFAULT 35 CHECK (max_time_segment >= 0 AND max_time_segment <= 47),
     num_of_participants TINYINT  NOT NULL DEFAULT 0,
-    FOREIGN KEY (feed_id) REFERENCES feeds (id),
+    FOREIGN KEY (id) REFERENCES feeds (id),
     CHECK (min_time_segment < max_time_segment)
 );
 
 -- Creating the 'collect_feeds' table
 CREATE TABLE collect_feeds
 (
-    feed_id BIGINT PRIMARY KEY,
+    id      BIGINT PRIMARY KEY,
     content TEXT,
     due_at  DATETIME NOT NULL,
-    FOREIGN KEY (feed_id) REFERENCES feeds (id)
+    FOREIGN KEY (id) REFERENCES feeds (id)
 );
 
 -- Creating the 'normal_feeds' table
 CREATE TABLE normal_feeds
 (
-    feed_id BIGINT PRIMARY KEY,
+    id      BIGINT PRIMARY KEY,
     content TEXT,
-    FOREIGN KEY (feed_id) REFERENCES feeds (id)
+    FOREIGN KEY (id) REFERENCES feeds (id)
 );
 
 -- Creating the 'collect_feed_responses' table
 CREATE TABLE collect_feed_responses
 (
-    feed_id    BIGINT,
-    user_id    BIGINT,
-    title      VARCHAR(100),
-    content    TEXT,
-    status     VARCHAR(50) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'COMPLETED')),
-    created_at DATETIME    NOT NULL,
-    updated_at DATETIME    NOT NULL,
-    PRIMARY KEY (feed_id, user_id),
-    FOREIGN KEY (feed_id) REFERENCES feeds (id),
+    collect_feed_id    BIGINT,
+    user_id            BIGINT,
+    title              VARCHAR(100),
+    content            TEXT,
+    status             VARCHAR(50) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'COMPLETED')),
+    created_at         DATETIME    NOT NULL,
+    updated_at         DATETIME    NOT NULL,
+    PRIMARY KEY (collect_feed_id, user_id),
+    FOREIGN KEY (collect_feed_id) REFERENCES collect_feeds (id),
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
@@ -240,8 +240,8 @@ CREATE TABLE user_chat_channels
     FOREIGN KEY (chat_channel_id) REFERENCES chat_channels(id)
 );
 
--- Creating the 'chat_channels_message_attachments' table
-CREATE TABLE chat_channels_message_attachments
+-- Creating the 'chat_channel_message_attachments' table
+CREATE TABLE chat_channel_message_attachments
 (
     chat_channel_message_id BIGINT,
     file_id                 BIGINT,
@@ -266,8 +266,8 @@ CREATE TABLE calendar_events
     FOREIGN KEY (teamspace_id) REFERENCES teamspaces(id)
 );
 
--- Creating the 'feed_files' table
-CREATE TABLE feed_files
+-- Creating the 'feed_attachments' table
+CREATE TABLE feed_attachments
 (
     feed_id        BIGINT,
     attachments_id BIGINT,
@@ -299,17 +299,17 @@ CREATE TABLE user_calendar_events
 -- Creating the 'calendar_event_schedules' table
 CREATE TABLE calendar_event_schedules
 (
-    calendar_event_id BIGINT PRIMARY KEY,
-    location          VARCHAR(255),
-    FOREIGN KEY (calendar_event_id) REFERENCES calendar_events(id)
+    id       BIGINT PRIMARY KEY,
+    location VARCHAR(255),
+    FOREIGN KEY (id) REFERENCES calendar_events(id)
 );
 
 -- Creating the 'calendar_event_todos' table
 CREATE TABLE calendar_event_todos
 (
-    calendar_event_id BIGINT PRIMARY KEY,
-    status            VARCHAR(50) NOT NULL DEFAULT 'REQUEST' CHECK (status IN ('REQUEST', 'PROCESS', 'FEEDBACK', 'COMPLETE')),
-    FOREIGN KEY (calendar_event_id) REFERENCES calendar_events(id)
+    id               BIGINT PRIMARY KEY,
+    status           VARCHAR(50) NOT NULL DEFAULT 'REQUEST' CHECK (status IN ('REQUEST', 'PROCESS', 'FEEDBACK', 'COMPLETE')),
+    FOREIGN KEY (id) REFERENCES calendar_events(id)
 );
 
 -- Creating the 'user_calendar_event_mentions' table
@@ -328,11 +328,11 @@ CREATE TABLE calendar_event_subtodos
 (
     id                BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id           BIGINT NOT NULL,
-    calendar_event_id BIGINT NOT NULL,
+    calendar_event_todo_id BIGINT NOT NULL,
     name              VARCHAR(50) NOT NULL,
     status            VARCHAR(50) NOT NULL DEFAULT 'REQUEST' CHECK (status IN ('REQUEST', 'PROCESS', 'FEEDBACK', 'COMPLETE')),
     created_at        DATETIME NOT NULL,
     updated_at        DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (calendar_event_id) REFERENCES calendar_event_todos(calendar_event_id)
+    FOREIGN KEY (calendar_event_todo_id) REFERENCES calendar_event_todos(id)
 );
