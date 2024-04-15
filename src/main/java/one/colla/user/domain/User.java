@@ -22,6 +22,7 @@ import one.colla.common.domain.BaseEntity;
 import one.colla.feed.collect.domain.CollectFeedResponse;
 import one.colla.feed.common.domain.Comment;
 import one.colla.feed.common.domain.Feed;
+import one.colla.feed.scheduling.domain.SchedulingFeedAvailableTime;
 import one.colla.feed.vote.domain.VoteFeedSelection;
 import one.colla.file.domain.Attachment;
 import one.colla.schedule.domain.CalendarEventSubtodo;
@@ -97,5 +98,8 @@ public class User extends BaseEntity {
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private final List<VoteFeedSelection> voteFeedSelections = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private final List<SchedulingFeedAvailableTime> schedulingFeedAvailableTimes = new ArrayList<>();
 
 }
