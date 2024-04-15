@@ -57,7 +57,7 @@ public abstract class CalendarEvent extends BaseEntity {
 	@Column(name = "end_at", nullable = false)
 	private LocalDateTime endAt;
 
-	@Column(name = "title", nullable = false)
+	@Column(name = "title", nullable = false, length = 100)
 	private String title;
 
 	@Column(name = "content")

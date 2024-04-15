@@ -32,7 +32,7 @@ public class CalendarEventSubtodo extends BaseEntity {
 	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "calendar_event_id", nullable = false, updatable = false)
+	@JoinColumn(name = "calendar_event_todo_id", nullable = false, updatable = false)
 	private CalendarEventTodo calendarEventTodo;
 
 	@Column(name = "name", nullable = false, length = 50)
