@@ -165,9 +165,9 @@ CREATE TABLE collect_feed_responses
 -- Creating the 'vote_feed_options' table
 CREATE TABLE vote_feed_options
 (
-    id      BIGINT PRIMARY KEY AUTO_INCREMENT,
-    feed_id BIGINT NOT NULL,
-    FOREIGN KEY (feed_id) REFERENCES feeds (id)
+    id           BIGINT PRIMARY KEY AUTO_INCREMENT,
+    vote_feed_id BIGINT NOT NULL,
+    FOREIGN KEY (vote_feed_id) REFERENCES vote_feed (id)
 );
 
 -- Creating the 'vote_feed_selections' table
@@ -184,10 +184,10 @@ CREATE TABLE vote_feed_selections
 -- Creating the 'scheduling_feed_target_dates' table
 CREATE TABLE scheduling_feed_target_dates
 (
-    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
-    feed_id     BIGINT NOT NULL,
-    target_date DATE NOT NULL,
-    FOREIGN KEY (feed_id) REFERENCES feeds(id)
+    id                     BIGINT PRIMARY KEY AUTO_INCREMENT,
+    scheduling_feed_id     BIGINT NOT NULL,
+    target_date            DATE NOT NULL,
+    FOREIGN KEY (scheduling_feed_id) REFERENCES scheduling_feed (id)
 );
 
 -- Creating the 'scheduling_feed_available_times' table
