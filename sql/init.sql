@@ -4,13 +4,13 @@ USE colla;
 CREATE TABLE users
 (
     id                   BIGINT PRIMARY KEY AUTO_INCREMENT,
-    role                 VARCHAR(50)  NOT NULL DEFAULT 'USER' CHECK (role IN ('ADMIN', 'USER')),
+    role                 ENUM('ADMIN', 'USER')  NOT NULL DEFAULT 'USER',
     username             VARCHAR(50)  NOT NULL,
     password             VARCHAR(255),
     email                VARCHAR(320) NOT NULL,
     email_subscription   BOOLEAN      NOT NULL DEFAULT TRUE,
     profile_image_url    VARCHAR(2048),
-    comment_notification VARCHAR(50)  NOT NULL DEFAULT 'ALL' CHECK (comment_notification IN ('ALL', 'MENTION')),
+    comment_notification ENUM('ALL', 'MENTION')  NOT NULL DEFAULT 'ALL',
     created_at           DATETIME     NOT NULL,
     updated_at           DATETIME     NOT NULL
 );
@@ -70,7 +70,7 @@ CREATE TABLE feeds
     id           BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id      BIGINT       NOT NULL,
     teamspace_id BIGINT       NOT NULL,
-    type         VARCHAR(50) CHECK (type IN ('NORMAL', 'VOTE', 'SCHEDULING', 'COLLECT')),
+    feed_type    VARCHAR(50) CHECK (feed_type IN ('NORMAL', 'VOTE', 'SCHEDULING', 'COLLECT')),
     title        VARCHAR(100) NOT NULL,
     created_at   DATETIME     NOT NULL,
     updated_at   DATETIME     NOT NULL,
@@ -97,7 +97,7 @@ CREATE TABLE attachments
     id           BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id      BIGINT        NOT NULL,
     teamspace_id BIGINT        NOT NULL,
-    type         VARCHAR(50)   NOT NULL CHECK (type IN ('IMAGE', 'FILE')),
+    type         ENUM('IMAGE', 'FILE')   NOT NULL,
     size         BIGINT        NOT NULL,
     attach_type  VARCHAR(50)   NOT NULL,
     file_url     VARCHAR(2048) NOT NULL,
@@ -154,7 +154,7 @@ CREATE TABLE collect_feed_responses
     user_id            BIGINT,
     title              VARCHAR(100),
     content            TEXT,
-    status             VARCHAR(50) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'COMPLETED')),
+    status             ENUM('PENDING', 'COMPLETED') NOT NULL DEFAULT 'PENDING',
     created_at         DATETIME    NOT NULL,
     updated_at         DATETIME    NOT NULL,
     PRIMARY KEY (collect_feed_id, user_id),
@@ -167,7 +167,7 @@ CREATE TABLE vote_feed_options
 (
     id           BIGINT PRIMARY KEY AUTO_INCREMENT,
     vote_feed_id BIGINT NOT NULL,
-    FOREIGN KEY (vote_feed_id) REFERENCES vote_feed (id)
+    FOREIGN KEY (vote_feed_id) REFERENCES vote_feeds (id)
 );
 
 -- Creating the 'vote_feed_selections' table
@@ -187,7 +187,7 @@ CREATE TABLE scheduling_feed_target_dates
     id                     BIGINT PRIMARY KEY AUTO_INCREMENT,
     scheduling_feed_id     BIGINT NOT NULL,
     target_date            DATE NOT NULL,
-    FOREIGN KEY (scheduling_feed_id) REFERENCES scheduling_feed (id)
+    FOREIGN KEY (scheduling_feed_id) REFERENCES scheduling_feeds (id)
 );
 
 -- Creating the 'scheduling_feed_available_times' table
@@ -220,7 +220,7 @@ CREATE TABLE chat_channel_messages
     id              BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id         BIGINT NOT NULL,
     chat_channel_id BIGINT NOT NULL,
-    type            VARCHAR(50) NOT NULL CHECK (type IN ('TEXT', 'IMAGE', 'FILE')),
+    type            ENUM('TEXT', 'IMAGE', 'FILE') NOT NULL,
     content         VARCHAR(1024),
     created_at      DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id),
@@ -244,10 +244,10 @@ CREATE TABLE user_chat_channels
 CREATE TABLE chat_channel_message_attachments
 (
     chat_channel_message_id BIGINT,
-    file_id                 BIGINT,
-    PRIMARY KEY (chat_channel_message_id, file_id),
+    attachment_id           BIGINT,
+    PRIMARY KEY (chat_channel_message_id, attachment_id),
     FOREIGN KEY (chat_channel_message_id) REFERENCES chat_channel_messages(id),
-    FOREIGN KEY (file_id) REFERENCES attachments(id)
+    FOREIGN KEY (attachment_id) REFERENCES attachments(id)
 );
 
 -- Creating the 'calendar_events' table
@@ -255,7 +255,7 @@ CREATE TABLE calendar_events
 (
     id           BIGINT PRIMARY KEY AUTO_INCREMENT,
     teamspace_id BIGINT NOT NULL,
-    type         VARCHAR(50) NOT NULL CHECK (type IN ('SCHEDULE', 'TODO', 'FEED')),
+    calendar_event_type   VARCHAR(50) CHECK (calendar_event_type IN ('SCHEDULE', 'TODO', 'FEED')),
     start_at     DATETIME NOT NULL,
     end_at       DATETIME NOT NULL,
     title        VARCHAR(100) NOT NULL,
@@ -270,21 +270,29 @@ CREATE TABLE calendar_events
 CREATE TABLE feed_attachments
 (
     feed_id        BIGINT,
-    attachments_id BIGINT,
-    PRIMARY KEY (feed_id, attachments_id),
+    attachment_id BIGINT,
+    PRIMARY KEY (feed_id, attachment_id),
     FOREIGN KEY (feed_id) REFERENCES feeds(id),
-    FOREIGN KEY (attachments_id) REFERENCES attachments(id)
+    FOREIGN KEY (attachment_id) REFERENCES attachments(id)
 );
 
 -- Creating the 'calendar_event_feeds' table
 CREATE TABLE calendar_event_feeds
 (
-    calendar_event_id BIGINT,
+    id BIGINT PRIMARY KEY,
+    FOREIGN KEY (id) REFERENCES calendar_events(id)
+);
+
+-- Creating the 'calendar_event_feed_links' table
+CREATE TABLE calendar_event_feed_links
+(
+    calendar_event_feed_id BIGINT,
     feed_id           BIGINT,
-    PRIMARY KEY (calendar_event_id, feed_id),
-    FOREIGN KEY (calendar_event_id) REFERENCES calendar_events(id),
+    PRIMARY KEY (calendar_event_feed_id, feed_id),
+    FOREIGN KEY (calendar_event_feed_id) REFERENCES calendar_event_feeds(id),
     FOREIGN KEY (feed_id) REFERENCES feeds(id)
 );
+
 
 -- Creating the 'user_calendar_events' table
 CREATE TABLE user_calendar_events
@@ -308,7 +316,7 @@ CREATE TABLE calendar_event_schedules
 CREATE TABLE calendar_event_todos
 (
     id               BIGINT PRIMARY KEY,
-    status           VARCHAR(50) NOT NULL DEFAULT 'REQUEST' CHECK (status IN ('REQUEST', 'PROCESS', 'FEEDBACK', 'COMPLETE')),
+    status           ENUM('REQUEST', 'PROCESS', 'FEEDBACK', 'COMPLETE') NOT NULL DEFAULT 'REQUEST',
     FOREIGN KEY (id) REFERENCES calendar_events(id)
 );
 
@@ -330,7 +338,7 @@ CREATE TABLE calendar_event_subtodos
     user_id           BIGINT NOT NULL,
     calendar_event_todo_id BIGINT NOT NULL,
     name              VARCHAR(50) NOT NULL,
-    status            VARCHAR(50) NOT NULL DEFAULT 'REQUEST' CHECK (status IN ('REQUEST', 'PROCESS', 'FEEDBACK', 'COMPLETE')),
+    status            ENUM('REQUEST', 'PROCESS', 'FEEDBACK', 'COMPLETE') NOT NULL DEFAULT 'REQUEST',
     created_at        DATETIME NOT NULL,
     updated_at        DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id),
