@@ -19,6 +19,8 @@ import lombok.NoArgsConstructor;
 import one.colla.chat.domain.ChatChannelMessage;
 import one.colla.chat.domain.UserChatChannel;
 import one.colla.common.domain.BaseEntity;
+import one.colla.feed.common.domain.Comment;
+import one.colla.feed.common.domain.Feed;
 import one.colla.file.domain.Attachment;
 import one.colla.schedule.domain.CalendarEventSubtodo;
 import one.colla.schedule.domain.UserCalendarEvent;
@@ -81,5 +83,11 @@ public class User extends BaseEntity {
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private final List<Attachment> attachments = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private final List<Feed> feeds = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private final List<Comment> comments = new ArrayList<>();
 
 }

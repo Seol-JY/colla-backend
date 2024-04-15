@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import one.colla.chat.domain.ChatChannel;
 import one.colla.common.domain.BaseEntity;
+import one.colla.feed.common.domain.Feed;
 import one.colla.file.domain.Attachment;
 import one.colla.schedule.domain.CalendarEvent;
 
@@ -49,5 +50,8 @@ public class Teamspace extends BaseEntity {
 
 	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
 	private final List<CalendarEvent> calendarEvents = new ArrayList<>();
+
+	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
+	private final List<Feed> feeds = new ArrayList<>();
 
 }

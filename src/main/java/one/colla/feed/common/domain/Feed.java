@@ -1,6 +1,5 @@
-package one.colla.schedule.domain;
+package one.colla.feed.common.domain;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,19 +24,25 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import one.colla.common.domain.BaseEntity;
+import one.colla.schedule.domain.CalendarEventFeed;
 import one.colla.teamspace.domain.Teamspace;
+import one.colla.user.domain.User;
 
 @Getter
 @Entity
 @DiscriminatorColumn
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "calendar_events")
-public abstract class CalendarEvent extends BaseEntity {
+@Table(name = "feeds")
+public abstract class Feed extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false, updatable = false)
+	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "teamspace_id", nullable = false, updatable = false)
@@ -47,28 +52,16 @@ public abstract class CalendarEvent extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private Type type;
 
-	@Column(name = "start_at", nullable = false)
-	private LocalDateTime startAt;
-
-	@Column(name = "end_at", nullable = false)
-	private LocalDateTime endAt;
-
 	@Column(name = "title", nullable = false, length = 100)
 	private String title;
 
-	@Column(name = "content")
-	private String content;
-
-	@Column(name = "all_day", nullable = false)
-	private boolean allDay;
-
-	@OneToOne(mappedBy = "calendarEvent", cascade = CascadeType.ALL)
+	@OneToOne(mappedBy = "feed", cascade = CascadeType.ALL)
 	private CalendarEventFeed calendarEventFeed;
 
-	@OneToMany(mappedBy = "calendarEvent", fetch = FetchType.LAZY)
-	private final List<UserCalendarEvent> userCalendarEvents = new ArrayList<>();
+	@OneToMany(mappedBy = "feed", fetch = FetchType.LAZY)
+	private final List<Comment> comments = new ArrayList<>();
 
-	@OneToMany(mappedBy = "calendarEvent", fetch = FetchType.LAZY)
-	private final List<UserCalendarEventMention> userCalendarEventMentions = new ArrayList<>();
+	@OneToMany(mappedBy = "feed", fetch = FetchType.LAZY)
+	private final List<FeedAttachment> feedAttachments = new ArrayList<>();
 
 }
