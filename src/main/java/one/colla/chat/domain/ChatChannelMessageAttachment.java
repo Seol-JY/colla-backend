@@ -11,7 +11,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import one.colla.common.domain.BaseEntity;
 import one.colla.common.domain.CompositeKeyBase;
 import one.colla.file.domain.Attachment;
 
@@ -19,7 +18,7 @@ import one.colla.file.domain.Attachment;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "chat_channel_message_attachments")
-public class ChatChannelMessageAttachment extends BaseEntity {
+public class ChatChannelMessageAttachment {
 
 	@EmbeddedId
 	private ChatChannelMessageAttachmentId chatChannelMessageAttachmentId;

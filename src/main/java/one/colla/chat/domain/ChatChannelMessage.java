@@ -1,5 +1,9 @@
 package one.colla.chat.domain;
 
+import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.CreatedDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,14 +18,13 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import one.colla.common.domain.BaseEntity;
 import one.colla.user.domain.User;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "chat_channel_messages")
-public class ChatChannelMessage extends BaseEntity {
+public class ChatChannelMessage {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,5 +44,9 @@ public class ChatChannelMessage extends BaseEntity {
 
 	@Column(name = "content")
 	private String content;
+
+	@CreatedDate
+	@Column(name = "created_at", nullable = false, updatable = false)
+	private LocalDateTime createdAt;
 
 }
