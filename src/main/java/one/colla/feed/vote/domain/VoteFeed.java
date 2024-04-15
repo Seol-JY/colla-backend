@@ -24,7 +24,7 @@ public class VoteFeed extends Feed {
 	private boolean anonymous;
 
 	@Column(name = "num_of_participants", nullable = false)
-	private int numOfParticipants;
+	private Byte numOfParticipants;
 
 	@Column(name = "due_at", nullable = false)
 	private LocalDateTime dueAt;

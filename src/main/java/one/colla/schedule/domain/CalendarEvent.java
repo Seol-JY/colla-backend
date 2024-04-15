@@ -4,12 +4,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,7 +17,6 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -29,7 +26,7 @@ import one.colla.teamspace.domain.Teamspace;
 
 @Getter
 @Entity
-@DiscriminatorColumn
+@DiscriminatorColumn(name = "calendar_event_type", discriminatorType = DiscriminatorType.STRING)
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "calendar_events")
@@ -42,10 +39,6 @@ public abstract class CalendarEvent extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "teamspace_id", nullable = false, updatable = false)
 	private Teamspace teamspace;
-
-	@Column(name = "type", nullable = false)
-	@Enumerated(EnumType.STRING)
-	private Type type;
 
 	@Column(name = "start_at", nullable = false)
 	private LocalDateTime startAt;
@@ -61,9 +54,6 @@ public abstract class CalendarEvent extends BaseEntity {
 
 	@Column(name = "all_day", nullable = false)
 	private boolean allDay;
-
-	@OneToOne(mappedBy = "calendarEvent", cascade = CascadeType.ALL)
-	private CalendarEventFeed calendarEventFeed;
 
 	@OneToMany(mappedBy = "calendarEvent", fetch = FetchType.LAZY)
 	private final List<UserCalendarEvent> userCalendarEvents = new ArrayList<>();

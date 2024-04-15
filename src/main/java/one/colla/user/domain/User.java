@@ -53,7 +53,7 @@ public class User extends BaseEntity {
 	@Column(name = "email", nullable = false)
 	private String email;
 
-	@Column(name = "email_notification", nullable = false)
+	@Column(name = "email_subscription", nullable = false)
 	private boolean emailSubscription = true;
 
 	@Column(name = "profile_image_url")

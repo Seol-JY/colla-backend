@@ -18,13 +18,13 @@ import one.colla.feed.common.domain.Feed;
 public class SchedulingFeed extends Feed {
 
 	@Column(name = "min_time_segment", nullable = false)
-	private int minTimeSegment;
+	private Byte minTimeSegment;
 
 	@Column(name = "max_time_segment", nullable = false)
-	private int maxTimeSegment;
+	private Byte maxTimeSegment;
 
 	@Column(name = "num_of_participants", nullable = false)
-	private int numOfParticipants;
+	private Byte numOfParticipants;
 
 	@Column(name = "due_at", nullable = false)
 	private LocalDateTime dueAt;
