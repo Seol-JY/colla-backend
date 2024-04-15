@@ -79,7 +79,7 @@ openapi3 {
 }
 
 editorconfig {
-    excludes = ['build', 'node_modules', '.husky', '**/open-api-3.0.1.yaml']
+    excludes = ['build', 'node_modules', '.husky', '**/open-api-3.0.1.yaml', 'docker']
 }
 
 check.dependsOn editorconfigCheck

@@ -9,4 +9,6 @@ echo "$COMMIT_MSG"
 # Convention Check & Test
 ./gradlew checkstyleMain
 ./gradlew checkstyleTest
+./gradlew editorconfigCheck
+./gradlew editorconfigFormat
 ./gradlew test
