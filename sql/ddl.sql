@@ -304,8 +304,8 @@ CREATE TABLE calendar_event_schedules
     FOREIGN KEY (calendar_event_id) REFERENCES calendar_events(id)
 );
 
--- Creating the 'calendar_events_todos' table
-CREATE TABLE calendar_events_todos
+-- Creating the 'calendar_event_todos' table
+CREATE TABLE calendar_event_todos
 (
     calendar_event_id BIGINT PRIMARY KEY,
     status            VARCHAR(50) NOT NULL DEFAULT 'REQUEST' CHECK (status IN ('REQUEST', 'PROCESS', 'FEEDBACK', 'COMPLETE')),
@@ -323,8 +323,8 @@ CREATE TABLE user_calendar_event_mentions
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Creating the 'calendar_events_subtodos' table
-CREATE TABLE calendar_events_subtodos
+-- Creating the 'calendar_event_subtodos' table
+CREATE TABLE calendar_event_subtodos
 (
     id                BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id           BIGINT NOT NULL,
@@ -334,5 +334,5 @@ CREATE TABLE calendar_events_subtodos
     created_at        DATETIME NOT NULL,
     updated_at        DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (calendar_event_id) REFERENCES calendar_events_todos(calendar_event_id)
+    FOREIGN KEY (calendar_event_id) REFERENCES calendar_event_todos(calendar_event_id)
 );
