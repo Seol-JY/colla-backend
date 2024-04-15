@@ -18,7 +18,7 @@ import one.colla.user.domain.User;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "user_teamspace")
+@Table(name = "user_teamspaces")
 public class UserTeamspace extends BaseEntity {
 
 	@EmbeddedId

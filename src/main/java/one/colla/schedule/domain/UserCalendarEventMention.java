@@ -21,7 +21,7 @@ import one.colla.user.domain.User;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "user_calendar_event_mention")
+@Table(name = "user_calendar_event_mentions")
 public class UserCalendarEventMention {
 
 	@EmbeddedId

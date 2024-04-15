@@ -18,7 +18,7 @@ import one.colla.user.domain.User;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "user_chat_channel")
+@Table(name = "user_chat_channels")
 public class UserChatChannel extends BaseEntity {
 
 	@EmbeddedId

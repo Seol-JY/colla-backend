@@ -18,7 +18,7 @@ import one.colla.file.domain.Attachment;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "user_chat_channel")
+@Table(name = "chat_channel_message_attachments")
 public class ChatChannelMessageAttachment extends BaseEntity {
 
 	@EmbeddedId
