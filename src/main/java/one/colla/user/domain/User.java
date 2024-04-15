@@ -16,8 +16,13 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import one.colla.chat.domain.ChatChannelMessage;
+import one.colla.chat.domain.UserChatChannel;
 import one.colla.common.domain.BaseEntity;
 import one.colla.file.domain.Attachment;
+import one.colla.schedule.domain.CalendarEventSubtodo;
+import one.colla.schedule.domain.UserCalendarEvent;
+import one.colla.schedule.domain.UserCalendarEventMention;
 import one.colla.teamspace.domain.UserTeamspace;
 
 @Getter
@@ -29,15 +34,6 @@ public class User extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private final List<OauthApproval> oauthApprovals = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private final List<UserTeamspace> userTeamspaces = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private final List<Attachment> attachments = new ArrayList<>();
 
 	@Column(name = "role", nullable = false)
 	@Enumerated(EnumType.STRING)
@@ -61,5 +57,29 @@ public class User extends BaseEntity {
 	@Column(name = "comment_notification", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private CommentNotification commentNotification;
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private final List<OauthApproval> oauthApprovals = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private final List<UserTeamspace> userTeamspaces = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private final List<UserChatChannel> userChatChannels = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private final List<ChatChannelMessage> chatChannelMessages = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private final List<UserCalendarEventMention> userCalendarEventMentions = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private final List<UserCalendarEvent> userCalendarEvents = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private final List<CalendarEventSubtodo> calendarEventSubtodos = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+	private final List<Attachment> attachments = new ArrayList<>();
 
 }

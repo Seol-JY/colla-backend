@@ -1,6 +1,8 @@
 package one.colla.chat.domain;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 
@@ -14,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -48,5 +51,8 @@ public class ChatChannelMessage {
 	@CreatedDate
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
+
+	@OneToMany(mappedBy = "chatChannelMessage", fetch = FetchType.LAZY)
+	private final List<ChatChannelMessageAttachment> chatChannelMessageAttachments = new ArrayList<>();
 
 }

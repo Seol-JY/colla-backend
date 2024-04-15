@@ -1,5 +1,8 @@
 package one.colla.file.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,10 +13,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import one.colla.chat.domain.ChatChannelMessageAttachment;
 import one.colla.common.domain.BaseEntity;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.user.domain.User;
@@ -48,5 +53,8 @@ public class Attachment extends BaseEntity {
 
 	@Column(name = "file_url", nullable = false)
 	private String fileUrl;
+
+	@OneToMany(mappedBy = "attachment", fetch = FetchType.LAZY)
+	private final List<ChatChannelMessageAttachment> chatChannelMessageAttachments = new ArrayList<>();
 
 }

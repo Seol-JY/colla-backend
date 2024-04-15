@@ -33,16 +33,16 @@ public class ChatChannel extends BaseEntity {
 	@JoinColumn(name = "teamspace_id", nullable = false, updatable = false)
 	private Teamspace teamspace;
 
-	@OneToMany(mappedBy = "chatChannel", fetch = FetchType.LAZY)
-	private final List<UserChatChannel> userChatChannels = new ArrayList<>();
-
-	@OneToMany(mappedBy = "chatChannel", fetch = FetchType.LAZY)
-	private final List<ChatChannelMessage> chatChannelMessages = new ArrayList<>();
-
 	@Column(name = "name", nullable = false, length = 50)
 	private String name;
 
 	@Column(name = "last_chat_id")
 	private Long lastChatId;
+
+	@OneToMany(mappedBy = "chatChannel", fetch = FetchType.LAZY)
+	private final List<UserChatChannel> userChatChannels = new ArrayList<>();
+
+	@OneToMany(mappedBy = "chatChannel", fetch = FetchType.LAZY)
+	private final List<ChatChannelMessage> chatChannelMessages = new ArrayList<>();
 
 }

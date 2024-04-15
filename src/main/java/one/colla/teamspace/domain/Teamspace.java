@@ -14,8 +14,10 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import one.colla.chat.domain.ChatChannel;
 import one.colla.common.domain.BaseEntity;
 import one.colla.file.domain.Attachment;
+import one.colla.schedule.domain.CalendarEvent;
 
 @Getter
 @Entity
@@ -27,6 +29,12 @@ public class Teamspace extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Column(name = "name", nullable = false, length = 50)
+	private String name;
+
+	@Column(name = "profile_image_url")
+	private String profileImageUrl;
+
 	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
 	private final List<UserTeamspace> userTeamspaces = new ArrayList<>();
 
@@ -36,10 +44,10 @@ public class Teamspace extends BaseEntity {
 	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
 	private final List<Attachment> attachments = new ArrayList<>();
 
-	@Column(name = "name", nullable = false, length = 50)
-	private String name;
+	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
+	private final List<ChatChannel> chatChannels = new ArrayList<>();
 
-	@Column(name = "profile_image_url")
-	private String profileImageUrl;
+	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
+	private final List<CalendarEvent> calendarEvents = new ArrayList<>();
 
 }

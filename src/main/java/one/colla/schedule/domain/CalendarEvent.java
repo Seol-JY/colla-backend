@@ -41,12 +41,6 @@ public abstract class CalendarEvent extends BaseEntity {
 	@JoinColumn(name = "teamspace_id", nullable = false, updatable = false)
 	private Teamspace teamspace;
 
-	@OneToMany(mappedBy = "calendarEvent", fetch = FetchType.LAZY)
-	private final List<UserCalendarEvent> userCalendarEvents = new ArrayList<>();
-
-	@OneToMany(mappedBy = "calendarEvent", fetch = FetchType.LAZY)
-	private final List<UserCalendarEventMention> userCalendarEventMentions = new ArrayList<>();
-
 	@Column(name = "type", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Type type;
@@ -65,5 +59,11 @@ public abstract class CalendarEvent extends BaseEntity {
 
 	@Column(name = "all_day", nullable = false)
 	private boolean allDay;
+
+	@OneToMany(mappedBy = "calendarEvent", fetch = FetchType.LAZY)
+	private final List<UserCalendarEvent> userCalendarEvents = new ArrayList<>();
+
+	@OneToMany(mappedBy = "calendarEvent", fetch = FetchType.LAZY)
+	private final List<UserCalendarEventMention> userCalendarEventMentions = new ArrayList<>();
 
 }
