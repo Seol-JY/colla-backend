@@ -2,10 +2,8 @@ package one.colla.common.presentation;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import one.colla.global.exception.CommonException;
 
-@Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApiResponse<T> {
 

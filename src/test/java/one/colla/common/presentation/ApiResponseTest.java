@@ -1,6 +1,7 @@
 package one.colla.common.presentation;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.springframework.test.util.ReflectionTestUtils.*;
 
 import java.util.Map;
 
@@ -18,20 +19,20 @@ class ApiResponseTest {
 	@Test
 	void createSuccessResponse() {
 
-		//given
+		// given
 		Object content = Map.of();
 
-		//when
+		// when
 		ApiResponse<?> response = ApiResponse.createSuccessResponse(content);
 
-		//then
-		assertThat(response.getCode()).isEqualTo(SUCCESS_CODE);
-		assertThat(response.getContent()).isEqualTo(content);
-		assertThat(response.getMessage()).isEqualTo(null);
+		// then
+		assertThat(getField(response, "code")).isEqualTo(SUCCESS_CODE);
+		assertThat(getField(response, "content")).isEqualTo(content);
+		assertThat(getField(response, "message")).isNull();
 	}
 
-	@Test
 	@DisplayName("에러 응답을 생성하면 code는 에러 코드이고, content는 null이며, message는 에러 메시지이다.")
+	@Test
 	void createErrorResponse() {
 
 		// given
@@ -42,8 +43,8 @@ class ApiResponseTest {
 		ApiResponse<?> response = ApiResponse.createErrorResponse(ex);
 
 		// then
-		assertThat(response.getCode()).isEqualTo(serverError.getErrorCode());
-		assertThat(response.getContent()).isEqualTo(null);
-		assertThat(response.getMessage()).isEqualTo(serverError.getMessage());
+		assertThat(getField(response, "code")).isEqualTo(serverError.getErrorCode());
+		assertThat(getField(response, "content")).isNull();
+		assertThat(getField(response, "message")).isEqualTo(serverError.getMessage());
 	}
 }
