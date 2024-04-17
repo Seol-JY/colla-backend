@@ -11,8 +11,6 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(CommonException.class)
 	public ResponseEntity<ApiResponse<?>> handleGlobalException(CommonException ex) {
-		return ResponseEntity
-			.status(ex.getHttpStatus())
-			.body(ApiResponse.createErrorResponse(ex));
+		return ApiResponse.createErrorResponseEntity(ex);
 	}
 }

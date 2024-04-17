@@ -1,5 +1,7 @@
 package one.colla.common.presentation;
 
+import org.springframework.http.ResponseEntity;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import one.colla.global.exception.CommonException;
@@ -19,5 +21,11 @@ public class ApiResponse<T> {
 
 	public static <T> ApiResponse<T> createErrorResponse(CommonException ex) {
 		return new ApiResponse<>(ex.getErrorCode(), null, ex.getMessage());
+	}
+
+	public static ResponseEntity<ApiResponse<?>> createErrorResponseEntity(CommonException ex) {
+		return ResponseEntity
+			.status(ex.getHttpStatus())
+			.body(createErrorResponse(ex));
 	}
 }
