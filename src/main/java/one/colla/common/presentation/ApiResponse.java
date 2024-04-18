@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import one.colla.global.exception.CommonException;
+import one.colla.global.exception.ExceptionCode;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApiResponse<T> {
@@ -17,6 +18,10 @@ public class ApiResponse<T> {
 
 	public static <T> ApiResponse<T> createSuccessResponse(T content) {
 		return new ApiResponse<>(SUCCESS_CODE, content, null);
+	}
+
+	public static <T> ApiResponse<T> createErrorResponse(ExceptionCode ec) {
+		return new ApiResponse<>(ec.getErrorCode(), null, ec.getMessage());
 	}
 
 	public static <T> ApiResponse<T> createErrorResponse(CommonException ex) {
