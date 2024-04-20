@@ -55,7 +55,7 @@ CREATE TABLE user_teamspaces
     user_id      BIGINT,
     teamspace_id BIGINT,
     tag_id       BIGINT,
-    role         VARCHAR(50) NOT NULL,
+    role         ENUM('LEADER', 'MEMBER')   NOT NULL,
     created_at   DATETIME    NOT NULL,
     updated_at   DATETIME    NOT NULL,
     PRIMARY KEY (user_id, teamspace_id),
