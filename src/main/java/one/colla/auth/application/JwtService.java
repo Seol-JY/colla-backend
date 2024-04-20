@@ -7,11 +7,15 @@ import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import one.colla.auth.application.dto.JwtPair;
 import one.colla.common.redis.forbidden.ForbiddenTokenService;
 import one.colla.common.redis.refresh.RefreshToken;
 import one.colla.common.redis.refresh.RefreshTokenService;
+import one.colla.common.security.jwt.JwtClaims;
 import one.colla.common.security.jwt.JwtProvider;
 import one.colla.common.security.jwt.access.AccessTokenClaim;
 import one.colla.common.security.jwt.refresh.RefreshTokenClaim;
@@ -20,6 +24,7 @@ import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
 import one.colla.user.domain.User;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JwtService {
@@ -58,6 +63,46 @@ public class JwtService {
 		}
 
 		return Pair.of(userId, JwtPair.of(newAccessToken, newRefreshToken.getToken()));
+	}
+
+	public void removeAccessTokenAndRefreshToken(Long userId, String accessToken, String refreshToken) {
+		JwtClaims jwtClaims = null;
+		if (refreshToken != null) {
+			try {
+				jwtClaims = refreshTokenProvider.getJwtClaimsFromToken(refreshToken);
+			} catch (JwtException ex) {
+				if (!(ex instanceof ExpiredJwtException)) {
+					throw ex;
+				}
+			}
+		}
+
+		if (jwtClaims != null) {
+			deleteRefreshToken(userId, jwtClaims, refreshToken);
+		}
+
+		deleteAccessToken(userId, accessToken);
+	}
+
+	private void deleteRefreshToken(Long userId, JwtClaims jwtClaims, String refreshToken) {
+		Long refreshTokenUserId = Long.parseLong(
+			(String)jwtClaims.getClaims().get(RefreshTokenClaimKeys.USER_ID.getValue()));
+
+		if (!userId.equals(refreshTokenUserId)) {
+			log.warn("소유권이 없는 RT에 대한 삭제 요청 . userId : {}", userId);
+			throw new CommonException(ExceptionCode.TAKEN_AWAY_TOKEN);
+		}
+
+		try {
+			refreshTokenService.delete(refreshTokenUserId, refreshToken);
+		} catch (IllegalArgumentException e) {
+			log.warn("refresh token not found. userId : {}", userId);
+		}
+	}
+
+	private void deleteAccessToken(Long userId, String accessToken) {
+		LocalDateTime expiresAt = accessTokenProvider.getExpiryDate(accessToken);
+		forbiddenTokenService.createForbiddenToken(accessToken, userId, expiresAt);
 	}
 
 	private long toSeconds(LocalDateTime expiryTime) {

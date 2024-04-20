@@ -47,7 +47,8 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
 			ExceptionCode exceptionCode = JWT_EXCEPTION_CODE_MAP.get(exceptionClass);
 			sendAuthError(response, exceptionCode);
 		} catch (CommonException ex) {
-			if (ex.getErrorCode() == 40182) {
+			if (ex.getErrorCode() == ExceptionCode.EMPTY_ACCESS_TOKEN.getErrorCode()
+				|| ex.getErrorCode() == ExceptionCode.FORBIDDEN_ACCESS_TOKEN.getErrorCode()) {
 				sendAuthError(response, ex);
 			}
 		}
