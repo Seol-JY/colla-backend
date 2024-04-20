@@ -3,9 +3,35 @@ spring:
     name:
       colla-backend
 
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/colla?allowPublicKeyRetrieval=true&useSSL=false
+    username: user
+    password: abcd1234@
+
+  jpa:
+    #hibernate setting
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        #system.out
+        show_sql: true
+        #format pretty
+        format_sql: true
+
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
   swagger-ui:
     url: /docs/open-api-3.0.1.yaml
     path: /swagger
+
+jwt:
+  secret-key:
+    access-token: collaAccessAccessAccessTokenSecretKeyForCollaSystem
+    refresh-token: collaRefreshRefreshRefreshTokenSecretKeyForCollaSystem
+  expiration-time:
+    # milliseconds 단위
+    access-token: 1_800_000 # 30m (30 * 60 * 1000)
+    refresh-token: 604_800_000 # 7d (7 * 24 * 60 * 60 * 1000)

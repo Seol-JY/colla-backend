@@ -4,6 +4,7 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,7 +25,8 @@ import one.colla.common.security.filter.JwtExceptionFilter;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-	private static final String[] SWAGGER_ENDPOINTS = {"/api-docs/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger"};
+	private static final String[] SWAGGER_ENDPOINTS = {"/api-docs/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
+		"/docs/open-api-3.0.1.yaml"};
 	private static final String[] PUBLIC_ENDPOINTS = {"/", "/error"};
 	private static final String[] ANONYMOUS_ENDPOINTS = {};
 
@@ -32,7 +34,7 @@ public class SecurityConfig {
 	private final AccessDeniedHandler accessDeniedHandler;
 	private final AuthenticationEntryPoint authenticationEntryPoint;
 
-	// private final DaoAuthenticationProvider daoAuthenticationProvider;
+	private final DaoAuthenticationProvider daoAuthenticationProvider;
 	private final JwtExceptionFilter jwtExceptionFilter;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -54,12 +56,14 @@ public class SecurityConfig {
 				sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.formLogin(AbstractHttpConfigurer::disable)
 			.logout(AbstractHttpConfigurer::disable)
+
+			.authenticationProvider(daoAuthenticationProvider)
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class)
+
 			.exceptionHandling(exception -> exception
 				.accessDeniedHandler(accessDeniedHandler)
-				.authenticationEntryPoint(authenticationEntryPoint))
-			// .authenticationProvider(daoAuthenticationProvider)
-			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-			.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
+				.authenticationEntryPoint(authenticationEntryPoint));
 	}
 
 	private AbstractRequestMatcherRegistry

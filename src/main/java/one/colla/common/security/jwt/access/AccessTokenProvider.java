@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -20,6 +21,7 @@ import io.jsonwebtoken.security.Keys;
 import one.colla.common.security.jwt.JwtClaims;
 import one.colla.common.security.jwt.JwtProvider;
 
+@Component
 public class AccessTokenProvider implements JwtProvider {
 	private final SecretKey secretKey;
 	private final Duration tokenExpiration;
