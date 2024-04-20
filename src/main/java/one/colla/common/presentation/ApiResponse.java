@@ -4,10 +4,12 @@ import org.springframework.http.ResponseEntity;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
 public class ApiResponse<T> {
 
 	public static final int SUCCESS_CODE = 20000;
