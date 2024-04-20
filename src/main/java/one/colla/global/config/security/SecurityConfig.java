@@ -28,7 +28,7 @@ public class SecurityConfig {
 	private static final String[] SWAGGER_ENDPOINTS = {"/api-docs/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
 		"/docs/open-api-3.0.1.yaml"};
 	private static final String[] PUBLIC_ENDPOINTS = {"/", "/error"};
-	private static final String[] ANONYMOUS_ENDPOINTS = {};
+	private static final String[] ANONYMOUS_ENDPOINTS = {"/api/v1/auth/**"};
 
 	private final CorsConfigurationSource corsConfigurationSource;
 	private final AccessDeniedHandler accessDeniedHandler;

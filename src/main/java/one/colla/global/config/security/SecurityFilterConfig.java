@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import one.colla.common.redis.forbidden.ForbiddenTokenService;
 import one.colla.common.security.filter.JwtAuthenticationFilter;
 import one.colla.common.security.filter.JwtExceptionFilter;
 import one.colla.common.security.jwt.JwtProvider;
@@ -19,6 +20,7 @@ public class SecurityFilterConfig {
 
 	private final UserDetailsService userDetailServiceImpl;
 	private final JwtProvider accessTokenProvider;
+	private final ForbiddenTokenService forbiddenTokenService;
 
 	@Bean
 	public JwtExceptionFilter jwtExceptionFilter() {
@@ -27,6 +29,6 @@ public class SecurityFilterConfig {
 
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
-		return new JwtAuthenticationFilter(userDetailServiceImpl, accessTokenProvider);
+		return new JwtAuthenticationFilter(userDetailServiceImpl, accessTokenProvider, forbiddenTokenService);
 	}
 }

@@ -19,15 +19,18 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import one.colla.common.redis.forbidden.ForbiddenTokenService;
 import one.colla.common.security.jwt.JwtClaims;
 import one.colla.common.security.jwt.JwtProvider;
 import one.colla.common.security.jwt.access.AccessTokenClaimKeys;
 import one.colla.global.exception.CommonException;
+import one.colla.global.exception.ExceptionCode;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final UserDetailsService userDetailService;
 	private final JwtProvider accessTokenProvider;
+	private final ForbiddenTokenService forbiddenTokenService;
 
 	@Override
 	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
@@ -60,10 +63,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			throw new CommonException(EMPTY_ACCESS_TOKEN);
 		}
 
-		// TODO: 로그아웃 시 Forbidden 필요
-		// if (forbiddenTokenService.isForbidden(token)) {
-		// 	handleAuthException(JwtErrorCode.FORBIDDEN_ACCESS_TOKEN);
-		// }
+		if (forbiddenTokenService.isForbidden(token)) {
+			throw new CommonException(ExceptionCode.FORBIDDEN_ACCESS_TOKEN);
+		}
 
 		return token;
 	}

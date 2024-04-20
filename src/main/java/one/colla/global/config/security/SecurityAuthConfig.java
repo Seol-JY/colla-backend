@@ -21,7 +21,7 @@ import one.colla.common.security.handler.JwtAuthenticationEntryPoint;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Configuration
 public class SecurityAuthConfig {
-	private final UserDetailServiceImpl userDetailsService;
+	private final UserDetailServiceImpl userDetailService;
 	private final ObjectMapper objectMapper;
 
 	@Bean
@@ -42,7 +42,7 @@ public class SecurityAuthConfig {
 	@Bean
 	public DaoAuthenticationProvider daoAuthenticationProvider() {
 		DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-		daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+		daoAuthenticationProvider.setUserDetailsService(userDetailService);
 		daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
 		return daoAuthenticationProvider;
 	}
