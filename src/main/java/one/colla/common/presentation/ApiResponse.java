@@ -1,5 +1,8 @@
 package one.colla.common.presentation;
 
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import lombok.AccessLevel;
@@ -13,6 +16,8 @@ import one.colla.global.exception.ExceptionCode;
 public class ApiResponse<T> {
 
 	public static final int SUCCESS_CODE = 20000;
+	public static final int VALIDATION_ERROR_CODE = 30001;
+	public static final String VALIDATION_ERROR_MESSAGE = "잘못된 요청 형식입니다.";
 
 	private final int code;
 	private final T content;
@@ -26,6 +31,10 @@ public class ApiResponse<T> {
 		return new ApiResponse<>(ec.getErrorCode(), null, ec.getMessage());
 	}
 
+	public static <T> ApiResponse<Map<String, String>> createValidationResponse(Map<String, String> errors) {
+		return new ApiResponse<>(VALIDATION_ERROR_CODE, errors, VALIDATION_ERROR_MESSAGE);
+	}
+
 	public static <T> ApiResponse<T> createErrorResponse(CommonException ex) {
 		return new ApiResponse<>(ex.getErrorCode(), null, ex.getMessage());
 	}
@@ -34,5 +43,12 @@ public class ApiResponse<T> {
 		return ResponseEntity
 			.status(ex.getHttpStatus())
 			.body(createErrorResponse(ex));
+	}
+
+	public static ResponseEntity<ApiResponse<Map<String, String>>> createValidationResponseEntity(
+		Map<String, String> errors) {
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(createValidationResponse(errors));
 	}
 }
