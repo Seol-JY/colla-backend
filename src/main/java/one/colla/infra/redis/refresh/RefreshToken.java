@@ -1,4 +1,4 @@
-package one.colla.common.redis.refresh;
+package one.colla.infra.redis.refresh;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;

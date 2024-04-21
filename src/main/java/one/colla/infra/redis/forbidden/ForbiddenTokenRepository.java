@@ -1,4 +1,4 @@
-package one.colla.common.redis.forbidden;
+package one.colla.infra.redis.forbidden;
 
 import org.springframework.data.repository.CrudRepository;
 

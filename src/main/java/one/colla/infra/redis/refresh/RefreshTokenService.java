@@ -1,4 +1,4 @@
-package one.colla.common.redis.refresh;
+package one.colla.infra.redis.refresh;
 
 public interface RefreshTokenService {
 	/**

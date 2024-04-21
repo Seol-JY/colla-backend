@@ -12,9 +12,6 @@ import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import one.colla.auth.application.dto.JwtPair;
-import one.colla.common.redis.forbidden.ForbiddenTokenService;
-import one.colla.common.redis.refresh.RefreshToken;
-import one.colla.common.redis.refresh.RefreshTokenService;
 import one.colla.common.security.jwt.JwtClaims;
 import one.colla.common.security.jwt.JwtProvider;
 import one.colla.common.security.jwt.access.AccessTokenClaim;
@@ -22,6 +19,9 @@ import one.colla.common.security.jwt.refresh.RefreshTokenClaim;
 import one.colla.common.security.jwt.refresh.RefreshTokenClaimKeys;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
+import one.colla.infra.redis.forbidden.ForbiddenTokenService;
+import one.colla.infra.redis.refresh.RefreshToken;
+import one.colla.infra.redis.refresh.RefreshTokenService;
 import one.colla.user.domain.User;
 
 @Slf4j

@@ -19,12 +19,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import one.colla.common.redis.forbidden.ForbiddenTokenService;
 import one.colla.common.security.jwt.JwtClaims;
 import one.colla.common.security.jwt.JwtProvider;
 import one.colla.common.security.jwt.access.AccessTokenClaimKeys;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
+import one.colla.infra.redis.forbidden.ForbiddenTokenService;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

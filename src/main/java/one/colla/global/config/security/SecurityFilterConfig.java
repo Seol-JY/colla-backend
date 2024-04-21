@@ -8,10 +8,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import one.colla.common.redis.forbidden.ForbiddenTokenService;
 import one.colla.common.security.filter.JwtAuthenticationFilter;
 import one.colla.common.security.filter.JwtExceptionFilter;
 import one.colla.common.security.jwt.JwtProvider;
+import one.colla.infra.redis.forbidden.ForbiddenTokenService;
 
 @Configuration
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)

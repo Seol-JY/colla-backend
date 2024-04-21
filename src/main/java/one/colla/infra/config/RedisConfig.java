@@ -1,4 +1,4 @@
-package one.colla.global.config;
+package one.colla.infra.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
