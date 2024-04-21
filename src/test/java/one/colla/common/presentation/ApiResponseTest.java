@@ -67,7 +67,7 @@ class ApiResponseTest {
 		CommonException ex = new CommonException(serverError);
 
 		// when
-		ResponseEntity<ApiResponse<?>> responseEntity = ApiResponse.createErrorResponseEntity(ex);
+		ResponseEntity<ApiResponse<CommonException>> responseEntity = ApiResponse.createErrorResponseEntity(ex);
 
 		// then
 		assertThat(responseEntity.getStatusCode())

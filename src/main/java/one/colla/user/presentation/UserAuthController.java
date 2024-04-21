@@ -1,6 +1,6 @@
 package one.colla.user.presentation;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +36,6 @@ public class UserAuthController {
 		userAuthService.logOut(user.getUserId(), accessToken, refreshToken);
 		return ResponseEntity.ok()
 			.header(HttpHeaders.SET_COOKIE, cookieUtil.deleteCookie("refreshToken").toString())
-			.body(ApiResponse.createSuccessResponse(new HashMap<>()));
+			.body(ApiResponse.createSuccessResponse(Map.of()));
 	}
 }

@@ -27,6 +27,7 @@ import one.colla.common.util.CookieUtil;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 public class AuthController {
+	private static final int REFRESH_TOKEN_EXPIRES_IN_DAYS = 7;
 	private final AuthService authService;
 	private final CookieUtil cookieUtil;
 
@@ -48,7 +49,7 @@ public class AuthController {
 		String refreshToken = pair.getRight().refreshToken();
 
 		ResponseCookie cookie = cookieUtil.createCookie("refreshToken", refreshToken,
-			Duration.ofDays(7).toSeconds());
+			Duration.ofDays(REFRESH_TOKEN_EXPIRES_IN_DAYS).toSeconds());
 		return ResponseEntity.ok()
 			.header(HttpHeaders.SET_COOKIE, cookie.toString())
 			.body(ApiResponse.createSuccessResponse(LoginResponse.of(accessToken, userId)));

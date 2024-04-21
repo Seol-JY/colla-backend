@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		String accessToken = resolveAccessToken(request, response);
+		String accessToken = resolveAccessToken(request);
 
 		UserDetails userDetails = getUserDetails(accessToken);
 		authenticateUser(userDetails, request);
@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		return accessToken == null;
 	}
 
-	private String resolveAccessToken(HttpServletRequest request, HttpServletResponse response) {
+	private String resolveAccessToken(HttpServletRequest request) {
 		String authenticationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
 		String token = accessTokenProvider.resolveToken(authenticationHeader);
