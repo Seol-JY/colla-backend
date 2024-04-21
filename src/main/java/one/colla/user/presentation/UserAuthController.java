@@ -25,9 +25,9 @@ public class UserAuthController {
 	private final UserAuthService userAuthService;
 	private final CookieUtil cookieUtil;
 
-	@GetMapping("/user/logout")
+	@GetMapping("/users/logout")
 	@PreAuthorize("isAuthenticated()")
-	public ResponseEntity<?> signOut(
+	public ResponseEntity<ApiResponse<Object>> signOut(
 		@RequestHeader("Authorization") String authHeader,
 		@CookieValue(value = "refreshToken", required = false) String refreshToken,
 		@AuthenticationPrincipal CustomUserDetails user
