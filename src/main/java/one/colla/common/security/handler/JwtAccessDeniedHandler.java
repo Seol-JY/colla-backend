@@ -1,8 +1,9 @@
 package one.colla.common.security.handler;
 
+import static one.colla.global.exception.ExceptionCode.*;
+
 import java.io.IOException;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -13,6 +14,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import one.colla.common.presentation.ApiResponse;
 
 @RequiredArgsConstructor
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
@@ -23,11 +25,10 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 		AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
-		response.setStatus(HttpStatus.FORBIDDEN.value());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding(CHARACTER_ENCODING);
-
-		// TODO: null에 에러 DTO 넣고 반환하기, 26줄의 status도 수정, "권한 없음"
-		objectMapper.writeValue(response.getWriter(), null);
+		response.setStatus(FORBIDDEN_ACCESS_TOKEN.getHttpStatus().value());
+		objectMapper.writeValue(response.getWriter(), ApiResponse.createErrorResponse(FORBIDDEN_ACCESS_TOKEN));
 	}
+
 }
