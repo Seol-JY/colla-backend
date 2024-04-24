@@ -20,7 +20,10 @@ public enum ExceptionCode {
 	FORBIDDEN_ACCESS_TOKEN(HttpStatus.FORBIDDEN, 40181, "토큰에 접근 권한이 없습니다."),
 	TAKEN_AWAY_TOKEN(HttpStatus.UNAUTHORIZED, 40187, "인증 불가, 관리자에게 문의하세요."),
 
-	/* 500_INTERNAL_SERVER_ERROR */
+	/* 499xx ETC */
+	NOT_FOUND_RESOURCE(HttpStatus.NOT_FOUND, 49901, "해당 경로를 찾을 수 없습니다."),
+
+	/* 500xx SERVER */
 	UNEXPECTED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50001, "서버 에러 입니다.");
 
 	private final HttpStatus httpStatus;
