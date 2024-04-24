@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import one.colla.common.presentation.ApiResponse;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
+import one.colla.global.exception.VoException;
 
 @ControllerAdvice
 @Slf4j
@@ -58,6 +59,11 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(NoResourceFoundException.class)
 	public ResponseEntity<ApiResponse<Map<String, String>>> handleNoResourceExceptions(Exception ex) {
 		return ApiResponse.createErrorResponseEntity(ExceptionCode.NOT_FOUND_RESOURCE);
+	}
+
+	@ExceptionHandler(VoException.class)
+	public ResponseEntity<ApiResponse<String>> handleVoErrorExceptions(VoException ex) {
+		return ApiResponse.createErrorResponseEntity(ex);
 	}
 
 	@ExceptionHandler(Exception.class)
