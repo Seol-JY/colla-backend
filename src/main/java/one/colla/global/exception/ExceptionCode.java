@@ -16,6 +16,8 @@ public enum ExceptionCode {
 	TAMPERED_TOKEN(HttpStatus.UNAUTHORIZED, 40185, "서명이 조작된 토큰입니다."),
 	UNSUPPORTED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, 40186, "지원하지 않는 토큰입니다."),
 
+	INVALID_OR_EXPIRED_INVITATION_CODE(HttpStatus.NOT_FOUND, 40302, "유효하지 않거나 만료된 초대코드입니다."),
+
 	/* 403_FORBIDDEN */
 	FORBIDDEN_ACCESS_TOKEN(HttpStatus.FORBIDDEN, 40181, "토큰에 접근 권한이 없습니다."),
 	TAKEN_AWAY_TOKEN(HttpStatus.UNAUTHORIZED, 40187, "인증 불가, 관리자에게 문의하세요."),
