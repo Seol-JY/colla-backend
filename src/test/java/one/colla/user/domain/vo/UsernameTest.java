@@ -57,7 +57,7 @@ public class UsernameTest {
 		// given
 		String input = "S";
 
-		// when/then
+		// when  & then
 		assertThatThrownBy(() -> new Username(input))
 			.isInstanceOf(VoException.class)
 			.hasMessage("닉네임은 2자 이상 50자 이하이어야 합니다.");
@@ -69,7 +69,7 @@ public class UsernameTest {
 		// given
 		String input = "L".repeat(Username.MAX_LENGTH + 1);
 
-		// when/then
+		// when & then
 		assertThatThrownBy(() -> new Username(input))
 			.isInstanceOf(VoException.class)
 			.hasMessageContaining("닉네임은 2자 이상 50자 이하이어야 합니다.");
@@ -81,7 +81,7 @@ public class UsernameTest {
 		// given
 		String input = null;
 
-		// when/then
+		// when & then
 		assertThatThrownBy(() -> new Username(input))
 			.isInstanceOf(VoException.class)
 			.hasMessageContaining("유저 이름은 null일 수 없습니다.");
@@ -93,7 +93,7 @@ public class UsernameTest {
 		// given
 		String input = "   ";
 
-		// when/then
+		// when & then
 		assertThatThrownBy(() -> new Username(input))
 			.isInstanceOf(VoException.class)
 			.hasMessageContaining("닉네임은 공백일 수 없습니다.");

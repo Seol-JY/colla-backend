@@ -1,6 +1,6 @@
 package one.colla.user.domain;
 
-import static one.colla.common.builder.fixtures.UserFixtures.*;
+import static one.colla.common.fixtures.UserFixtures.*;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Optional;
@@ -21,12 +21,12 @@ public class UserRepositoryTest extends RepositoryTest {
 	@Test
 	public void testFindByEmail() {
 		// Given
-		final User user1 = testFixtureBuilder.buildUser(user1());
+		final User USER1 = testFixtureBuilder.buildUser(USER1());
 
-		userRepository.save(user1);
+		userRepository.save(USER1);
 
 		// When
-		Email emailVo = new Email(user1.getEmailValue());
+		Email emailVo = new Email(USER1.getEmailValue());
 		Optional<User> foundUser = userRepository.findByEmail(emailVo);
 
 		// Then
