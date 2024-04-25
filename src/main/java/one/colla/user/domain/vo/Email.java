@@ -19,7 +19,9 @@ import one.colla.global.exception.VoException;
 @Slf4j
 public class Email {
 
-	private static final String EMAIL_REGEX = "^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$";
+	private static final String EMAIL_REGEX =
+		"^[a-zA-Z0-9]([\\w\\._\\-]*[a-zA-Z0-9])?([\\w\\._\\-]*[a-zA-Z0-9])+([\\w\\._\\-])*"
+			+ "@([a-zA-Z0-9]+\\.)+[a-zA-Z]{2,8}$";
 
 	@Column(name = "email", nullable = false)
 	private String value;
@@ -41,7 +43,6 @@ public class Email {
 			throw new VoException("이메일은 공백일 수 없습니다.");
 		}
 		if (isNotMatchEmailForm(value)) {
-			log.error("이메일 형식 X");
 			throw new VoException("이메일 형식이 아닙니다.");
 		}
 	}

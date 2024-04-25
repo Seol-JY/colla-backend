@@ -36,11 +36,12 @@ public class Username {
 	}
 
 	private void validate(final String value) {
-		if (value.length() > MAX_LENGTH || value.length() < MIN_LENGTH) {
-			throw new VoException("닉네임은 2자 이상 50자 이하이어야 합니다.");
-		}
 		if (value.isBlank()) {
 			throw new VoException("닉네임은 공백일 수 없습니다.");
+		}
+
+		if (value.length() > MAX_LENGTH || value.length() < MIN_LENGTH) {
+			throw new VoException("닉네임은 2자 이상 50자 이하이어야 합니다.");
 		}
 	}
 
