@@ -61,10 +61,10 @@ public class TeamspaceService {
 	public TeamspaceInfoResponse readInfoByCode(Optional<CustomUserDetails> userDetails, String inviteCode) {
 		Long teamspaceId = inviteCodeService.getTeamspaceIdByCode(inviteCode);
 
-		Optional<User> user = userDetails.map(details -> userRepository.findById(details.getUserId())
+		final Optional<User> user = userDetails.map(details -> userRepository.findById(details.getUserId())
 			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_USER)));
 
-		Teamspace teamspace = teamspaceRepository.findById(teamspaceId).orElseThrow(
+		final Teamspace teamspace = teamspaceRepository.findById(teamspaceId).orElseThrow(
 			() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)
 		);
 
@@ -76,15 +76,15 @@ public class TeamspaceService {
 	}
 
 	@Transactional
-	public InviteCodeResponse getInviteCode(Long teamspaceId) {
-		InviteCode inviteCode = generateAndSaveInviteCodeByTeamspaceId(teamspaceId);
+	public InviteCodeResponse getInviteCode(CustomUserDetails userDetails, Long teamspaceId) {
+		InviteCode inviteCode = generateAndSaveInviteCodeByTeamspaceId(userDetails, teamspaceId);
 		log.info("초대코드 생성(Copy) - 팀스페이스 Id: {}, 초대코드: {}", teamspaceId, inviteCode.getCode());
 		return InviteCodeResponse.from(inviteCode);
 	}
 
 	@Transactional
-	public void sendInviteCode(Long teamspaceId, SendMailInviteCodeRequest request) {
-		InviteCode inviteCode = generateAndSaveInviteCodeByTeamspaceId(teamspaceId);
+	public void sendInviteCode(CustomUserDetails userDetails, Long teamspaceId, SendMailInviteCodeRequest request) {
+		InviteCode inviteCode = generateAndSaveInviteCodeByTeamspaceId(userDetails, teamspaceId);
 		// TODO: 실제 메일을 보내는 로직 작성 필요
 		log.info("초대코드 생성(Mail) - 팀스페이스 Id: {}, 초대코드: {}", teamspaceId, inviteCode.getCode());
 	}
@@ -112,10 +112,14 @@ public class TeamspaceService {
 		log.info("팀스페이스 참가 - 팀스페이스 Id: {}, 사용자 Id: {}", teamspaceId, user.getId());
 	}
 
-	private InviteCode generateAndSaveInviteCodeByTeamspaceId(Long teamspaceId) {
-		final Teamspace teamspace = teamspaceRepository.findById(teamspaceId).orElseThrow(
-			() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)
+	public UserTeamspace getUserTeamspace(CustomUserDetails userDetails, Long teamspaceId) {
+		return userTeamspaceRepository.findByUserIdAndTeamspaceId(userDetails.getUserId(),
+			teamspaceId).orElseThrow(() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)
 		);
+	}
+
+	private InviteCode generateAndSaveInviteCodeByTeamspaceId(CustomUserDetails userDetails, Long teamspaceId) {
+		UserTeamspace userTeamspace = getUserTeamspace(userDetails, teamspaceId);
 
 		int validSeconds = VALID_HOURS * SECONDS_PER_HOUR;
 
@@ -128,8 +132,7 @@ public class TeamspaceService {
 		} while (exists);
 
 		return inviteCodeService.saveInviteCode(
-			InviteCode.of(generatedCode, teamspace.getId(), validSeconds));
+			InviteCode.of(generatedCode, userTeamspace.getTeamspace().getId(), validSeconds));
 	}
-
 }
 

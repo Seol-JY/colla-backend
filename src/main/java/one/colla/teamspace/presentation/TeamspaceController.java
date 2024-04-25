@@ -55,27 +55,29 @@ public class TeamspaceController {
 	@PostMapping("/{teamspaceId}/invitations")
 	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<ApiResponse<InviteCodeResponse>> getTeamspaceInviteCode(
+		@AuthenticationPrincipal final CustomUserDetails userDetails,
 		@PathVariable final Long teamspaceId
 	) {
 		return ResponseEntity.ok().body(
-			ApiResponse.createSuccessResponse(teamspaceService.getInviteCode(teamspaceId))
+			ApiResponse.createSuccessResponse(teamspaceService.getInviteCode(userDetails, teamspaceId))
 		);
 	}
 
 	@PostMapping("/{teamspaceId}/invitations/mails")
 	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<ApiResponse<?>> sendTeamspaceInviteCode(
+		@AuthenticationPrincipal final CustomUserDetails userDetails,
 		@PathVariable final Long teamspaceId,
 		@RequestBody @Valid final SendMailInviteCodeRequest request
 	) {
-		teamspaceService.sendInviteCode(teamspaceId, request);
+		teamspaceService.sendInviteCode(userDetails, teamspaceId, request);
 
 		return ResponseEntity.ok().body(
 			ApiResponse.createSuccessResponse(Map.of())
 		);
 	}
 
-	@PostMapping("/{teamspaceId}/participants")
+	@PostMapping("/{teamspaceId}/users")
 	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<ApiResponse<?>> participateTeamspace(
 		@AuthenticationPrincipal final CustomUserDetails userDetails,
@@ -88,5 +90,4 @@ public class TeamspaceController {
 			ApiResponse.createSuccessResponse(Map.of())
 		);
 	}
-
 }
