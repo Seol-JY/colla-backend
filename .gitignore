@@ -54,3 +54,6 @@ src/main/resources/static/docs/
 
 ### log ###
 logs/*
+
+### application*.properties ###
+src/main/resources/*.properties
