@@ -11,9 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import one.colla.auth.application.dto.JwtPair;
 import one.colla.auth.application.dto.request.DuplicationCheckRequest;
 import one.colla.auth.application.dto.request.LoginRequest;
+import one.colla.auth.application.dto.request.RegisterRequest;
 import one.colla.auth.application.dto.request.VerificationCheckRequest;
 import one.colla.auth.application.dto.request.VerifyMailSendRequest;
 import one.colla.common.util.RandomCodeGenerator;
@@ -24,9 +26,11 @@ import one.colla.infra.redis.verify.VerifyCodeService;
 import one.colla.user.application.UserService;
 import one.colla.user.domain.User;
 import one.colla.user.domain.UserRepository;
+import one.colla.user.domain.vo.Email;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 	private static final int VERIFY_CODE_LENGTH = 7;
 	private static final long REGISTER_VERIFY_CODE_EXPIRY_TIME = 1_200; // 20m (20 * 60)
@@ -46,10 +50,10 @@ public class AuthService {
 
 	@Transactional(readOnly = true)
 	public Pair<Long, JwtPair> login(LoginRequest dto) {
-		User user = userRepository.findByEmail(dto.email())
+		User user = userRepository.findByEmail(new Email(dto.email()))
 			.orElseThrow(() -> new CommonException(INVALID_USERNAME_OR_PASSWORD));
 
-		if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
+		if (!passwordEncoder.matches(dto.password(), user.getPasswordValue())) {
 			throw new CommonException(INVALID_USERNAME_OR_PASSWORD);
 		}
 
@@ -57,14 +61,24 @@ public class AuthService {
 		return Pair.of(user.getId(), jwtPair);
 	}
 
+	@Transactional
+	public void register(RegisterRequest dto) {
+		isEmailDuplicated(dto.email());
+		if (isMismatchedVerifyCode(dto.email(), dto.verifyCode())) {
+			throw new CommonException(UNAUTHORIZED_OR_EXPIRED_VERIFY_TOKEN);
+		}
+		User user = User.createGeneralUser(dto.username(), passwordEncoder.encode(dto.password()), dto.email());
+		userRepository.save(user);
+	}
+
 	@Transactional(readOnly = true)
 	public void checkDuplication(DuplicationCheckRequest dto) {
-		checkDuplicationEmail(dto.email());
+		isEmailDuplicated(dto.email());
 	}
 
 	@Transactional(readOnly = true)
 	public void checkVerification(VerificationCheckRequest dto) {
-		if (!isVerificationCode(dto.email(), dto.verifyCode())) {
+		if (isMismatchedVerifyCode(dto.email(), dto.verifyCode())) {
 			throw new CommonException(INVALID_VERIFY_TOKEN);
 		}
 	}
@@ -85,18 +99,19 @@ public class AuthService {
 		return jwtService.refresh(refreshToken);
 	}
 
-	private void checkDuplicationEmail(String email) {
-		Optional<User> optionalUser = userRepository.findByEmail(email);
+	private void isEmailDuplicated(String email) {
+		Optional<User> optionalUser = userRepository.findByEmail(new Email(email));
 		if (optionalUser.isPresent()) {
 			throw new CommonException(DUPLICATED_USER_EMAIL);
 		}
 	}
 
-	private boolean isVerificationCode(String email, String verifyCode) {
-		VerifyCode findVerifyCode = verifyCodeService.findByEmail(email)
-			.orElseThrow(() -> new CommonException(INVALID_VERIFY_TOKEN));
-		String getCode = findVerifyCode.getVerifyCode();
-
-		return getCode.equals(verifyCode);
+	private boolean isMismatchedVerifyCode(String email, String verifyCode) {
+		Optional<VerifyCode> findVerifyCode = verifyCodeService.findByEmail(email);
+		if (findVerifyCode.isEmpty()) {
+			return true;
+		}
+		String getCode = findVerifyCode.get().getVerifyCode();
+		return !getCode.equals(verifyCode);
 	}
 }

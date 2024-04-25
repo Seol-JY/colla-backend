@@ -34,8 +34,8 @@ public class CustomUserDetails implements UserDetails {
 	public static CustomUserDetails from(User user) {
 		return CustomUserDetails.builder()
 			.userId(user.getId())
-			.username(user.getUsername())
-			.userEmail(user.getEmail())
+			.username(user.getUsernameValue())
+			.userEmail(user.getEmailValue())
 			.authorities(List.of(new SimpleGrantedAuthority(ROLE_PREFIX + user.getRole().name())))
 			.build();
 	}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -29,6 +30,9 @@ import one.colla.schedule.domain.CalendarEventSubtodo;
 import one.colla.schedule.domain.UserCalendarEvent;
 import one.colla.schedule.domain.UserCalendarEventMention;
 import one.colla.teamspace.domain.UserTeamspace;
+import one.colla.user.domain.vo.Email;
+import one.colla.user.domain.vo.Password;
+import one.colla.user.domain.vo.Username;
 
 @Getter
 @Entity
@@ -44,24 +48,45 @@ public class User extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
-	@Column(name = "username", nullable = false, length = 50)
-	private String username;
+	@Embedded
+	private Username username;
 
-	@Column(name = "password")
-	private String password;
+	@Embedded
+	private Password password;
 
-	@Column(name = "email", nullable = false)
-	private String email;
+	@Embedded
+	private Email email;
 
 	@Column(name = "email_subscription", nullable = false)
 	private boolean emailSubscription = true;
 
 	@Column(name = "profile_image_url")
-	private String profileImageUrl;
+	private String profileImageUrl = null;
 
 	@Column(name = "comment_notification", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private CommentNotification commentNotification;
+
+	private User(Username username, Password password, Email email) {
+		this.role = Role.USER;
+		this.username = username;
+		this.password = password;
+		this.email = email;
+		this.commentNotification = CommentNotification.ALL;
+	}
+
+	public static User createGeneralUser(String createUsername, String createPassword, String createEmail) {
+		Username username = Username.from(createUsername);
+		Password password = Password.from(createPassword);
+		Email email = Email.from(createEmail);
+		return new User(username, password, email);
+	}
+
+	public static User createSocialUser(String createUsername, String createEmail) {
+		Username username = Username.from(createUsername);
+		Email email = Email.from(createEmail);
+		return new User(username, null, email);
+	}
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private final List<OauthApproval> oauthApprovals = new ArrayList<>();
@@ -101,5 +126,17 @@ public class User extends BaseEntity {
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private final List<SchedulingFeedAvailableTime> schedulingFeedAvailableTimes = new ArrayList<>();
+
+	public String getUsernameValue() {
+		return username.getValue();
+	}
+
+	public String getEmailValue() {
+		return email.getValue();
+	}
+
+	public String getPasswordValue() {
+		return password.getValue();
+	}
 
 }

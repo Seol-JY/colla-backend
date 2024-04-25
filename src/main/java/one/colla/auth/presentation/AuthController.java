@@ -22,6 +22,7 @@ import one.colla.auth.application.AuthService;
 import one.colla.auth.application.dto.JwtPair;
 import one.colla.auth.application.dto.request.DuplicationCheckRequest;
 import one.colla.auth.application.dto.request.LoginRequest;
+import one.colla.auth.application.dto.request.RegisterRequest;
 import one.colla.auth.application.dto.request.VerificationCheckRequest;
 import one.colla.auth.application.dto.request.VerifyMailSendRequest;
 import one.colla.auth.application.dto.response.LoginResponse;
@@ -40,6 +41,14 @@ public class AuthController {
 	@PreAuthorize("isAnonymous()")
 	public ResponseEntity<ApiResponse<LoginResponse>> signIn(@RequestBody @Valid LoginRequest request) {
 		return createAuthResponse(authService.login(request));
+	}
+
+	@PostMapping("/register")
+	@PreAuthorize("isAnonymous()")
+	public ResponseEntity<ApiResponse<Object>> signup(@RequestBody @Valid RegisterRequest request) {
+		authService.register(request);
+		return ResponseEntity.status(HttpStatus.CREATED)
+			.body(ApiResponse.createSuccessResponse(Map.of()));
 	}
 
 	@PostMapping("/mail/send")
