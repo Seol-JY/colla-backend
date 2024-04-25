@@ -32,6 +32,7 @@ import one.colla.schedule.domain.UserCalendarEventMention;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.user.domain.vo.Email;
 import one.colla.user.domain.vo.Password;
+import one.colla.user.domain.vo.ProfileImageUrl;
 import one.colla.user.domain.vo.Username;
 
 @Getter
@@ -60,8 +61,8 @@ public class User extends BaseEntity {
 	@Column(name = "email_subscription", nullable = false)
 	private boolean emailSubscription = true;
 
-	@Column(name = "profile_image_url")
-	private String profileImageUrl = null;
+	@Embedded
+	private ProfileImageUrl profileImageUrl;
 
 	@Column(name = "comment_notification", nullable = false)
 	@Enumerated(EnumType.STRING)
@@ -73,6 +74,7 @@ public class User extends BaseEntity {
 		this.password = password;
 		this.email = email;
 		this.commentNotification = CommentNotification.ALL;
+		this.profileImageUrl = new ProfileImageUrl();
 	}
 
 	public static User createGeneralUser(String createUsername, String createPassword, String createEmail) {
