@@ -58,6 +58,7 @@ public class AuthService {
 		}
 
 		JwtPair jwtPair = jwtService.createToken(user);
+		log.info("유저 로그인 - 유저 Id: {}", user.getId());
 		return Pair.of(user.getId(), jwtPair);
 	}
 
@@ -69,11 +70,13 @@ public class AuthService {
 		}
 		User user = User.createGeneralUser(dto.username(), passwordEncoder.encode(dto.password()), dto.email());
 		userRepository.save(user);
+		log.info("유저 회원가입 - 유저 Id: {}", user.getId());
 	}
 
 	@Transactional(readOnly = true)
 	public void checkDuplication(DuplicationCheckRequest dto) {
 		isEmailDuplicated(dto.email());
+		log.info("이메일 중복 검사 - email: {}", dto.email());
 	}
 
 	@Transactional(readOnly = true)
@@ -81,6 +84,7 @@ public class AuthService {
 		if (isMismatchedVerifyCode(dto.email(), dto.verifyCode())) {
 			throw new CommonException(INVALID_VERIFY_TOKEN);
 		}
+		log.info("인증번호 검증 - email: {}", dto.email());
 	}
 
 	@Transactional
@@ -92,6 +96,7 @@ public class AuthService {
 		);
 
 		publisher.publishEvent(new VerifyCodeMailSendEvent(dto.email(), generated));
+		log.info("인증번호 전송 - email: {}", dto.email());
 	}
 
 	// NOTE: DO NOT Insert transaction annotations
