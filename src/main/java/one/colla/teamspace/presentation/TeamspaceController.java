@@ -28,6 +28,7 @@ public class TeamspaceController {
 	private final TeamspaceService teamspaceService;
 
 	@GetMapping
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<ApiResponse<CreateTeamspaceResponse>> createTeamspace(
 		@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestBody @Valid CreateTeamspaceRequest request) {
@@ -37,7 +38,6 @@ public class TeamspaceController {
 	}
 
 	@PostMapping
-	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<ApiResponse<TeamspaceInfoResponse>> readTeamspaceInfo(
 		@AuthenticationPrincipal Optional<CustomUserDetails> userDetails,
 		@RequestParam(required = true) String inviteCode
