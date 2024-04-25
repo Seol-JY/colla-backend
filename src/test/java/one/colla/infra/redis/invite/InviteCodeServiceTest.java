@@ -5,7 +5,6 @@ import static org.mockito.Mockito.*;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +19,9 @@ import one.colla.global.exception.CommonException;
 class InviteCodeServiceTest {
 	private static final int INVITE_CODE_LENGTH = 10;
 	private static final String RANDOM_STRING = "RANDOMCODE";
+	private static final Long TEAMSPACE_ID = 1L;
+	private static final Long TTL = 100_000L;
+
 	@Mock
 	private InviteCodeRepository inviteCodeRepository;
 	@Mock
@@ -27,41 +29,33 @@ class InviteCodeServiceTest {
 	@InjectMocks
 	private InviteCodeService inviteCodeService;
 
-	@BeforeEach
-	void setUp() {
-		lenient().when(randomCodeGenerator.generateRandomString(INVITE_CODE_LENGTH))
-			.thenReturn(RANDOM_STRING);
+	@Test
+	@DisplayName("초대 코드 저장이 정상적으로 이루어진다.")
+	void testSaveInviteCode() {
+		// given
+		InviteCode expectedInviteCode = InviteCode.of(RANDOM_STRING, TEAMSPACE_ID, TTL);
+		when(inviteCodeRepository.save(any(InviteCode.class))).thenReturn(expectedInviteCode);
+
+		// when
+		InviteCode actualInviteCode = inviteCodeService.saveInviteCode(InviteCode.of(RANDOM_STRING, TEAMSPACE_ID, TTL));
+
+		// then
+		assertThat(actualInviteCode).isSameAs(expectedInviteCode);
+		verify(inviteCodeRepository).save(any(InviteCode.class));
 	}
 
 	@Test
-	@DisplayName("초대 코드 생성이 정상적으로 이루어진다.")
-	void testGenerateInviteCode() {
+	@DisplayName("유효한 초대 코드로 팀스페이스 ID 조회가 정상적으로 이루어진다.")
+	void testGetTeamspaceIdByCode_ReturnsTeamspaceId() {
 		// given
-		when(inviteCodeRepository.existsByCode(RANDOM_STRING)).thenReturn(false);
+		InviteCode inviteCode = InviteCode.of(RANDOM_STRING, TEAMSPACE_ID, TTL);
+		when(inviteCodeRepository.findByCode(RANDOM_STRING)).thenReturn(Optional.of(inviteCode));
 
 		// when
-		String code = inviteCodeService.generateInviteCode(123, 24);
+		Long actualTeamspaceId = inviteCodeService.getTeamspaceIdByCode(RANDOM_STRING);
 
 		// then
-		assertThat(RANDOM_STRING).isEqualTo(code);
-	}
-
-	@Test
-	@DisplayName("코드가 이미 존재할 경우, 새 코드를 생성하여 반환한다.")
-	void testGenerateInviteCode_RetryOnDuplicate() {
-		// given
-		when(inviteCodeRepository.existsByCode(RANDOM_STRING)).thenReturn(true, false);
-		when(randomCodeGenerator.generateRandomString(INVITE_CODE_LENGTH))
-			.thenReturn(RANDOM_STRING)
-			.thenReturn("NEWCODE123");
-
-		// when
-		String newCode = inviteCodeService.generateInviteCode(123, 24);
-
-		// then
-		assertThat(newCode).isEqualTo("NEWCODE123");
-		verify(inviteCodeRepository, times(2)).existsByCode(anyString()); // 두 번 확인함을 검증
-		verify(inviteCodeRepository).save(any(InviteCode.class)); // 저장 로직 호출 확인
+		assertThat(actualTeamspaceId).isEqualTo(TEAMSPACE_ID);
 	}
 
 	@Test
