@@ -22,9 +22,8 @@ import one.colla.user.domain.User;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user_teamspaces")
 public class UserTeamspace extends BaseEntity {
-
 	@EmbeddedId
-	private UserTeamspaceId userTeamspaceId;
+	private UserTeamspaceId userTeamspaceId = new UserTeamspaceId();
 
 	@MapsId("userId")
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -42,9 +41,19 @@ public class UserTeamspace extends BaseEntity {
 
 	@Column(name = "role", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private Role role;
+	private TeamspaceRole teamspaceRole;
 
-	public static class UserTeamspaceId extends CompositeKeyBase {
+	private UserTeamspace(User user, Teamspace teamspace, TeamspaceRole teamspaceRole) {
+		this.user = user;
+		this.teamspace = teamspace;
+		this.teamspaceRole = teamspaceRole;
+	}
+
+	public static UserTeamspace of(User user, Teamspace teamspace, TeamspaceRole teamspaceRole) {
+		return new UserTeamspace(user, teamspace, teamspaceRole);
+	}
+
+	private static class UserTeamspaceId extends CompositeKeyBase {
 		@Column(name = "user_id")
 		private Long userId;
 

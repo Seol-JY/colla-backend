@@ -28,6 +28,8 @@ import one.colla.file.domain.Attachment;
 import one.colla.schedule.domain.CalendarEventSubtodo;
 import one.colla.schedule.domain.UserCalendarEvent;
 import one.colla.schedule.domain.UserCalendarEventMention;
+import one.colla.teamspace.domain.Teamspace;
+import one.colla.teamspace.domain.TeamspaceRole;
 import one.colla.teamspace.domain.UserTeamspace;
 
 @Getter
@@ -101,5 +103,12 @@ public class User extends BaseEntity {
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private final List<SchedulingFeedAvailableTime> schedulingFeedAvailableTimes = new ArrayList<>();
+
+	public UserTeamspace participate(
+		final Teamspace teamspace,
+		final TeamspaceRole teamspaceRole
+	) {
+		return UserTeamspace.of(this, teamspace, teamspaceRole);
+	}
 
 }

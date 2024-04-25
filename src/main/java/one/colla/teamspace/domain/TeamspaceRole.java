@@ -1,6 +1,6 @@
 package one.colla.teamspace.domain;
 
-public enum Role {
+public enum TeamspaceRole {
 	LEADER,
 	MEMBER
 }
