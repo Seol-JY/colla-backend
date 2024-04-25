@@ -20,6 +20,7 @@ import one.colla.common.presentation.ApiResponse;
 import one.colla.common.security.authentication.CustomUserDetails;
 import one.colla.teamspace.application.TeamspaceService;
 import one.colla.teamspace.application.dto.request.CreateTeamspaceRequest;
+import one.colla.teamspace.application.dto.request.ParticipateRequest;
 import one.colla.teamspace.application.dto.request.SendMailInviteCodeRequest;
 import one.colla.teamspace.application.dto.response.CreateTeamspaceResponse;
 import one.colla.teamspace.application.dto.response.InviteCodeResponse;
@@ -68,6 +69,20 @@ public class TeamspaceController {
 		@RequestBody @Valid final SendMailInviteCodeRequest request
 	) {
 		teamspaceService.sendInviteCode(teamspaceId, request);
+
+		return ResponseEntity.ok().body(
+			ApiResponse.createSuccessResponse(Map.of())
+		);
+	}
+
+	@PostMapping("/{teamspaceId}/participants")
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<ApiResponse<?>> participateTeamspace(
+		@AuthenticationPrincipal final CustomUserDetails userDetails,
+		@PathVariable final Long teamspaceId,
+		@RequestBody @Valid final ParticipateRequest request
+	) {
+		teamspaceService.participate(userDetails, teamspaceId, request);
 
 		return ResponseEntity.ok().body(
 			ApiResponse.createSuccessResponse(Map.of())

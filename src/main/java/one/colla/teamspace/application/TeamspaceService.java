@@ -1,5 +1,6 @@
 package one.colla.teamspace.application;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import one.colla.global.exception.ExceptionCode;
 import one.colla.infra.redis.invite.InviteCode;
 import one.colla.infra.redis.invite.InviteCodeService;
 import one.colla.teamspace.application.dto.request.CreateTeamspaceRequest;
+import one.colla.teamspace.application.dto.request.ParticipateRequest;
 import one.colla.teamspace.application.dto.request.SendMailInviteCodeRequest;
 import one.colla.teamspace.application.dto.response.CreateTeamspaceResponse;
 import one.colla.teamspace.application.dto.response.InviteCodeResponse;
@@ -33,6 +35,7 @@ public class TeamspaceService {
 	private static final int INVITE_CODE_LENGTH = 10;
 	private static final int VALID_HOURS = 72;
 	private static final int SECONDS_PER_HOUR = 3_600;
+	private static final int MAX_TEAMSPACE_USERS = 10;
 
 	private final InviteCodeService inviteCodeService;
 	private final TeamspaceRepository teamspaceRepository;
@@ -86,8 +89,31 @@ public class TeamspaceService {
 		log.info("초대코드 생성(Mail) - 팀스페이스 Id: {}, 초대코드: {}", teamspaceId, inviteCode.getCode());
 	}
 
+	@Transactional
+	public void participate(CustomUserDetails userDetails, Long teamspaceId, ParticipateRequest request) {
+		final User user = userRepository.findById(userDetails.getUserId())
+			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_USER));
+
+		final Teamspace teamspace = teamspaceRepository.findById(teamspaceId).orElseThrow(
+			() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)
+		);
+
+		if (!Objects.equals(teamspace.getId(), inviteCodeService.getTeamspaceIdByCode(request.inviteCode()))) {
+			log.info("팀스페이스 참가 실패(초대코드-팀 불일치) - 팀스페이스 Id: {}, 사용자 Id: {}", teamspaceId, user.getId());
+			throw new CommonException(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE);
+		}
+		if (teamspace.getUserTeamspaces().size() > MAX_TEAMSPACE_USERS) {
+			log.info("팀스페이스 참가 실패(인원 초과) - 팀스페이스 Id: {}, 사용자 Id: {}", teamspaceId, user.getId());
+			throw new CommonException(ExceptionCode.TEAMSPACE_FULL);
+		}
+
+		final UserTeamspace participatedUserTeamspace = user.participate(teamspace, TeamspaceRole.MEMBER);
+		userTeamspaceRepository.save(participatedUserTeamspace);
+		log.info("팀스페이스 참가 - 팀스페이스 Id: {}, 사용자 Id: {}", teamspaceId, user.getId());
+	}
+
 	private InviteCode generateAndSaveInviteCodeByTeamspaceId(Long teamspaceId) {
-		Teamspace teamspace = teamspaceRepository.findById(teamspaceId).orElseThrow(
+		final Teamspace teamspace = teamspaceRepository.findById(teamspaceId).orElseThrow(
 			() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)
 		);
 
@@ -104,5 +130,6 @@ public class TeamspaceService {
 		return inviteCodeService.saveInviteCode(
 			InviteCode.of(generatedCode, teamspace.getId(), validSeconds));
 	}
+
 }
 
