@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import one.colla.common.presentation.ApiResponse;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
+import one.colla.global.exception.VoException;
 
 @ControllerAdvice
 @Slf4j
@@ -52,6 +54,16 @@ public class GlobalExceptionHandler {
 		Class<? extends Exception> exceptionClass = ex.getClass();
 		ExceptionCode exceptionCode = JWT_EXCEPTION_CODE_MAP.get(exceptionClass);
 		return ApiResponse.createErrorResponseEntity(exceptionCode);
+	}
+
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<ApiResponse<Map<String, String>>> handleNoResourceExceptions(Exception ex) {
+		return ApiResponse.createErrorResponseEntity(ExceptionCode.NOT_FOUND_RESOURCE);
+	}
+
+	@ExceptionHandler(VoException.class)
+	public ResponseEntity<ApiResponse<String>> handleVoErrorExceptions(VoException ex) {
+		return ApiResponse.createErrorResponseEntity(ex);
 	}
 
 	@ExceptionHandler(Exception.class)

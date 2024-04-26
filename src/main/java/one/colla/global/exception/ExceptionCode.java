@@ -8,8 +8,12 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ExceptionCode {
-	/* 401_UNAUTHORIZED */
+
+	/* 401xx AUTH */
+	INVALID_VERIFY_TOKEN(HttpStatus.UNAUTHORIZED, 40101, "인증번호가 일치하지 않거나 인증시간을 초과했습니다."),
 	INVALID_USERNAME_OR_PASSWORD(HttpStatus.UNAUTHORIZED, 40102, "이메일 또는 비밀번호가 일치하지 않습니다."),
+	UNAUTHORIZED_OR_EXPIRED_VERIFY_TOKEN(HttpStatus.UNAUTHORIZED, 40103, "인증된 메일이 아니거나 인증 정보가 만료됐습니다."),
+	DUPLICATED_USER_EMAIL(HttpStatus.CONFLICT, 40104, "이미 가입한 메일입니다."),
 	EMPTY_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, 40182, "토큰이 포함되어 있지 않습니다."),
 	EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, 40183, "사용기간이 만료된 토큰입니다."),
 	MALFORMED_TOKEN(HttpStatus.UNAUTHORIZED, 40184, "비정상적인 토큰입니다."),
@@ -22,9 +26,12 @@ public enum ExceptionCode {
 	TEAMSPACE_FULL(HttpStatus.FORBIDDEN, 40301, "팀스페이스 인원이 가득 차있습니다."),
 	/* 403_FORBIDDEN */
 	FORBIDDEN_ACCESS_TOKEN(HttpStatus.FORBIDDEN, 40181, "토큰에 접근 권한이 없습니다."),
-	TAKEN_AWAY_TOKEN(HttpStatus.UNAUTHORIZED, 40187, "인증 불가, 관리자에게 문의하세요."),
+	TAKEN_AWAY_TOKEN(HttpStatus.FORBIDDEN, 40187, "인증 불가, 관리자에게 문의하세요."),
 
-	/* 500_INTERNAL_SERVER_ERROR */
+	/* 499xx ETC */
+	NOT_FOUND_RESOURCE(HttpStatus.NOT_FOUND, 49901, "해당 경로를 찾을 수 없습니다."),
+
+	/* 500xx SERVER */
 	UNEXPECTED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50001, "서버 에러 입니다.");
 
 	private final HttpStatus httpStatus;

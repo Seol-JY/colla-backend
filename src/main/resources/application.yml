@@ -26,6 +26,14 @@ spring:
         format_sql: true
     open-in-view: false
 
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    admin-email: ${MAIL_ADMIN_EMAIL}
+
+
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
