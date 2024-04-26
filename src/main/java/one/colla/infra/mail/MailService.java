@@ -4,9 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -37,11 +35,11 @@ public class MailService {
 		}
 	}
 
-	public MimeMessage createMessage(String from, String to, String subject, String content) {
+	public MimeMessage createMessage(String to, String subject, String content) {
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		try {
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, UTF_8);
-			helper.setFrom(from);
+			helper.setFrom(adminEmail);
 			helper.setTo(to);
 			helper.setSubject(subject);
 			helper.setText(content);
@@ -50,26 +48,5 @@ public class MailService {
 			log.error("이메일 메시지 생성 오류 ", e);
 			return null;
 		}
-	}
-
-	@Async
-	@TransactionalEventListener(classes = VerifyCodeMailSendEvent.class)
-	public void verifyCodeMailSend(final VerifyCodeMailSendEvent mailSendEvent) {
-		final MimeMessage message = createMessage(
-			adminEmail,
-			mailSendEvent.email(),
-			createVerifySubject(),
-			createVerifyContent(mailSendEvent.verifyCode())
-		);
-
-		sendMail(message);
-	}
-
-	private String createVerifySubject() {
-		return "[Colla] 회원가입 인증 코드 입니다.";
-	}
-
-	private String createVerifyContent(String verifyCode) {
-		return "인증코드는 " + verifyCode + " 입니다.";
 	}
 }
