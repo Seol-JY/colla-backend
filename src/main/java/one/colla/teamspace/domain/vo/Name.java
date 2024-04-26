@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import one.colla.global.exception.VoException;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,16 +32,13 @@ public class Name {
 
 	private void validate(final String value) {
 		if (Objects.isNull(value)) {
-			// TODO: 자체 vo애러로 치환 필요
-			throw new RuntimeException("팀스페이스 이름은 null일 수 없습니다.");
+			throw new VoException("팀스페이스 이름은 null일 수 없습니다.");
 		}
 		if (value.length() > MAX_LENGTH) {
-			// TODO: 자체 vo애러로 치환 필요
-			throw new RuntimeException("팀스페이스 이름은" + MAX_LENGTH + "자 이하여야 합니다.");
+			throw new VoException("팀스페이스 이름은" + MAX_LENGTH + "자 이하여야 합니다.");
 		}
 		if (value.length() < MIN_LENGTH) {
-			// TODO: 자체 vo애러로 치환 필요
-			throw new RuntimeException("팀스페이스 이름은" + MIN_LENGTH + "자 이상이여야 합니다.");
+			throw new VoException("팀스페이스 이름은" + MIN_LENGTH + "자 이상이여야 합니다.");
 		}
 	}
 }
