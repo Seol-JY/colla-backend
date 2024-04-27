@@ -143,6 +143,9 @@ public class User extends BaseEntity {
 		return password.getValue();
 	}
 
+	public String getProfileImageUrlValue() {
+		return profileImageUrl != null ? profileImageUrl.getValue() : null;
+	}
 
 	public UserTeamspace participate(
 		final Teamspace teamspace,

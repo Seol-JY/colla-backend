@@ -21,6 +21,7 @@ public class EmailEventHandler {
 			contentProvider.getSubject(),
 			contentProvider.getContent()
 		);
+		log.info("Send mail event {}", event);
 		mailService.sendMail(message);
 	}
 }

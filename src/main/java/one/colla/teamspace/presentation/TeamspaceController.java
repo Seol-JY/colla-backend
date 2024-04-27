@@ -1,7 +1,6 @@
 package one.colla.teamspace.presentation;
 
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,7 +32,7 @@ import one.colla.teamspace.application.dto.response.TeamspaceParticipantsRespons
 public class TeamspaceController {
 	private final TeamspaceService teamspaceService;
 
-	@GetMapping
+	@PostMapping
 	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<ApiResponse<CreateTeamspaceResponse>> createTeamspace(
 		@AuthenticationPrincipal final CustomUserDetails userDetails,
@@ -43,13 +42,13 @@ public class TeamspaceController {
 		);
 	}
 
-	@PostMapping
+	@GetMapping
 	public ResponseEntity<ApiResponse<TeamspaceInfoResponse>> readTeamspaceInfo(
-		@AuthenticationPrincipal final Optional<CustomUserDetails> userDetails,
-		@RequestParam(required = true) final String inviteCode
+		@AuthenticationPrincipal final CustomUserDetails userDetails,
+		@RequestParam(required = true) final String code
 	) {
 		return ResponseEntity.ok().body(
-			ApiResponse.createSuccessResponse(teamspaceService.readInfoByCode(userDetails, inviteCode))
+			ApiResponse.createSuccessResponse(teamspaceService.readInfoByCode(userDetails, code))
 		);
 	}
 

@@ -22,7 +22,7 @@ public record TeamspaceParticipantsResponse(List<Participant> users) {
 
 			return Participant.builder()
 				.id(user.getId())
-				.profileImageUrl(user.getProfileImageUrl().getValue())
+				.profileImageUrl(user.getProfileImageUrlValue())
 				.username(user.getUsernameValue())
 				.email(user.getEmailValue())
 				.role(userTeamspace.getTeamspaceRole().name())

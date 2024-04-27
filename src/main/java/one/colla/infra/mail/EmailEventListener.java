@@ -1,6 +1,7 @@
 package one.colla.infra.mail;
 
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import one.colla.infra.mail.events.VerifyCodeSendMailEvent;
 import one.colla.infra.mail.provider.InviteCodeContentProvider;
 import one.colla.infra.mail.provider.VerifyCodeContentProvider;
 
+@Component
 @RequiredArgsConstructor
 public class EmailEventListener {
 	private final MailService mailService;

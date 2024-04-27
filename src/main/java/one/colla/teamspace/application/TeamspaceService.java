@@ -2,7 +2,6 @@ package one.colla.teamspace.application;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.context.ApplicationEventPublisher;
@@ -64,20 +63,23 @@ public class TeamspaceService {
 	}
 
 	@Transactional(readOnly = true)
-	public TeamspaceInfoResponse readInfoByCode(Optional<CustomUserDetails> userDetails, String inviteCode) {
+	public TeamspaceInfoResponse readInfoByCode(CustomUserDetails userDetails, String inviteCode) {
 		Long teamspaceId = inviteCodeService.getTeamspaceIdByCode(inviteCode);
 
-		final Optional<User> user = userDetails.map(details -> userRepository.findById(details.getUserId())
-			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_USER)));
+		User user = null;
+		if (userDetails != null) {
+			user = userRepository.findById(userDetails.getUserId())
+				.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_USER));
+		}
 
-		final Teamspace teamspace = teamspaceRepository.findById(teamspaceId).orElseThrow(
-			() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)
-		);
+		Teamspace teamspace = teamspaceRepository.findById(teamspaceId)
+			.orElseThrow(() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE));
 
-		boolean isParticipatedUser = user.map(u -> userTeamspaceRepository.existsByUserAndTeamspace(u, teamspace))
-			.orElse(false);
+		boolean isParticipatedUser =
+			(user != null && userTeamspaceRepository.existsByUserAndTeamspace(user, teamspace));
 
-		log.info("팀스페이스 정보조회 - 팀스페이스 Id: {}, 조회 사용자 Id: {}", teamspace.getId(), user.map(User::getId).orElse(null));
+		log.info("팀스페이스 정보조회 - 팀스페이스 Id: {}, 조회 사용자 Id: {}", teamspace.getId(), user != null ? user.getId() : "None");
+
 		return TeamspaceInfoResponse.of(isParticipatedUser, teamspace);
 	}
 
