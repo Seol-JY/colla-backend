@@ -1,5 +1,6 @@
 package one.colla.teamspace.domain;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +11,7 @@ public interface UserTeamspaceRepository extends JpaRepository<UserTeamspace, Lo
 	boolean existsByUserAndTeamspace(User user, Teamspace teamspace);
 
 	Optional<UserTeamspace> findByUserIdAndTeamspaceId(Long userId, Long teamspaceId);
+
+	List<UserTeamspace> findAllByTeamspace(Teamspace teamspace);
+
 }

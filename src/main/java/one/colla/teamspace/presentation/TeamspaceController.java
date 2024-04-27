@@ -25,6 +25,7 @@ import one.colla.teamspace.application.dto.request.SendMailInviteCodeRequest;
 import one.colla.teamspace.application.dto.response.CreateTeamspaceResponse;
 import one.colla.teamspace.application.dto.response.InviteCodeResponse;
 import one.colla.teamspace.application.dto.response.TeamspaceInfoResponse;
+import one.colla.teamspace.application.dto.response.TeamspaceParticipantsResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -88,6 +89,18 @@ public class TeamspaceController {
 
 		return ResponseEntity.ok().body(
 			ApiResponse.createSuccessResponse(Map.of())
+		);
+	}
+
+	@GetMapping("/{teamspaceId}/users")
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<ApiResponse<TeamspaceParticipantsResponse>> getTeamspaceParticipants(
+		@AuthenticationPrincipal final CustomUserDetails userDetails,
+		@PathVariable final Long teamspaceId
+	) {
+
+		return ResponseEntity.ok().body(
+			ApiResponse.createSuccessResponse(teamspaceService.getParticipants(userDetails, teamspaceId))
 		);
 	}
 }
