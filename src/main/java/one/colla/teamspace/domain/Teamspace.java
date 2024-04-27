@@ -63,4 +63,8 @@ public class Teamspace extends BaseEntity {
 		Name name = Name.from(teamspaceName);
 		return new Teamspace(name);
 	}
+
+	public String getNameValue() {
+		return name.getValue();
+	}
 }

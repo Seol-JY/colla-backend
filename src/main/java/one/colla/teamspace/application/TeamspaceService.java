@@ -1,8 +1,11 @@
 package one.colla.teamspace.application;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +15,7 @@ import one.colla.common.security.authentication.CustomUserDetails;
 import one.colla.common.util.RandomCodeGenerator;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
+import one.colla.infra.mail.events.InviteCodeSendMailEvent;
 import one.colla.infra.redis.invite.InviteCode;
 import one.colla.infra.redis.invite.InviteCodeService;
 import one.colla.teamspace.application.dto.request.CreateTeamspaceRequest;
@@ -20,6 +24,7 @@ import one.colla.teamspace.application.dto.request.SendMailInviteCodeRequest;
 import one.colla.teamspace.application.dto.response.CreateTeamspaceResponse;
 import one.colla.teamspace.application.dto.response.InviteCodeResponse;
 import one.colla.teamspace.application.dto.response.TeamspaceInfoResponse;
+import one.colla.teamspace.application.dto.response.TeamspaceParticipantsResponse;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.TeamspaceRepository;
 import one.colla.teamspace.domain.TeamspaceRole;
@@ -41,6 +46,7 @@ public class TeamspaceService {
 	private final TeamspaceRepository teamspaceRepository;
 	private final UserTeamspaceRepository userTeamspaceRepository;
 	private final UserRepository userRepository;
+	private final ApplicationEventPublisher publisher;
 	private final RandomCodeGenerator randomCodeGenerator;
 
 	@Transactional
@@ -77,15 +83,25 @@ public class TeamspaceService {
 
 	@Transactional
 	public InviteCodeResponse getInviteCode(CustomUserDetails userDetails, Long teamspaceId) {
-		InviteCode inviteCode = generateAndSaveInviteCodeByTeamspaceId(userDetails, teamspaceId);
+		Pair<InviteCode, UserTeamspace> pair = generateAndSaveInviteCodeByTeamspaceId(userDetails, teamspaceId);
+		InviteCode inviteCode = pair.getLeft();
+
 		log.info("초대코드 생성(Copy) - 팀스페이스 Id: {}, 초대코드: {}", teamspaceId, inviteCode.getCode());
 		return InviteCodeResponse.from(inviteCode);
 	}
 
 	@Transactional
 	public void sendInviteCode(CustomUserDetails userDetails, Long teamspaceId, SendMailInviteCodeRequest request) {
-		InviteCode inviteCode = generateAndSaveInviteCodeByTeamspaceId(userDetails, teamspaceId);
-		// TODO: 실제 메일을 보내는 로직 작성 필요
+		Pair<InviteCode, UserTeamspace> pair = generateAndSaveInviteCodeByTeamspaceId(userDetails, teamspaceId);
+		InviteCode inviteCode = pair.getLeft();
+		UserTeamspace userTeamspace = pair.getRight();
+		String inviterName = userTeamspace.getUser().getUsernameValue();
+		String teamspaceName = userTeamspace.getTeamspace().getNameValue();
+
+		publisher.publishEvent(
+			new InviteCodeSendMailEvent(request.email(), teamspaceName, inviterName, inviteCode.getCode())
+		);
+
 		log.info("초대코드 생성(Mail) - 팀스페이스 Id: {}, 초대코드: {}", teamspaceId, inviteCode.getCode());
 	}
 
@@ -112,13 +128,8 @@ public class TeamspaceService {
 		log.info("팀스페이스 참가 - 팀스페이스 Id: {}, 사용자 Id: {}", teamspaceId, user.getId());
 	}
 
-	public UserTeamspace getUserTeamspace(CustomUserDetails userDetails, Long teamspaceId) {
-		return userTeamspaceRepository.findByUserIdAndTeamspaceId(userDetails.getUserId(),
-			teamspaceId).orElseThrow(() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)
-		);
-	}
-
-	private InviteCode generateAndSaveInviteCodeByTeamspaceId(CustomUserDetails userDetails, Long teamspaceId) {
+	private Pair<InviteCode, UserTeamspace> generateAndSaveInviteCodeByTeamspaceId(CustomUserDetails userDetails,
+		Long teamspaceId) {
 		UserTeamspace userTeamspace = getUserTeamspace(userDetails, teamspaceId);
 
 		int validSeconds = VALID_HOURS * SECONDS_PER_HOUR;
@@ -131,8 +142,29 @@ public class TeamspaceService {
 			exists = inviteCodeService.existsByCode(generatedCode);
 		} while (exists);
 
-		return inviteCodeService.saveInviteCode(
+		InviteCode inviteCode = inviteCodeService.saveInviteCode(
 			InviteCode.of(generatedCode, userTeamspace.getTeamspace().getId(), validSeconds));
+
+		return Pair.of(inviteCode, userTeamspace);
+	}
+
+	@Transactional(readOnly = true)
+	public TeamspaceParticipantsResponse getParticipants(CustomUserDetails userDetails, Long teamspaceId) {
+		UserTeamspace userTeamspace = getUserTeamspace(userDetails, teamspaceId);
+		Teamspace teamspace = userTeamspace.getTeamspace();
+
+		List<UserTeamspace> userTeamspaces = userTeamspaceRepository.findAllByTeamspace(teamspace);
+		List<TeamspaceParticipantsResponse.Participant> participants = userTeamspaces.stream()
+			.map(ut -> TeamspaceParticipantsResponse.Participant.of(ut.getUser(), ut, ut.getTag()))
+			.toList();
+
+		return TeamspaceParticipantsResponse.from(participants);
+	}
+
+	public UserTeamspace getUserTeamspace(CustomUserDetails userDetails, Long teamspaceId) {
+		return userTeamspaceRepository.findByUserIdAndTeamspaceId(userDetails.getUserId(),
+			teamspaceId).orElseThrow(() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)
+		);
 	}
 }
 
