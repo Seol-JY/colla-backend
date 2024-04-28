@@ -113,4 +113,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		logger.error("Unexpected error 발생: " + ex.getMessage(), ex);
 		return ApiResponse.createServerErrorResponseEntity();
 	}
+
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<Object> handleCommonException(Exception ex) {
+		logger.error("Unexpected error 발생: " + ex.getMessage(), ex);
+		return ApiResponse.createServerErrorResponseEntity();
+	}
 }
