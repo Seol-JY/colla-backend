@@ -23,7 +23,6 @@ import one.colla.common.domain.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "tags")
 public class Tag extends BaseEntity {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -38,4 +37,12 @@ public class Tag extends BaseEntity {
 	@Column(name = "name", nullable = false, length = 50)
 	private String name;
 
+	private Tag(String name, Teamspace teamspace) {
+		this.name = name;
+		this.teamspace = teamspace;
+	}
+
+	public static Tag of(String tagName, Teamspace teamspace) {
+		return new Tag(tagName, teamspace);
+	}
 }

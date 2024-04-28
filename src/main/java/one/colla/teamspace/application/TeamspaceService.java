@@ -17,15 +17,18 @@ import one.colla.global.exception.ExceptionCode;
 import one.colla.infra.mail.events.InviteCodeSendMailEvent;
 import one.colla.infra.redis.invite.InviteCode;
 import one.colla.infra.redis.invite.InviteCodeService;
+import one.colla.teamspace.application.dto.request.CreateTagRequest;
 import one.colla.teamspace.application.dto.request.CreateTeamspaceRequest;
 import one.colla.teamspace.application.dto.request.ParticipateRequest;
 import one.colla.teamspace.application.dto.request.SendMailInviteCodeRequest;
+import one.colla.teamspace.application.dto.response.CreateTagResponse;
 import one.colla.teamspace.application.dto.response.CreateTeamspaceResponse;
 import one.colla.teamspace.application.dto.response.InviteCodeResponse;
 import one.colla.teamspace.application.dto.response.ParticipantDto;
 import one.colla.teamspace.application.dto.response.TeamspaceInfoResponse;
 import one.colla.teamspace.application.dto.response.TeamspaceParticipantsResponse;
 import one.colla.teamspace.application.dto.response.TeamspaceSettingsResponse;
+import one.colla.teamspace.domain.Tag;
 import one.colla.teamspace.domain.TagRepository;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.TeamspaceRepository;
@@ -155,6 +158,26 @@ public class TeamspaceService {
 		List<ParticipantDto> participants = getParticipantByTeamspace(teamspace);
 
 		return TeamspaceSettingsResponse.of(teamspace, participants);
+	}
+
+	@Transactional
+	public CreateTagResponse createTag(CustomUserDetails userDetails, Long teamspaceId, CreateTagRequest request) {
+		UserTeamspace userTeamspace = getUserTeamspace(userDetails, teamspaceId);
+
+		if (userTeamspace.getTeamspaceRole() != TeamspaceRole.LEADER) {
+			throw new CommonException(ExceptionCode.ONLY_LEADER_ACCESS);
+		}
+
+		if (tagRepository.existsByTeamspaceAndName(userTeamspace.getTeamspace(), request.tagName())) {
+			throw new CommonException(ExceptionCode.CONFLICT_TAGS);
+		}
+
+		Tag newTag = Tag.of(request.tagName(), userTeamspace.getTeamspace());
+		Tag savedTag = tagRepository.save(newTag);
+
+		log.info("새 태그 생성 - 팀스페이스 Id: {}, 사용자 Id: {}, 태그 이름: {}", teamspaceId, userDetails.getUserId(),
+			savedTag.getName());
+		return CreateTagResponse.from(savedTag);
 	}
 
 	private Pair<InviteCode, UserTeamspace> generateAndSaveInviteCodeByTeamspaceId(CustomUserDetails userDetails,

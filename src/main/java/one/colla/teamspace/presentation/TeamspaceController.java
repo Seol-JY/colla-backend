@@ -18,9 +18,11 @@ import lombok.RequiredArgsConstructor;
 import one.colla.common.presentation.ApiResponse;
 import one.colla.common.security.authentication.CustomUserDetails;
 import one.colla.teamspace.application.TeamspaceService;
+import one.colla.teamspace.application.dto.request.CreateTagRequest;
 import one.colla.teamspace.application.dto.request.CreateTeamspaceRequest;
 import one.colla.teamspace.application.dto.request.ParticipateRequest;
 import one.colla.teamspace.application.dto.request.SendMailInviteCodeRequest;
+import one.colla.teamspace.application.dto.response.CreateTagResponse;
 import one.colla.teamspace.application.dto.response.CreateTeamspaceResponse;
 import one.colla.teamspace.application.dto.response.InviteCodeResponse;
 import one.colla.teamspace.application.dto.response.TeamspaceInfoResponse;
@@ -111,6 +113,18 @@ public class TeamspaceController {
 	) {
 		return ResponseEntity.ok().body(
 			ApiResponse.createSuccessResponse(teamspaceService.getSettings(userDetails, teamspaceId))
+		);
+	}
+
+	@PostMapping("/{teamspaceId}/tags")
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<ApiResponse<CreateTagResponse>> createTeamspaceTag(
+		@AuthenticationPrincipal final CustomUserDetails userDetails,
+		@PathVariable final Long teamspaceId,
+		@RequestBody @Valid final CreateTagRequest request
+	) {
+		return ResponseEntity.ok().body(
+			ApiResponse.createSuccessResponse(teamspaceService.createTag(userDetails, teamspaceId, request))
 		);
 	}
 }
