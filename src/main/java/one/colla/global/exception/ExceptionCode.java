@@ -25,10 +25,11 @@ public enum ExceptionCode {
 	/* 402xx USER */
 	NOT_FOUND_USER(HttpStatus.NOT_FOUND, 40201, "사용자를 찾을 수 없습니다."),
 
-	/* 402xx TEAMSPACE */
+	/* 403xx TEAMSPACE */
 	TEAMSPACE_FULL(HttpStatus.FORBIDDEN, 40301, "팀스페이스 인원이 가득 차있습니다."),
 	INVALID_OR_EXPIRED_INVITATION_CODE(HttpStatus.NOT_FOUND, 40302, "유효하지 않거나 만료된 초대코드입니다."),
-	FORBIDDEN_TEAMSPACE(HttpStatus.FORBIDDEN, 40307, "권한이 없거나 존재하지 않는 팀 스페이스입니다."),
+	ONLY_LEADER_ACCESS(HttpStatus.FORBIDDEN, 40304, "해당 팀스페이스에 대해 관리자 권한이 없습니다."),
+	FORBIDDEN_TEAMSPACE(HttpStatus.FORBIDDEN, 40307, "접근 권한이 없거나 존재하지 않는 팀 스페이스입니다."),
 
 	/* 499xx ETC */
 	NOT_FOUND_RESOURCE(HttpStatus.NOT_FOUND, 49901, "해당 경로를 찾을 수 없습니다."),

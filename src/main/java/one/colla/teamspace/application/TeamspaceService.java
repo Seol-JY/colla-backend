@@ -22,8 +22,11 @@ import one.colla.teamspace.application.dto.request.ParticipateRequest;
 import one.colla.teamspace.application.dto.request.SendMailInviteCodeRequest;
 import one.colla.teamspace.application.dto.response.CreateTeamspaceResponse;
 import one.colla.teamspace.application.dto.response.InviteCodeResponse;
+import one.colla.teamspace.application.dto.response.ParticipantDto;
 import one.colla.teamspace.application.dto.response.TeamspaceInfoResponse;
 import one.colla.teamspace.application.dto.response.TeamspaceParticipantsResponse;
+import one.colla.teamspace.application.dto.response.TeamspaceSettingsResponse;
+import one.colla.teamspace.domain.TagRepository;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.TeamspaceRepository;
 import one.colla.teamspace.domain.TeamspaceRole;
@@ -45,6 +48,7 @@ public class TeamspaceService {
 	private final TeamspaceRepository teamspaceRepository;
 	private final UserTeamspaceRepository userTeamspaceRepository;
 	private final UserRepository userRepository;
+	private final TagRepository tagRepository;
 	private final ApplicationEventPublisher publisher;
 	private final RandomCodeGenerator randomCodeGenerator;
 
@@ -130,6 +134,29 @@ public class TeamspaceService {
 		log.info("팀스페이스 참가 - 팀스페이스 Id: {}, 사용자 Id: {}", teamspaceId, user.getId());
 	}
 
+	@Transactional(readOnly = true)
+	public TeamspaceParticipantsResponse getParticipants(CustomUserDetails userDetails, Long teamspaceId) {
+		UserTeamspace userTeamspace = getUserTeamspace(userDetails, teamspaceId);
+		Teamspace teamspace = userTeamspace.getTeamspace();
+
+		List<ParticipantDto> participants = getParticipantByTeamspace(teamspace);
+		return TeamspaceParticipantsResponse.from(participants);
+	}
+
+	@Transactional(readOnly = true)
+	public TeamspaceSettingsResponse getSettings(CustomUserDetails userDetails, Long teamspaceId) {
+		UserTeamspace userTeamspace = getUserTeamspace(userDetails, teamspaceId);
+
+		if (userTeamspace.getTeamspaceRole() != TeamspaceRole.LEADER) {
+			throw new CommonException(ExceptionCode.ONLY_LEADER_ACCESS);
+		}
+
+		Teamspace teamspace = userTeamspace.getTeamspace();
+		List<ParticipantDto> participants = getParticipantByTeamspace(teamspace);
+
+		return TeamspaceSettingsResponse.of(teamspace, participants);
+	}
+
 	private Pair<InviteCode, UserTeamspace> generateAndSaveInviteCodeByTeamspaceId(CustomUserDetails userDetails,
 		Long teamspaceId) {
 		UserTeamspace userTeamspace = getUserTeamspace(userDetails, teamspaceId);
@@ -150,23 +177,17 @@ public class TeamspaceService {
 		return Pair.of(inviteCode, userTeamspace);
 	}
 
-	@Transactional(readOnly = true)
-	public TeamspaceParticipantsResponse getParticipants(CustomUserDetails userDetails, Long teamspaceId) {
-		UserTeamspace userTeamspace = getUserTeamspace(userDetails, teamspaceId);
-		Teamspace teamspace = userTeamspace.getTeamspace();
-
-		List<UserTeamspace> userTeamspaces = userTeamspaceRepository.findAllByTeamspace(teamspace);
-		List<TeamspaceParticipantsResponse.Participant> participants = userTeamspaces.stream()
-			.map(ut -> TeamspaceParticipantsResponse.Participant.of(ut.getUser(), ut, ut.getTag()))
-			.toList();
-
-		return TeamspaceParticipantsResponse.from(participants);
-	}
-
 	public UserTeamspace getUserTeamspace(CustomUserDetails userDetails, Long teamspaceId) {
 		return userTeamspaceRepository.findByUserIdAndTeamspaceId(userDetails.getUserId(),
 			teamspaceId).orElseThrow(() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)
 		);
+	}
+
+	private List<ParticipantDto> getParticipantByTeamspace(Teamspace teamspace) {
+		List<UserTeamspace> userTeamspaces = userTeamspaceRepository.findAllByTeamspace(teamspace);
+		return userTeamspaces.stream()
+			.map(ut -> ParticipantDto.of(ut.getUser(), ut, ut.getTag()))
+			.toList();
 	}
 }
 
