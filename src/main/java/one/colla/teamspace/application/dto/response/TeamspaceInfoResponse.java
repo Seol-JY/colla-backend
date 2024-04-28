@@ -13,8 +13,8 @@ public record TeamspaceInfoResponse(
 	public static TeamspaceInfoResponse of(boolean isParticipatedUser, Teamspace teamspace) {
 		return TeamspaceInfoResponse.builder()
 			.teamspaceId(teamspace.getId())
-			.teamspaceName(teamspace.getName().getValue())
-			.teamspaceProfileImageUrl(teamspace.getProfileImageUrl())
+			.teamspaceName(teamspace.getTeamspaceName().getValue())
+			.teamspaceProfileImageUrl(teamspace.getProfileImageUrlValue())
 			.isParticipated(isParticipatedUser).build();
 	}
 }

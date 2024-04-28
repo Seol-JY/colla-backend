@@ -14,31 +14,31 @@ import one.colla.global.exception.VoException;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
 @Getter
-public class Name {
+public class TagName {
 	private static final int MIN_LENGTH = 2;
-	private static final int MAX_LENGTH = 50;
+	private static final int MAX_LENGTH = 15;
 
-	@Column(name = "name", nullable = false, length = MAX_LENGTH)
+	@Column(name = "name", nullable = false, length = 50)
 	private String value;
 
-	private Name(final String value) {
+	private TagName(final String value) {
 		validate(value);
 		this.value = value;
 	}
 
-	public static Name from(String teamspaceName) {
-		return new Name(teamspaceName);
+	public static TagName from(String tagName) {
+		return new TagName(tagName);
 	}
 
 	private void validate(final String value) {
 		if (Objects.isNull(value)) {
-			throw new VoException("팀스페이스 이름은 null일 수 없습니다.");
+			throw new VoException("태그 이름은 null 일 수 없습니다.");
 		}
 		if (value.length() > MAX_LENGTH) {
-			throw new VoException("팀스페이스 이름은" + MAX_LENGTH + "자 이하여야 합니다.");
+			throw new VoException("태그 이름은" + MAX_LENGTH + "자 이하여야 합니다.");
 		}
 		if (value.length() < MIN_LENGTH) {
-			throw new VoException("팀스페이스 이름은" + MIN_LENGTH + "자 이상이여야 합니다.");
+			throw new VoException("태그 이름은" + MIN_LENGTH + "자 이상이여야 합니다.");
 		}
 	}
 }

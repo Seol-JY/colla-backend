@@ -3,7 +3,6 @@ package one.colla.teamspace.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -20,7 +19,8 @@ import one.colla.common.domain.BaseEntity;
 import one.colla.feed.common.domain.Feed;
 import one.colla.file.domain.Attachment;
 import one.colla.schedule.domain.CalendarEvent;
-import one.colla.teamspace.domain.vo.Name;
+import one.colla.teamspace.domain.vo.ProfileImageUrl;
+import one.colla.teamspace.domain.vo.TeamspaceName;
 
 @Getter
 @Entity
@@ -32,10 +32,10 @@ public class Teamspace extends BaseEntity {
 	private Long id;
 
 	@Embedded
-	private Name name;
+	private TeamspaceName teamspaceName;
 
-	@Column(name = "profile_image_url")
-	private String profileImageUrl;
+	@Embedded
+	private ProfileImageUrl profileImageUrl;
 
 	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
 	private final List<UserTeamspace> userTeamspaces = new ArrayList<>();
@@ -55,16 +55,20 @@ public class Teamspace extends BaseEntity {
 	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
 	private final List<Feed> feeds = new ArrayList<>();
 
-	private Teamspace(Name name) {
-		this.name = name;
+	private Teamspace(TeamspaceName name) {
+		this.teamspaceName = name;
 	}
 
 	public static Teamspace from(String teamspaceName) {
-		Name name = Name.from(teamspaceName);
+		TeamspaceName name = TeamspaceName.from(teamspaceName);
 		return new Teamspace(name);
 	}
 
-	public String getNameValue() {
-		return name.getValue();
+	public String getTeamspaceNameValue() {
+		return teamspaceName.getValue();
+	}
+
+	public String getProfileImageUrlValue() {
+		return profileImageUrl != null ? profileImageUrl.getValue() : null;
 	}
 }

@@ -8,6 +8,6 @@ public record TagDto(
 	String name
 ) {
 	public static TagDto from(@Nullable Tag tag) {
-		return tag != null ? new TagDto(tag.getId(), tag.getName()) : null;
+		return tag != null ? new TagDto(tag.getId(), tag.getTagNameValue()) : null;
 	}
 }

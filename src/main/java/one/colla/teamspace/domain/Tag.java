@@ -3,7 +3,7 @@ package one.colla.teamspace.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import one.colla.common.domain.BaseEntity;
+import one.colla.teamspace.domain.vo.TagName;
 
 @Getter
 @Entity
@@ -34,15 +35,19 @@ public class Tag extends BaseEntity {
 	@OneToMany(mappedBy = "tag", fetch = FetchType.LAZY)
 	private final List<UserTeamspace> userTeamspaces = new ArrayList<>();
 
-	@Column(name = "name", nullable = false, length = 50)
-	private String name;
+	@Embedded
+	private TagName tagName;
 
-	private Tag(String name, Teamspace teamspace) {
-		this.name = name;
+	private Tag(TagName tagName, Teamspace teamspace) {
+		this.tagName = tagName;
 		this.teamspace = teamspace;
 	}
 
 	public static Tag of(String tagName, Teamspace teamspace) {
-		return new Tag(tagName, teamspace);
+		return new Tag(TagName.from(tagName), teamspace);
+	}
+
+	public String getTagNameValue() {
+		return tagName.getValue();
 	}
 }

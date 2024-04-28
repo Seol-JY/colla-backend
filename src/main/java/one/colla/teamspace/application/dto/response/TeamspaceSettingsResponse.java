@@ -13,8 +13,8 @@ public record TeamspaceSettingsResponse(
 	public static TeamspaceSettingsResponse of(Teamspace teamspace, List<ParticipantDto> participants) {
 		List<TagDto> tagDtos = teamspace.getTags().stream().map(TagDto::from).toList();
 		return new TeamspaceSettingsResponse(
-			teamspace.getProfileImageUrl(),
-			teamspace.getNameValue(),
+			teamspace.getProfileImageUrlValue(),
+			teamspace.getTeamspaceNameValue(),
 			tagDtos,
 			participants
 		);

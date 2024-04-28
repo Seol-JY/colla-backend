@@ -35,6 +35,7 @@ import one.colla.teamspace.domain.TeamspaceRepository;
 import one.colla.teamspace.domain.TeamspaceRole;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.teamspace.domain.UserTeamspaceRepository;
+import one.colla.teamspace.domain.vo.TagName;
 import one.colla.user.domain.User;
 import one.colla.user.domain.UserRepository;
 
@@ -105,7 +106,7 @@ public class TeamspaceService {
 		InviteCode inviteCode = pair.getLeft();
 		UserTeamspace userTeamspace = pair.getRight();
 		String inviterName = userTeamspace.getUser().getUsernameValue();
-		String teamspaceName = userTeamspace.getTeamspace().getNameValue();
+		String teamspaceName = userTeamspace.getTeamspace().getTeamspaceNameValue();
 
 		publisher.publishEvent(
 			new InviteCodeSendMailEvent(request.email(), teamspaceName, inviterName, inviteCode.getCode())
@@ -168,7 +169,7 @@ public class TeamspaceService {
 			throw new CommonException(ExceptionCode.ONLY_LEADER_ACCESS);
 		}
 
-		if (tagRepository.existsByTeamspaceAndName(userTeamspace.getTeamspace(), request.tagName())) {
+		if (tagRepository.existsByTeamspaceAndTagName(userTeamspace.getTeamspace(), TagName.from(request.tagName()))) {
 			throw new CommonException(ExceptionCode.CONFLICT_TAGS);
 		}
 
@@ -176,7 +177,7 @@ public class TeamspaceService {
 		Tag savedTag = tagRepository.save(newTag);
 
 		log.info("새 태그 생성 - 팀스페이스 Id: {}, 사용자 Id: {}, 태그 이름: {}", teamspaceId, userDetails.getUserId(),
-			savedTag.getName());
+			savedTag.getTagNameValue());
 		return CreateTagResponse.from(savedTag);
 	}
 
