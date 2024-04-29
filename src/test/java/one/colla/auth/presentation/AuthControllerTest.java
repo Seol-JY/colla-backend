@@ -4,6 +4,7 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -27,6 +28,7 @@ import one.colla.auth.application.dto.request.VerificationCheckRequest;
 import one.colla.auth.application.dto.request.VerifyMailSendRequest;
 import one.colla.common.ControllerTest;
 import one.colla.common.presentation.ApiResponse;
+import one.colla.common.security.authentication.WithMockAnonymous;
 import one.colla.common.util.CookieUtil;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
@@ -52,11 +54,11 @@ class AuthControllerTest extends ControllerTest {
 		final String VERIFY_CODE = "ABCDEFG";
 
 		@DisplayName("회원가입 성공")
+		@WithMockAnonymous
 		@Test
 		void registerSuccess() throws Exception {
 			final RegisterRequest registerRequest = new RegisterRequest(USERNAME, PASSWORD, EMAIL, VERIFY_CODE);
-
-			mockMvc.perform(post("/api/v1/auth/register")
+			mockMvc.perform(post("/api/v1/auth/register").with(csrf())
 					.content(objectMapper.writeValueAsString(registerRequest))
 					.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isCreated())
@@ -84,6 +86,7 @@ class AuthControllerTest extends ControllerTest {
 		}
 
 		@DisplayName("회원가입 실패 - 중복된 이메일")
+		@WithMockAnonymous
 		@Test
 		void registerFailureDueToDuplicatedEmail() throws Exception {
 			final RegisterRequest registerRequest = new RegisterRequest(USERNAME, PASSWORD, EMAIL, VERIFY_CODE);
@@ -91,7 +94,7 @@ class AuthControllerTest extends ControllerTest {
 			willThrow(new CommonException(ExceptionCode.DUPLICATED_USER_EMAIL)).given(authService)
 				.register(any());
 
-			mockMvc.perform(post("/api/v1/auth/register")
+			mockMvc.perform(post("/api/v1/auth/register").with(csrf())
 					.content(objectMapper.writeValueAsString(registerRequest))
 					.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isConflict())
@@ -119,6 +122,7 @@ class AuthControllerTest extends ControllerTest {
 		}
 
 		@DisplayName("회원가입 실패 - 불일치하는 검증 코드")
+		@WithMockAnonymous
 		@Test
 		void registerFailureDueToMismatchedVerificationCode() throws Exception {
 			final RegisterRequest registerRequest = new RegisterRequest(USERNAME, PASSWORD, EMAIL, VERIFY_CODE);
@@ -126,7 +130,7 @@ class AuthControllerTest extends ControllerTest {
 			willThrow(new CommonException(ExceptionCode.UNAUTHORIZED_OR_EXPIRED_VERIFY_TOKEN)).given(authService)
 				.register(any());
 
-			mockMvc.perform(post("/api/v1/auth/register")
+			mockMvc.perform(post("/api/v1/auth/register").with(csrf())
 					.content(objectMapper.writeValueAsString(registerRequest))
 					.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isUnauthorized())
@@ -162,11 +166,12 @@ class AuthControllerTest extends ControllerTest {
 		final String EMAIL = "test@gmail.com";
 
 		@DisplayName("이메일 발송에 성공한다.")
+		@WithMockAnonymous
 		@Test
 		void sendVerifyMailSuccess() throws Exception {
 			final VerifyMailSendRequest sendRequest = new VerifyMailSendRequest(EMAIL);
 
-			mockMvc.perform(post("/api/v1/auth/mail/send")
+			mockMvc.perform(post("/api/v1/auth/mail/send").with(csrf())
 					.content(objectMapper.writeValueAsString(sendRequest))
 					.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isCreated())
@@ -199,12 +204,13 @@ class AuthControllerTest extends ControllerTest {
 		final String EMAIL = "test@gmail.com";
 
 		@DisplayName("중복된 이메일이 존재하지 않으면 성공한다.")
+		@WithMockAnonymous
 		@Test
 		void checkDuplication() throws Exception {
 
 			final DuplicationCheckRequest duplicationCheckRequest = new DuplicationCheckRequest(EMAIL);
 
-			mockMvc.perform(post("/api/v1/auth/mail/duplication")
+			mockMvc.perform(post("/api/v1/auth/mail/duplication").with(csrf())
 					.content(objectMapper.writeValueAsString(duplicationCheckRequest))
 					.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
@@ -228,6 +234,7 @@ class AuthControllerTest extends ControllerTest {
 		}
 
 		@DisplayName("중복된 이메일이 존재하면 실패한다.")
+		@WithMockAnonymous
 		@Test
 		void checkIsDuplicated() throws Exception {
 
@@ -236,7 +243,7 @@ class AuthControllerTest extends ControllerTest {
 			willThrow(new CommonException(ExceptionCode.DUPLICATED_USER_EMAIL)).given(authService)
 				.checkDuplication(any());
 
-			mockMvc.perform(post("/api/v1/auth/mail/duplication")
+			mockMvc.perform(post("/api/v1/auth/mail/duplication").with(csrf())
 					.content(objectMapper.writeValueAsString(duplicationCheckRequest))
 					.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isConflict())
@@ -268,12 +275,13 @@ class AuthControllerTest extends ControllerTest {
 		final String VERIFY_CODE = "AAAAAAA";
 
 		@DisplayName("유효한 검증 코드로 검증 성공한다.")
+		@WithMockAnonymous
 		@Test
 		void verifyEmailSuccess() throws Exception {
 
 			final VerificationCheckRequest verificationRequest = new VerificationCheckRequest(EMAIL, VERIFY_CODE);
 
-			mockMvc.perform(post("/api/v1/auth/mail/verification")
+			mockMvc.perform(post("/api/v1/auth/mail/verification").with(csrf())
 					.content(objectMapper.writeValueAsString(verificationRequest))
 					.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
@@ -298,6 +306,7 @@ class AuthControllerTest extends ControllerTest {
 		}
 
 		@DisplayName("유효하지 않은 검증 코드로 검증 실패한다.")
+		@WithMockAnonymous
 		@Test
 		void verifyEmailFailure() throws Exception {
 			final VerificationCheckRequest verificationRequest = new VerificationCheckRequest(EMAIL, VERIFY_CODE);
@@ -305,7 +314,7 @@ class AuthControllerTest extends ControllerTest {
 			willThrow(new CommonException(ExceptionCode.INVALID_VERIFY_TOKEN)).given(authService)
 				.checkVerification(any());
 
-			mockMvc.perform(post("/api/v1/auth/mail/verification")
+			mockMvc.perform(post("/api/v1/auth/mail/verification").with(csrf())
 					.content(objectMapper.writeValueAsString(verificationRequest))
 					.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isUnauthorized())

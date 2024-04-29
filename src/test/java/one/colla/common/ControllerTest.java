@@ -1,6 +1,7 @@
 package one.colla.common;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +44,7 @@ public abstract class ControllerTest {
 		final RestDocumentationContextProvider restDocumentation) {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
 			.apply(documentationConfiguration(restDocumentation))
+			.apply(springSecurity())
 			.alwaysDo(restDocs)
 			.addFilters(new CharacterEncodingFilter("UTF-8", true))
 			.build();
