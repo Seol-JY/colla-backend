@@ -17,15 +17,19 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import one.colla.common.helper.ApiDocumentationHelper;
 import one.colla.global.config.RestDocsConfiguration;
 
 @AutoConfigureMockMvc
-@Import(RestDocsConfiguration.class)
+@Import({RestDocsConfiguration.class, ApiDocumentationHelper.class})
 @ExtendWith(RestDocumentationExtension.class)
 public abstract class ControllerTest {
 
 	@Autowired
 	protected RestDocumentationResultHandler restDocs;
+
+	@Autowired
+	protected ApiDocumentationHelper apiDocHelper;
 
 	@Autowired
 	protected MockMvc mockMvc;
