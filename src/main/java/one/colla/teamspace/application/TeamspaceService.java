@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import one.colla.common.security.authentication.CustomUserDetails;
@@ -71,7 +72,7 @@ public class TeamspaceService {
 	}
 
 	@Transactional(readOnly = true)
-	public TeamspaceInfoResponse readInfoByCode(CustomUserDetails userDetails, String inviteCode) {
+	public TeamspaceInfoResponse readInfoByCode(@Nullable CustomUserDetails userDetails, String inviteCode) {
 		Long teamspaceId = inviteCodeService.getTeamspaceIdByCode(inviteCode);
 
 		User user = null;
