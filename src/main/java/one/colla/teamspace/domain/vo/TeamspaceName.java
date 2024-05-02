@@ -34,11 +34,11 @@ public class TeamspaceName {
 		if (Objects.isNull(value)) {
 			throw new VoException("팀스페이스 이름은 null 일 수 없습니다.");
 		}
-		if (value.length() > MAX_LENGTH) {
-			throw new VoException("팀스페이스 이름은" + MAX_LENGTH + "자 이하여야 합니다.");
+		if (value.isBlank()) {
+			throw new VoException("팀스페이스 이름은 공백일 수 없습니다.");
 		}
-		if (value.length() < MIN_LENGTH) {
-			throw new VoException("팀스페이스 이름은" + MIN_LENGTH + "자 이상이여야 합니다.");
+		if (value.length() > MAX_LENGTH || value.length() < MIN_LENGTH) {
+			throw new VoException("팀스페이스 이름은 " + MIN_LENGTH + "자 이상, " + MAX_LENGTH + "자 이하여야 합니다.");
 		}
 	}
 }
