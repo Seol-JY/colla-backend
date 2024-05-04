@@ -1,5 +1,7 @@
 package one.colla.common.builder;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,12 +20,20 @@ public class TestFixtureBuilder {
 		return bs.userRepository().save(user);
 	}
 
+	public List<User> buildUsers(final List<User> users) {
+		return bs.userRepository().saveAll(users);
+	}
+
 	public Teamspace buildTeamspace(final Teamspace teamspace) {
 		return bs.teamspaceRepository().save(teamspace);
 	}
 
 	public UserTeamspace buildUserTeamspace(final UserTeamspace userTeamspace) {
 		return bs.userTeamspaceRepository().save(userTeamspace);
+	}
+
+	public List<UserTeamspace> buildUserTeamspaces(final List<UserTeamspace> userTeamspaces) {
+		return bs.userTeamspaceRepository().saveAll(userTeamspaces);
 	}
 
 	public Tag buildTag(Tag tag) {

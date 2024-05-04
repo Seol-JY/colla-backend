@@ -14,7 +14,8 @@ public class WithMockCustomUserSecurityContextFactory
 	@Override
 	public SecurityContext createSecurityContext(WithMockCustomUser annotation) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
-		CustomUserDetails userDetails = UserFixtures.createCustomUserDetails(Long.parseLong(annotation.userId()));
+		CustomUserDetails userDetails = UserFixtures.createCustomUserDetailsByUserId(
+			Long.parseLong(annotation.userId()));
 		Authentication authentication = new UsernamePasswordAuthenticationToken(
 			userDetails, null, userDetails.getAuthorities());
 		context.setAuthentication(authentication);

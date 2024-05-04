@@ -7,10 +7,10 @@ import one.colla.user.domain.User;
 
 public class UserTeamspaceFixtures {
 	public static UserTeamspace LEADER_USERTEAMSPACE(User user, Teamspace teamspace) {
-		return UserTeamspace.of(user, teamspace, TeamspaceRole.LEADER);
+		return user.participate(teamspace, TeamspaceRole.LEADER);
 	}
 
 	public static UserTeamspace MEMBER_USERTEAMSPACE(User user, Teamspace teamspace) {
-		return UserTeamspace.of(user, teamspace, TeamspaceRole.MEMBER);
+		return user.participate(teamspace, TeamspaceRole.MEMBER);
 	}
 }

@@ -151,7 +151,9 @@ public class User extends BaseEntity {
 		final Teamspace teamspace,
 		final TeamspaceRole teamspaceRole
 	) {
-		return UserTeamspace.of(this, teamspace, teamspaceRole);
+		UserTeamspace userTeamspace = UserTeamspace.of(this, teamspace, teamspaceRole);
+		userTeamspaces.add(userTeamspace);
+		teamspace.addUserTeamspace(userTeamspace);
+		return userTeamspace;
 	}
-
 }

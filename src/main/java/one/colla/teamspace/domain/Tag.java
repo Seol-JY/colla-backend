@@ -43,11 +43,13 @@ public class Tag extends BaseEntity {
 		this.teamspace = teamspace;
 	}
 
-	public static Tag of(String tagName, Teamspace teamspace) {
-		return new Tag(TagName.from(tagName), teamspace);
-	}
-
 	public String getTagNameValue() {
 		return tagName.getValue();
+	}
+
+	public static Tag createTagForTeamspace(String tagName, Teamspace teamspace) {
+		Tag tag = new Tag(TagName.from(tagName), teamspace);
+		teamspace.addTag(tag);
+		return tag;
 	}
 }

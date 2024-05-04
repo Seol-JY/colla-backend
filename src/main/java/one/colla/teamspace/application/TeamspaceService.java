@@ -84,12 +84,11 @@ public class TeamspaceService {
 		Teamspace teamspace = teamspaceRepository.findById(teamspaceId)
 			.orElseThrow(() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE));
 
-		boolean isParticipatedUser =
-			(user != null && userTeamspaceRepository.existsByUserAndTeamspace(user, teamspace));
+		boolean isParticipated = isParticipatedUser(user, teamspace);
 
 		log.info("팀스페이스 정보조회 - 팀스페이스 Id: {}, 조회 사용자 Id: {}", teamspace.getId(), user != null ? user.getId() : "None");
 
-		return TeamspaceInfoResponse.of(isParticipatedUser, teamspace);
+		return TeamspaceInfoResponse.of(isParticipated, teamspace);
 	}
 
 	@Transactional
@@ -129,7 +128,11 @@ public class TeamspaceService {
 			log.info("팀스페이스 참가 실패(초대코드-팀 불일치) - 팀스페이스 Id: {}, 사용자 Id: {}", teamspaceId, user.getId());
 			throw new CommonException(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE);
 		}
-		if (teamspace.getUserTeamspaces().size() > MAX_TEAMSPACE_USERS) {
+		if (isParticipatedUser(user, teamspace)) {
+			log.info("팀스페이스 참가 실패(이미 참가한 사용자) - 팀스페이스 Id: {}, 사용자 Id: {}", teamspaceId, user.getId());
+			throw new CommonException(ExceptionCode.ALREADY_PARTICIPATED);
+		}
+		if (teamspace.getUserTeamspaces().size() >= MAX_TEAMSPACE_USERS) {
 			log.info("팀스페이스 참가 실패(인원 초과) - 팀스페이스 Id: {}, 사용자 Id: {}", teamspaceId, user.getId());
 			throw new CommonException(ExceptionCode.TEAMSPACE_FULL);
 		}
@@ -174,7 +177,7 @@ public class TeamspaceService {
 			throw new CommonException(ExceptionCode.CONFLICT_TAGS);
 		}
 
-		Tag newTag = Tag.of(request.tagName(), userTeamspace.getTeamspace());
+		Tag newTag = Tag.createTagForTeamspace(request.tagName(), userTeamspace.getTeamspace());
 		Tag savedTag = tagRepository.save(newTag);
 
 		log.info("새 태그 생성 - 팀스페이스 Id: {}, 사용자 Id: {}, 태그 이름: {}", teamspaceId, userDetails.getUserId(),
@@ -202,17 +205,38 @@ public class TeamspaceService {
 		return Pair.of(inviteCode, userTeamspace);
 	}
 
+	/**
+	 * 현재 사용자가 특정 팀 스페이스의 참가자인지 확인하고, 해당 팀 스페이스에 대한 사용자-팀 매핑 엔티티를 반환합니다.
+	 *
+	 * @param userDetails 현재 사용자의 상세 정보를 나타내는 객체
+	 * @param teamspaceId 조회할 팀 스페이스의 고유 식별자
+	 * @return 특정 팀 스페이스에 대한 사용자-팀 매핑 엔티티 ({@link UserTeamspace})
+	 * @throws CommonException 현재 사용자가 존재하지 않거나 해당 팀 스페이스의 참가자가 아닐 경우 발생하는 예외
+	 *                         (예외 코드: {@link ExceptionCode#NOT_FOUND_USER}, {@link ExceptionCode#FORBIDDEN_TEAMSPACE})
+	 */
+
 	public UserTeamspace getUserTeamspace(CustomUserDetails userDetails, Long teamspaceId) {
-		return userTeamspaceRepository.findByUserIdAndTeamspaceId(userDetails.getUserId(),
-			teamspaceId).orElseThrow(() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)
-		);
+		final User user = userRepository.findById(userDetails.getUserId())
+			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_USER));
+
+		UserTeamspace userTeamspace = user.getUserTeamspaces().stream()
+			.filter(ut -> ut.getTeamspace().getId().equals(teamspaceId))
+			.findFirst()
+			.orElseThrow(() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE));
+
+		log.info("사용자 팀스페이스 접근 권한 확인 - 팀스페이스 Id: {}, 사용자 Id: {}", teamspaceId, userDetails.getUserId());
+		return userTeamspace;
 	}
 
 	private List<ParticipantDto> getParticipantByTeamspace(Teamspace teamspace) {
-		List<UserTeamspace> userTeamspaces = userTeamspaceRepository.findAllByTeamspace(teamspace);
+		List<UserTeamspace> userTeamspaces = teamspace.getUserTeamspaces();
 		return userTeamspaces.stream()
 			.map(ut -> ParticipantDto.of(ut.getUser(), ut, ut.getTag()))
 			.toList();
+	}
+
+	private boolean isParticipatedUser(@Nullable User user, Teamspace teamspace) {
+		return user != null && userTeamspaceRepository.existsByUserAndTeamspace(user, teamspace);
 	}
 }
 

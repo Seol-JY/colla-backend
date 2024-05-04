@@ -1,6 +1,7 @@
 package one.colla.common.fixtures;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -39,7 +40,23 @@ public class UserFixtures {
 		return User.createGeneralUser(USER2_USERNAME, USER2_PASSWORD, USER2_EMAIL);
 	}
 
-	public static CustomUserDetails createCustomUserDetails(Long userId) {
+	public static User RANDOMUSER() {
+		String randomUsername = "USER_" + UUID.randomUUID().toString().substring(0, 8);
+		String randomPassword = "PASSWORD12" + UUID.randomUUID().toString().substring(0, 8);
+		String randomEmail = randomUsername + "@example.com";
+		return User.createGeneralUser(randomUsername, randomPassword, randomEmail);
+	}
+
+	public static CustomUserDetails createCustomUserDetailsByUser(User user) {
+		return CustomUserDetails.builder()
+			.userId(user.getId())
+			.username(user.getUsernameValue())
+			.userEmail(user.getEmailValue())
+			.authorities(List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())))
+			.build();
+	}
+
+	public static CustomUserDetails createCustomUserDetailsByUserId(Long userId) {
 		return CustomUserDetails.builder()
 			.userId(userId)
 			.username(USER1_USERNAME)

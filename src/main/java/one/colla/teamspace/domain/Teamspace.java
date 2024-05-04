@@ -71,4 +71,12 @@ public class Teamspace extends BaseEntity {
 	public String getProfileImageUrlValue() {
 		return profileImageUrl != null ? profileImageUrl.getValue() : null;
 	}
+
+	public void addUserTeamspace(UserTeamspace userTeamspace) {
+		userTeamspaces.add(userTeamspace);
+	}
+
+	public void addTag(Tag tag) {
+		tags.add(tag);
+	}
 }
