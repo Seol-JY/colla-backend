@@ -1,4 +1,4 @@
-package one.colla.global.config;
+package one.colla.global.config.json;
 
 import java.io.IOException;
 
