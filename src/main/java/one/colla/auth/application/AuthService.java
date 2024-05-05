@@ -50,10 +50,10 @@ public class AuthService {
 	@Transactional(readOnly = true)
 	public Pair<Long, JwtPair> login(LoginRequest dto) {
 		User user = userRepository.findByEmail(new Email(dto.email()))
-			.orElseThrow(() -> new CommonException(INVALID_USERNAME_OR_PASSWORD));
+			.orElseThrow(() -> new CommonException(INVALID_EMAIL_OR_PASSWORD));
 
 		if (!passwordEncoder.matches(dto.password(), user.getPasswordValue())) {
-			throw new CommonException(INVALID_USERNAME_OR_PASSWORD);
+			throw new CommonException(INVALID_EMAIL_OR_PASSWORD);
 		}
 
 		JwtPair jwtPair = jwtService.createToken(user);
