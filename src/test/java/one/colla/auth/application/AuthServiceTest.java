@@ -21,7 +21,7 @@ import one.colla.auth.application.dto.request.VerifyMailSendRequest;
 import one.colla.common.ServiceTest;
 import one.colla.common.util.RandomCodeGenerator;
 import one.colla.global.exception.CommonException;
-import one.colla.infra.mail.VerifyCodeMailSendEvent;
+import one.colla.infra.mail.events.VerifyCodeSendMailEvent;
 import one.colla.infra.redis.verify.VerifyCode;
 import one.colla.infra.redis.verify.VerifyCodeService;
 import one.colla.user.domain.User;
@@ -214,14 +214,14 @@ class AuthServiceTest extends ServiceTest {
 		VerifyMailSendRequest request = new VerifyMailSendRequest(TARGET_EMAIL);
 		given(randomCodeGenerator.generateRandomString(anyInt())).willReturn(VERIFY_CODE);
 		willDoNothing().given(verifyCodeService).save(any(VerifyCode.class));
-		ArgumentCaptor<VerifyCodeMailSendEvent> argumentCaptor = ArgumentCaptor.forClass(VerifyCodeMailSendEvent.class);
+		ArgumentCaptor<VerifyCodeSendMailEvent> argumentCaptor = ArgumentCaptor.forClass(VerifyCodeSendMailEvent.class);
 
 		// when
 		authService.sendVerifyMail(request);
 
 		// then
 		verify(publisher, times(1)).publishEvent(argumentCaptor.capture());
-		VerifyCodeMailSendEvent capturedEvent = argumentCaptor.getValue();
+		VerifyCodeSendMailEvent capturedEvent = argumentCaptor.getValue();
 		assertThat(capturedEvent).isNotNull();
 		assertThat(capturedEvent.email()).isEqualTo(TARGET_EMAIL);
 		assertThat(capturedEvent.verifyCode()).isEqualTo(VERIFY_CODE);

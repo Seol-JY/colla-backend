@@ -3,7 +3,7 @@ package one.colla.teamspace.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -19,22 +19,23 @@ import one.colla.common.domain.BaseEntity;
 import one.colla.feed.common.domain.Feed;
 import one.colla.file.domain.Attachment;
 import one.colla.schedule.domain.CalendarEvent;
+import one.colla.teamspace.domain.vo.ProfileImageUrl;
+import one.colla.teamspace.domain.vo.TeamspaceName;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "teamspaces")
 public class Teamspace extends BaseEntity {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "name", nullable = false, length = 50)
-	private String name;
+	@Embedded
+	private TeamspaceName teamspaceName;
 
-	@Column(name = "profile_image_url")
-	private String profileImageUrl;
+	@Embedded
+	private ProfileImageUrl profileImageUrl;
 
 	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
 	private final List<UserTeamspace> userTeamspaces = new ArrayList<>();
@@ -54,4 +55,36 @@ public class Teamspace extends BaseEntity {
 	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
 	private final List<Feed> feeds = new ArrayList<>();
 
+	private Teamspace(TeamspaceName name) {
+		this.teamspaceName = name;
+	}
+
+	public static Teamspace from(final String teamspaceName) {
+		TeamspaceName name = TeamspaceName.from(teamspaceName);
+		return new Teamspace(name);
+	}
+
+	public String getTeamspaceNameValue() {
+		return teamspaceName.getValue();
+	}
+
+	public String getProfileImageUrlValue() {
+		return profileImageUrl != null ? profileImageUrl.getValue() : null;
+	}
+
+	public void addUserTeamspace(final UserTeamspace userTeamspace) {
+		userTeamspaces.add(userTeamspace);
+	}
+
+	public void addTag(Tag tag) {
+		tags.add(tag);
+	}
+
+	public void changeTeamspaceName(final TeamspaceName teamspaceName) {
+		this.teamspaceName = teamspaceName;
+	}
+
+	public void changeProfileImageUrl(final ProfileImageUrl profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
+	}
 }

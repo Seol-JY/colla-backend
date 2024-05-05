@@ -19,7 +19,7 @@ import one.colla.auth.application.dto.request.VerificationCheckRequest;
 import one.colla.auth.application.dto.request.VerifyMailSendRequest;
 import one.colla.common.util.RandomCodeGenerator;
 import one.colla.global.exception.CommonException;
-import one.colla.infra.mail.VerifyCodeMailSendEvent;
+import one.colla.infra.mail.events.VerifyCodeSendMailEvent;
 import one.colla.infra.redis.verify.VerifyCode;
 import one.colla.infra.redis.verify.VerifyCodeService;
 import one.colla.user.application.UserService;
@@ -94,7 +94,7 @@ public class AuthService {
 			VerifyCode.of(dto.email(), generated, REGISTER_VERIFY_CODE_EXPIRY_TIME)
 		);
 
-		publisher.publishEvent(new VerifyCodeMailSendEvent(dto.email(), generated));
+		publisher.publishEvent(new VerifyCodeSendMailEvent(dto.email(), generated));
 		log.info("인증번호 전송 - email: {}", dto.email());
 	}
 

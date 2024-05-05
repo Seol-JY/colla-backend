@@ -52,7 +52,7 @@ public class ApiResponse<T> {
 		return new ApiResponse<>(SERVER_ERROR_CODE, null, SERVER_ERROR_MESSAGE);
 	}
 
-	public static ResponseEntity<ApiResponse<Map<String, String>>> createValidationResponseEntity(
+	public static ResponseEntity<Object> createValidationResponseEntity(
 		Map<String, String> errors) {
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
@@ -65,7 +65,7 @@ public class ApiResponse<T> {
 			.body(createErrorResponse(ex));
 	}
 
-	public static <T> ResponseEntity<ApiResponse<T>> createErrorResponseEntity(ExceptionCode ex) {
+	public static <T> ResponseEntity<Object> createErrorResponseEntity(ExceptionCode ex) {
 		return ResponseEntity
 			.status(ex.getHttpStatus())
 			.body(createErrorResponse(ex));
@@ -77,7 +77,7 @@ public class ApiResponse<T> {
 			.body(createVoErrorResponse(ex));
 	}
 
-	public static <T> ResponseEntity<ApiResponse<T>> createServerErrorResponseEntity() {
+	public static <T> ResponseEntity<Object> createServerErrorResponseEntity() {
 		return ResponseEntity
 			.status(HttpStatus.INTERNAL_SERVER_ERROR)
 			.body(createServerErrorResponse());

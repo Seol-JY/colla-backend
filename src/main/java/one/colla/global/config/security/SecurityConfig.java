@@ -29,6 +29,7 @@ public class SecurityConfig {
 		"/docs/open-api-3.0.1.yaml"};
 	private static final String[] PUBLIC_ENDPOINTS = {"/", "/error"};
 	private static final String[] ANONYMOUS_ENDPOINTS = {"/api/v1/auth/**"};
+	private static final String[] CONDITIONAL_AUTHENTICATION_GET_ENDPOINTS = {"/api/v1/teamspaces"};
 
 	private final CorsConfigurationSource corsConfigurationSource;
 	private final AccessDeniedHandler accessDeniedHandler;
@@ -72,6 +73,7 @@ public class SecurityConfig {
 		return auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 			.requestMatchers(HttpMethod.OPTIONS, "*").permitAll()
 			.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+			.requestMatchers(HttpMethod.GET, CONDITIONAL_AUTHENTICATION_GET_ENDPOINTS).permitAll()
 			.requestMatchers(ANONYMOUS_ENDPOINTS).anonymous();
 	}
 }

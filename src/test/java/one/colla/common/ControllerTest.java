@@ -1,6 +1,7 @@
 package one.colla.common;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,15 +18,19 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import one.colla.common.helper.ApiDocumentationHelper;
 import one.colla.global.config.RestDocsConfiguration;
 
 @AutoConfigureMockMvc
-@Import(RestDocsConfiguration.class)
+@Import({RestDocsConfiguration.class, ApiDocumentationHelper.class})
 @ExtendWith(RestDocumentationExtension.class)
 public abstract class ControllerTest {
 
 	@Autowired
 	protected RestDocumentationResultHandler restDocs;
+
+	@Autowired
+	protected ApiDocumentationHelper apiDocHelper;
 
 	@Autowired
 	protected MockMvc mockMvc;
@@ -39,6 +44,7 @@ public abstract class ControllerTest {
 		final RestDocumentationContextProvider restDocumentation) {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
 			.apply(documentationConfiguration(restDocumentation))
+			.apply(springSecurity())
 			.alwaysDo(restDocs)
 			.addFilters(new CharacterEncodingFilter("UTF-8", true))
 			.build();

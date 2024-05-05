@@ -29,6 +29,8 @@ import one.colla.file.domain.Attachment;
 import one.colla.schedule.domain.CalendarEventSubtodo;
 import one.colla.schedule.domain.UserCalendarEvent;
 import one.colla.schedule.domain.UserCalendarEventMention;
+import one.colla.teamspace.domain.Teamspace;
+import one.colla.teamspace.domain.TeamspaceRole;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.user.domain.vo.Email;
 import one.colla.user.domain.vo.Password;
@@ -141,4 +143,17 @@ public class User extends BaseEntity {
 		return password.getValue();
 	}
 
+	public String getProfileImageUrlValue() {
+		return profileImageUrl != null ? profileImageUrl.getValue() : null;
+	}
+
+	public UserTeamspace participate(
+		final Teamspace teamspace,
+		final TeamspaceRole teamspaceRole
+	) {
+		UserTeamspace userTeamspace = UserTeamspace.of(this, teamspace, teamspaceRole);
+		userTeamspaces.add(userTeamspace);
+		teamspace.addUserTeamspace(userTeamspace);
+		return userTeamspace;
+	}
 }
