@@ -5,7 +5,7 @@ import static one.colla.common.fixtures.TeamspaceFixtures.*;
 import static one.colla.common.fixtures.UserFixtures.*;
 import static one.colla.common.fixtures.UserTeamspaceFixtures.*;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -140,7 +140,7 @@ class TeamspaceServiceTest extends ServiceTest {
 		@DisplayName("로그인하지 않은 사용자가 팀스페이스 정보를 조회할 수 있고, isParticipated 는 항상 False 이다.")
 		void readInfoByNotLoginedUserSuccessfully() {
 			// given
-			when(inviteCodeService.getTeamspaceIdByCode(any())).thenReturn(OS_TEAMSPACE.getId());
+			given(inviteCodeService.getTeamspaceIdByCode(any())).willReturn(OS_TEAMSPACE.getId());
 
 			// when
 			TeamspaceInfoResponse teamspaceInfoResponse = teamspaceService.readInfoByCode(null, "validInviteCode");
@@ -163,7 +163,7 @@ class TeamspaceServiceTest extends ServiceTest {
 			// given
 			User USER1 = testFixtureBuilder.buildUser(USER1());
 			CustomUserDetails USER1_DETAILS = createCustomUserDetailsByUser(USER1);
-			when(inviteCodeService.getTeamspaceIdByCode(any())).thenReturn(OS_TEAMSPACE.getId());
+			given(inviteCodeService.getTeamspaceIdByCode(any())).willReturn(OS_TEAMSPACE.getId());
 
 			// when
 			TeamspaceInfoResponse teamspaceInfoResponse = teamspaceService.readInfoByCode(USER1_DETAILS,
@@ -188,7 +188,7 @@ class TeamspaceServiceTest extends ServiceTest {
 			User USER1 = testFixtureBuilder.buildUser(USER1());
 			CustomUserDetails USER1_DETAILS = createCustomUserDetailsByUser(USER1);
 			testFixtureBuilder.buildUserTeamspace(LEADER_USERTEAMSPACE(USER1, OS_TEAMSPACE));
-			when(inviteCodeService.getTeamspaceIdByCode(any())).thenReturn(OS_TEAMSPACE.getId());
+			given(inviteCodeService.getTeamspaceIdByCode(any())).willReturn(OS_TEAMSPACE.getId());
 
 			// when
 			TeamspaceInfoResponse teamspaceInfoResponse = teamspaceService.readInfoByCode(USER1_DETAILS,
@@ -211,16 +211,13 @@ class TeamspaceServiceTest extends ServiceTest {
 		@DisplayName("이미 만료되었거나 유효하지 않은 초대코드로 조회하는 경우 예외가 발생한다.")
 		void readInfoExpierdFailure() {
 			// given
-			when(inviteCodeService.getTeamspaceIdByCode(any()))
-				.thenThrow(new CommonException(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE));
+			given(inviteCodeService.getTeamspaceIdByCode(any()))
+				.willThrow(new CommonException(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE));
 
 			// when then
 			assertThatThrownBy(() -> teamspaceService.readInfoByCode(null, "validInviteCode"))
 				.isExactlyInstanceOf(CommonException.class)
-				.satisfies(actualException ->
-					assertThat(actualException).usingRecursiveComparison()
-						.isEqualTo(new CommonException(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE))
-				);
+				.hasMessageContaining(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE.getMessage());
 		}
 
 		@Test
@@ -228,15 +225,12 @@ class TeamspaceServiceTest extends ServiceTest {
 		void readInfoNotFoundFailure() {
 			// given
 			final Long INVALID_TEAMSPACE_ID = -1L;
-			when(inviteCodeService.getTeamspaceIdByCode(any())).thenReturn(INVALID_TEAMSPACE_ID);
+			given(inviteCodeService.getTeamspaceIdByCode(any())).willReturn(INVALID_TEAMSPACE_ID);
 
 			// when then
 			assertThatThrownBy(() -> teamspaceService.readInfoByCode(null, "validInviteCode"))
 				.isExactlyInstanceOf(CommonException.class)
-				.satisfies(actualException -> {
-					assertThat(actualException).usingRecursiveComparison()
-						.isEqualTo(new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE));
-				});
+				.hasMessageContaining(ExceptionCode.FORBIDDEN_TEAMSPACE.getMessage());
 		}
 	}
 
@@ -257,9 +251,9 @@ class TeamspaceServiceTest extends ServiceTest {
 
 			final InviteCode expectedInviteCode = InviteCode.of(GENERATED_INVITE_CODE,
 				USER1_OS_USERTEAMSPACE.getTeamspace().getId(), CODE_TTL);
-			when(randomCodeGenerator.generateRandomString(anyInt())).thenReturn(GENERATED_INVITE_CODE);
-			when(inviteCodeService.existsByCode(any())).thenReturn(false);
-			when(inviteCodeService.saveInviteCode(any())).thenReturn(expectedInviteCode);
+			given(randomCodeGenerator.generateRandomString(anyInt())).willReturn(GENERATED_INVITE_CODE);
+			given(inviteCodeService.existsByCode(any())).willReturn(false);
+			given(inviteCodeService.saveInviteCode(any())).willReturn(expectedInviteCode);
 
 			// when
 			InviteCodeResponse expectedInviteCodeResponse = teamspaceService.getInviteCode(USER1_DETAILS,
@@ -289,9 +283,9 @@ class TeamspaceServiceTest extends ServiceTest {
 			final InviteCode expectedInviteCode = InviteCode.of(GENERATED_INVITE_CODE,
 				USER1_OS_USERTEAMSPACE.getTeamspace().getId(), CODE_TTL);
 
-			when(randomCodeGenerator.generateRandomString(anyInt())).thenReturn(GENERATED_INVITE_CODE);
-			when(inviteCodeService.existsByCode(any())).thenReturn(false);
-			when(inviteCodeService.saveInviteCode(any())).thenReturn(expectedInviteCode);
+			given(randomCodeGenerator.generateRandomString(anyInt())).willReturn(GENERATED_INVITE_CODE);
+			given(inviteCodeService.existsByCode(any())).willReturn(false);
+			given(inviteCodeService.saveInviteCode(any())).willReturn(expectedInviteCode);
 
 			ArgumentCaptor<InviteCodeSendMailEvent> argumentCaptor = ArgumentCaptor.forClass(
 				InviteCodeSendMailEvent.class);
@@ -339,7 +333,7 @@ class TeamspaceServiceTest extends ServiceTest {
 		@DisplayName("참가에 성공한다.")
 		void participateSuccessfully() {
 			// given
-			when(inviteCodeService.getTeamspaceIdByCode(any())).thenReturn(OS_TEAMSPACE.getId());
+			given(inviteCodeService.getTeamspaceIdByCode(any())).willReturn(OS_TEAMSPACE.getId());
 
 			// when
 			teamspaceService.participate(USER1_DETAILS, OS_TEAMSPACE.getId(), participateRequest);
@@ -361,33 +355,28 @@ class TeamspaceServiceTest extends ServiceTest {
 		void participateFailure1() {
 			// given
 			Teamspace DATABASE_TEAMSPACE = testFixtureBuilder.buildTeamspace(DATABASE_TEAMSPACE());
-			when(inviteCodeService.getTeamspaceIdByCode(any())).thenReturn(OS_TEAMSPACE.getId());
+			given(inviteCodeService.getTeamspaceIdByCode(any())).willReturn(OS_TEAMSPACE.getId());
 
 			// when then
 			assertThatThrownBy(
 				() -> teamspaceService.participate(USER1_DETAILS, DATABASE_TEAMSPACE.getId(), participateRequest))
 				.isExactlyInstanceOf(CommonException.class)
-				.satisfies(actualException ->
-					assertThat(actualException).usingRecursiveComparison()
-						.isEqualTo(new CommonException(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE))
-				);
+				.hasMessageContaining(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE.getMessage());
+
 		}
 
 		@Test
 		@DisplayName("이미 참가되어있는 사용자가 참가 요청을 하는 경우 예외가 발생한다.")
 		void participateAlreadyFailure1() {
 			// given
-			when(inviteCodeService.getTeamspaceIdByCode(any())).thenReturn(OS_TEAMSPACE.getId());
+			given(inviteCodeService.getTeamspaceIdByCode(any())).willReturn(OS_TEAMSPACE.getId());
 			testFixtureBuilder.buildUserTeamspace(LEADER_USERTEAMSPACE(USER1, OS_TEAMSPACE));
 
 			// when then
 			assertThatThrownBy(
 				() -> teamspaceService.participate(USER1_DETAILS, OS_TEAMSPACE.getId(), participateRequest))
 				.isExactlyInstanceOf(CommonException.class)
-				.satisfies(actualException ->
-					assertThat(actualException).usingRecursiveComparison()
-						.isEqualTo(new CommonException(ExceptionCode.ALREADY_PARTICIPATED))
-				);
+				.hasMessageContaining(ExceptionCode.ALREADY_PARTICIPATED.getMessage());
 		}
 
 		@Test
@@ -395,7 +384,7 @@ class TeamspaceServiceTest extends ServiceTest {
 		void participateFullFailure() {
 			final int MAX_TEAMSPACE_USERS = 10;
 			// given
-			when(inviteCodeService.getTeamspaceIdByCode(any())).thenReturn(OS_TEAMSPACE.getId());
+			given(inviteCodeService.getTeamspaceIdByCode(any())).willReturn(OS_TEAMSPACE.getId());
 
 			List<User> tempUsers = new ArrayList<>();
 			for (int i = 0; i < MAX_TEAMSPACE_USERS; i++) {
@@ -410,27 +399,21 @@ class TeamspaceServiceTest extends ServiceTest {
 			assertThatThrownBy(
 				() -> teamspaceService.participate(USER1_DETAILS, OS_TEAMSPACE.getId(), participateRequest))
 				.isExactlyInstanceOf(CommonException.class)
-				.satisfies(actualException ->
-					assertThat(actualException).usingRecursiveComparison()
-						.isEqualTo(new CommonException(ExceptionCode.TEAMSPACE_FULL))
-				);
+				.hasMessageContaining(ExceptionCode.TEAMSPACE_FULL.getMessage());
 		}
 
 		@Test
 		@DisplayName("이미 만료되었거나 유효하지 않은 초대코드로 참가 요청 시 예외가 발생한다.")
 		void participateExpierdFailure() {
 			// given
-			when(inviteCodeService.getTeamspaceIdByCode(any()))
-				.thenThrow(new CommonException(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE));
+			given(inviteCodeService.getTeamspaceIdByCode(any()))
+				.willThrow(new CommonException(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE));
 
 			// when then
 			assertThatThrownBy(
 				() -> teamspaceService.participate(USER1_DETAILS, OS_TEAMSPACE.getId(), participateRequest))
 				.isExactlyInstanceOf(CommonException.class)
-				.satisfies(actualException ->
-					assertThat(actualException).usingRecursiveComparison()
-						.isEqualTo(new CommonException(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE))
-				);
+				.hasMessageContaining(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE.getMessage());
 		}
 	}
 
@@ -527,10 +510,7 @@ class TeamspaceServiceTest extends ServiceTest {
 			assertThatThrownBy(
 				() -> teamspaceService.getSettings(USER2_DETAILS, OS_TEAMSPACE.getId()))
 				.isExactlyInstanceOf(CommonException.class)
-				.satisfies(actualException ->
-					assertThat(actualException).usingRecursiveComparison()
-						.isEqualTo(new CommonException(ExceptionCode.ONLY_LEADER_ACCESS))
-				);
+				.hasMessageContaining(ExceptionCode.ONLY_LEADER_ACCESS.getMessage());
 		}
 	}
 
@@ -580,10 +560,7 @@ class TeamspaceServiceTest extends ServiceTest {
 			assertThatThrownBy(
 				() -> teamspaceService.createTag(USER1_DETAILS, OS_TEAMSPACE.getId(), request))
 				.isExactlyInstanceOf(CommonException.class)
-				.satisfies(actualException ->
-					assertThat(actualException).usingRecursiveComparison()
-						.isEqualTo(new CommonException(ExceptionCode.CONFLICT_TAGS))
-				);
+				.hasMessageContaining(ExceptionCode.CONFLICT_TAGS.getMessage());
 		}
 
 		@Test
@@ -600,10 +577,7 @@ class TeamspaceServiceTest extends ServiceTest {
 			assertThatThrownBy(
 				() -> teamspaceService.createTag(USER2_DETAILS, OS_TEAMSPACE.getId(), request))
 				.isExactlyInstanceOf(CommonException.class)
-				.satisfies(actualException ->
-					assertThat(actualException).usingRecursiveComparison()
-						.isEqualTo(new CommonException(ExceptionCode.ONLY_LEADER_ACCESS))
-				);
+				.hasMessageContaining(ExceptionCode.ONLY_LEADER_ACCESS.getMessage());
 		}
 	}
 
@@ -670,10 +644,7 @@ class TeamspaceServiceTest extends ServiceTest {
 			// when then
 			assertThatThrownBy(() -> teamspaceService.updateSettings(USER2_DETAILS, OS_TEAMSPACE.getId(), request))
 				.isExactlyInstanceOf(CommonException.class)
-				.satisfies(actualException ->
-					assertThat(actualException).usingRecursiveComparison()
-						.isEqualTo(new CommonException(ExceptionCode.ONLY_LEADER_ACCESS))
-				);
+				.hasMessageContaining(ExceptionCode.ONLY_LEADER_ACCESS.getMessage());
 		}
 
 		@Test
@@ -689,10 +660,7 @@ class TeamspaceServiceTest extends ServiceTest {
 			// when then
 			assertThatThrownBy(() -> teamspaceService.updateSettings(USER1_DETAILS, OS_TEAMSPACE.getId(), request))
 				.isExactlyInstanceOf(CommonException.class)
-				.satisfies(actualException ->
-					assertThat(actualException).usingRecursiveComparison()
-						.isEqualTo(new CommonException(ExceptionCode.FAIL_CHANGE_USERTAG))
-				);
+				.hasMessageContaining(ExceptionCode.FAIL_CHANGE_USERTAG.getMessage());
 		}
 	}
 }
