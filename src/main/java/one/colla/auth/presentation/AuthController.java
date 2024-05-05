@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import one.colla.auth.application.AuthService;
 import one.colla.auth.application.dto.JwtPair;
-import one.colla.auth.application.dto.request.DuplicationCheckRequest;
 import one.colla.auth.application.dto.request.LoginRequest;
 import one.colla.auth.application.dto.request.RegisterRequest;
 import one.colla.auth.application.dto.request.VerificationCheckRequest;
@@ -59,10 +59,11 @@ public class AuthController {
 			.body(ApiResponse.createSuccessResponse(Map.of()));
 	}
 
-	@PostMapping("/mail/duplication")
+	@GetMapping("/mail/duplication")
 	@PreAuthorize("isAnonymous()")
-	public ResponseEntity<ApiResponse<Object>> checkDuplication(@RequestBody @Valid DuplicationCheckRequest request) {
-		authService.checkDuplication(request);
+	public ResponseEntity<ApiResponse<Object>> checkDuplication(
+		@RequestParam(value = "email", required = true) String email) {
+		authService.checkDuplication(email);
 		return ResponseEntity.ok()
 			.body(ApiResponse.createSuccessResponse(Map.of()));
 	}

@@ -22,7 +22,6 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 
 import one.colla.auth.application.AuthService;
-import one.colla.auth.application.dto.request.DuplicationCheckRequest;
 import one.colla.auth.application.dto.request.RegisterRequest;
 import one.colla.auth.application.dto.request.VerificationCheckRequest;
 import one.colla.auth.application.dto.request.VerifyMailSendRequest;
@@ -200,7 +199,7 @@ class AuthControllerTest extends ControllerTest {
 	@Nested
 	@DisplayName("회원가입시 이메일 중복 검사 문서화")
 	class EmailDuplicationDocs {
-
+		final String QUESTION_MARK = "?";
 		final String EMAIL = "test@gmail.com";
 
 		@DisplayName("중복된 이메일이 존재하지 않으면 성공한다.")
@@ -208,19 +207,13 @@ class AuthControllerTest extends ControllerTest {
 		@Test
 		void checkDuplication() throws Exception {
 
-			final DuplicationCheckRequest duplicationCheckRequest = new DuplicationCheckRequest(EMAIL);
-
-			mockMvc.perform(post("/api/v1/auth/mail/duplication").with(csrf())
-					.content(objectMapper.writeValueAsString(duplicationCheckRequest))
-					.contentType(MediaType.APPLICATION_JSON))
+			mockMvc.perform(get("/api/v1/auth/mail/duplication").with(csrf())
+					.queryParam("email", EMAIL))
 				.andExpect(status().isOk())
 				.andExpect(content().json(objectMapper.writeValueAsString(SUCCESS_RESPONSE)))
 				.andDo(restDocs.document(
 					resource(ResourceSnippetParameters.builder()
 						.tag("auth-controller")
-						.requestFields(
-							fieldWithPath("email").description("이메일").type(JsonFieldType.STRING)
-						)
 						.responseFields(
 							fieldWithPath("code").description("code").type(JsonFieldType.NUMBER),
 							fieldWithPath("content").description("content").type(JsonFieldType.OBJECT),
@@ -238,23 +231,18 @@ class AuthControllerTest extends ControllerTest {
 		@Test
 		void checkIsDuplicated() throws Exception {
 
-			final DuplicationCheckRequest duplicationCheckRequest = new DuplicationCheckRequest(EMAIL);
-
 			willThrow(new CommonException(ExceptionCode.DUPLICATED_USER_EMAIL)).given(authService)
 				.checkDuplication(any());
 
-			mockMvc.perform(post("/api/v1/auth/mail/duplication").with(csrf())
-					.content(objectMapper.writeValueAsString(duplicationCheckRequest))
-					.contentType(MediaType.APPLICATION_JSON))
+
+			mockMvc.perform(get("/api/v1/auth/mail/duplication").with(csrf())
+					.queryParam("email", EMAIL))
 				.andExpect(status().isConflict())
 				.andExpect(content().json(objectMapper.writeValueAsString(
 					ApiResponse.createErrorResponse(new CommonException(ExceptionCode.DUPLICATED_USER_EMAIL)))))
 				.andDo(restDocs.document(
 					resource(ResourceSnippetParameters.builder()
 						.tag("auth-controller")
-						.requestFields(
-							fieldWithPath("email").description("이메일").type(JsonFieldType.STRING)
-						)
 						.responseFields(
 							fieldWithPath("code").description("code").type(JsonFieldType.NUMBER),
 							fieldWithPath("content").description("content").type(JsonFieldType.NULL),

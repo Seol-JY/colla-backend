@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import one.colla.auth.application.dto.request.DuplicationCheckRequest;
 import one.colla.auth.application.dto.request.RegisterRequest;
 import one.colla.auth.application.dto.request.VerificationCheckRequest;
 import one.colla.auth.application.dto.request.VerifyMailSendRequest;
@@ -137,11 +136,10 @@ class AuthServiceTest extends ServiceTest {
 
 			// given
 			final String UNIQUE_EMAIL = "unique@example.com";
-			DuplicationCheckRequest request = new DuplicationCheckRequest(UNIQUE_EMAIL);
 			given(userRepository.findByEmail(new Email(UNIQUE_EMAIL))).willReturn(Optional.empty());
 
 			// when & then
-			assertThatCode(() -> authService.checkDuplication(request)).doesNotThrowAnyException();
+			assertThatCode(() -> authService.checkDuplication(UNIQUE_EMAIL)).doesNotThrowAnyException();
 		}
 
 		@DisplayName("이메일이 중복 됐다면 중복 예외를 발생한다.")
@@ -150,11 +148,10 @@ class AuthServiceTest extends ServiceTest {
 
 			// given
 			final String DUPLICATED_EMAIL = "duplicated@example.com";
-			DuplicationCheckRequest request = new DuplicationCheckRequest(DUPLICATED_EMAIL);
 			given(userRepository.findByEmail(new Email(DUPLICATED_EMAIL))).willReturn(Optional.of(mock(User.class)));
 
 			// when & then
-			assertThatCode(() -> authService.checkDuplication(request))
+			assertThatCode(() -> authService.checkDuplication(DUPLICATED_EMAIL))
 				.isInstanceOf(CommonException.class)
 				.hasMessageContaining(DUPLICATED_USER_EMAIL.getMessage());
 		}

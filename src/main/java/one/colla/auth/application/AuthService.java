@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import one.colla.auth.application.dto.JwtPair;
-import one.colla.auth.application.dto.request.DuplicationCheckRequest;
 import one.colla.auth.application.dto.request.LoginRequest;
 import one.colla.auth.application.dto.request.RegisterRequest;
 import one.colla.auth.application.dto.request.VerificationCheckRequest;
@@ -74,9 +73,9 @@ public class AuthService {
 	}
 
 	@Transactional(readOnly = true)
-	public void checkDuplication(DuplicationCheckRequest dto) {
-		isEmailDuplicated(dto.email());
-		log.info("이메일 중복 검사 - email: {}", dto.email());
+	public void checkDuplication(String email) {
+		isEmailDuplicated(email);
+		log.info("이메일 중복 검사 - email: {}", email);
 	}
 
 	@Transactional(readOnly = true)
