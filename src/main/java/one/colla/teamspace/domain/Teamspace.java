@@ -59,7 +59,7 @@ public class Teamspace extends BaseEntity {
 		this.teamspaceName = name;
 	}
 
-	public static Teamspace from(String teamspaceName) {
+	public static Teamspace from(final String teamspaceName) {
 		TeamspaceName name = TeamspaceName.from(teamspaceName);
 		return new Teamspace(name);
 	}
@@ -72,11 +72,19 @@ public class Teamspace extends BaseEntity {
 		return profileImageUrl != null ? profileImageUrl.getValue() : null;
 	}
 
-	public void addUserTeamspace(UserTeamspace userTeamspace) {
+	public void addUserTeamspace(final UserTeamspace userTeamspace) {
 		userTeamspaces.add(userTeamspace);
 	}
 
 	public void addTag(Tag tag) {
 		tags.add(tag);
+	}
+
+	public void changeTeamspaceName(final TeamspaceName teamspaceName) {
+		this.teamspaceName = teamspaceName;
+	}
+
+	public void changeProfileImageUrl(final ProfileImageUrl profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
 	}
 }

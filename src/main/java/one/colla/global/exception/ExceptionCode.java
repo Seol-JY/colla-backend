@@ -29,7 +29,8 @@ public enum ExceptionCode {
 	TEAMSPACE_FULL(HttpStatus.FORBIDDEN, 40301, "팀스페이스 인원이 가득 차있습니다."),
 	INVALID_OR_EXPIRED_INVITATION_CODE(HttpStatus.NOT_FOUND, 40302, "유효하지 않거나 만료된 초대코드입니다."),
 	ONLY_LEADER_ACCESS(HttpStatus.FORBIDDEN, 40304, "해당 팀스페이스에 대해 관리자 권한이 없습니다."),
-	CONFLICT_TAGS(HttpStatus.CONFLICT, 40305, "이미 동일한 이름을 가진 역할이 존재합니다"),
+	CONFLICT_TAGS(HttpStatus.CONFLICT, 40305, "이미 동일한 이름을 가진 역할이 존재합니다."),
+	FAIL_CHANGE_USERTAG(HttpStatus.NOT_FOUND, 40306, "사용자 역할 수정에 실패했습니다."),
 	FORBIDDEN_TEAMSPACE(HttpStatus.FORBIDDEN, 40307, "접근 권한이 없거나 존재하지 않는 팀 스페이스입니다."),
 	ALREADY_PARTICIPATED(HttpStatus.CONFLICT, 40308, "이미 참가한 사용자입니다."),
 

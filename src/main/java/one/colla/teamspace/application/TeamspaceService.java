@@ -22,6 +22,7 @@ import one.colla.teamspace.application.dto.request.CreateTagRequest;
 import one.colla.teamspace.application.dto.request.CreateTeamspaceRequest;
 import one.colla.teamspace.application.dto.request.ParticipateRequest;
 import one.colla.teamspace.application.dto.request.SendMailInviteCodeRequest;
+import one.colla.teamspace.application.dto.request.UpdateTeamspaceSettingsRequest;
 import one.colla.teamspace.application.dto.response.CreateTagResponse;
 import one.colla.teamspace.application.dto.response.CreateTeamspaceResponse;
 import one.colla.teamspace.application.dto.response.InviteCodeResponse;
@@ -36,7 +37,9 @@ import one.colla.teamspace.domain.TeamspaceRepository;
 import one.colla.teamspace.domain.TeamspaceRole;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.teamspace.domain.UserTeamspaceRepository;
+import one.colla.teamspace.domain.vo.ProfileImageUrl;
 import one.colla.teamspace.domain.vo.TagName;
+import one.colla.teamspace.domain.vo.TeamspaceName;
 import one.colla.user.domain.User;
 import one.colla.user.domain.UserRepository;
 
@@ -183,6 +186,60 @@ public class TeamspaceService {
 		log.info("새 태그 생성 - 팀스페이스 Id: {}, 사용자 Id: {}, 태그 이름: {}", teamspaceId, userDetails.getUserId(),
 			savedTag.getTagNameValue());
 		return CreateTagResponse.from(savedTag);
+	}
+
+	@Transactional
+	public void updateSettings(
+		CustomUserDetails userDetails,
+		Long teamspaceId,
+		UpdateTeamspaceSettingsRequest request
+	) {
+		UserTeamspace userTeamspace = getUserTeamspace(userDetails, teamspaceId);
+
+		if (userTeamspace.getTeamspaceRole() != TeamspaceRole.LEADER) {
+			throw new CommonException(ExceptionCode.ONLY_LEADER_ACCESS);
+		}
+
+		Teamspace teamspace = userTeamspace.getTeamspace();
+
+		if (request.name() != null) {
+			TeamspaceName teamspaceName = TeamspaceName.from(request.name());
+			teamspace.changeTeamspaceName(teamspaceName);
+		}
+
+		if (request.profileImageUrl() != null) {
+			ProfileImageUrl profileImageUrl = new ProfileImageUrl(request.profileImageUrl());
+			teamspace.changeProfileImageUrl(profileImageUrl);
+		}
+
+		if (request.users() != null && !request.users().isEmpty()) {
+			List<UpdateTeamspaceSettingsRequest.UserUpdateInfo> willChangeUserTags = request.users();
+			List<UserTeamspace> userTeamspaces = teamspace.getUserTeamspaces();
+
+			willChangeUserTags.forEach(userUpdateInfo -> {
+				boolean found = userTeamspaces.stream()
+					.anyMatch(ut -> Objects.equals(ut.getUser().getId(), userUpdateInfo.id()));
+
+				if (!found) {
+					log.info("팀 스페이스 설정 업데이트 실패(팀스페이스 인원이 아님) - 팀 스페이스 Id: {}, 사용자 Id: {}", teamspaceId,
+						userDetails.getUserId());
+					throw new CommonException(ExceptionCode.FAIL_CHANGE_USERTAG);
+				}
+
+				userTeamspaces.stream()
+					.filter(ut -> Objects.equals(ut.getUser().getId(), userUpdateInfo.id()))
+					.findFirst()
+					.ifPresent(ut -> ut.changeTag(tagRepository.findById(userUpdateInfo.tagId())
+						.orElseThrow(() -> {
+							log.info("팀 스페이스 설정 업데이트 실패(존재하지 않는 태그) - 팀 스페이스 Id: {}, 사용자 Id: {}", teamspaceId,
+								userDetails.getUserId());
+							return new CommonException(ExceptionCode.FAIL_CHANGE_USERTAG);
+						})
+					));
+			});
+		}
+
+		log.info("팀 스페이스 설정 업데이트 - 팀 스페이스 Id: {}, 사용자 Id: {}", teamspaceId, userDetails.getUserId());
 	}
 
 	private Pair<InviteCode, UserTeamspace> generateAndSaveInviteCodeByTeamspaceId(CustomUserDetails userDetails,

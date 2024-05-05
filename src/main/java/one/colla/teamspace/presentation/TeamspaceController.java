@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +23,7 @@ import one.colla.teamspace.application.dto.request.CreateTagRequest;
 import one.colla.teamspace.application.dto.request.CreateTeamspaceRequest;
 import one.colla.teamspace.application.dto.request.ParticipateRequest;
 import one.colla.teamspace.application.dto.request.SendMailInviteCodeRequest;
+import one.colla.teamspace.application.dto.request.UpdateTeamspaceSettingsRequest;
 import one.colla.teamspace.application.dto.response.CreateTagResponse;
 import one.colla.teamspace.application.dto.response.CreateTeamspaceResponse;
 import one.colla.teamspace.application.dto.response.InviteCodeResponse;
@@ -126,5 +128,16 @@ public class TeamspaceController {
 		return ResponseEntity.ok().body(
 			ApiResponse.createSuccessResponse(teamspaceService.createTag(userDetails, teamspaceId, request))
 		);
+	}
+
+	@PatchMapping("/{teamspaceId}/settings")
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<ApiResponse<?>> updateTeamspaceSettings(
+		@AuthenticationPrincipal final CustomUserDetails userDetails,
+		@PathVariable final Long teamspaceId,
+		@RequestBody @Valid final UpdateTeamspaceSettingsRequest request
+	) {
+		teamspaceService.updateSettings(userDetails, teamspaceId, request);
+		return ResponseEntity.ok().body(ApiResponse.createSuccessResponse(Map.of()));
 	}
 }

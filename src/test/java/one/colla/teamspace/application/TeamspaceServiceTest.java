@@ -33,6 +33,7 @@ import one.colla.teamspace.application.dto.request.CreateTagRequest;
 import one.colla.teamspace.application.dto.request.CreateTeamspaceRequest;
 import one.colla.teamspace.application.dto.request.ParticipateRequest;
 import one.colla.teamspace.application.dto.request.SendMailInviteCodeRequest;
+import one.colla.teamspace.application.dto.request.UpdateTeamspaceSettingsRequest;
 import one.colla.teamspace.application.dto.response.CreateTagResponse;
 import one.colla.teamspace.application.dto.response.CreateTeamspaceResponse;
 import one.colla.teamspace.application.dto.response.InviteCodeResponse;
@@ -41,6 +42,7 @@ import one.colla.teamspace.application.dto.response.TeamspaceInfoResponse;
 import one.colla.teamspace.application.dto.response.TeamspaceParticipantsResponse;
 import one.colla.teamspace.application.dto.response.TeamspaceSettingsResponse;
 import one.colla.teamspace.domain.Tag;
+import one.colla.teamspace.domain.TagRepository;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.TeamspaceRepository;
 import one.colla.teamspace.domain.TeamspaceRole;
@@ -55,6 +57,9 @@ class TeamspaceServiceTest extends ServiceTest {
 	@MockBean
 	private RandomCodeGenerator randomCodeGenerator;
 
+	@MockBean
+	private ApplicationEventPublisher publisher;
+
 	@Autowired
 	private TeamspaceService teamspaceService;
 
@@ -64,8 +69,8 @@ class TeamspaceServiceTest extends ServiceTest {
 	@Autowired
 	private UserTeamspaceRepository userTeamspaceRepository;
 
-	@MockBean
-	private ApplicationEventPublisher publisher;
+	@Autowired
+	private TagRepository tagRepository;
 
 	@Nested
 	@DisplayName("팀스페이스 생성시")
@@ -216,7 +221,6 @@ class TeamspaceServiceTest extends ServiceTest {
 					assertThat(actualException).usingRecursiveComparison()
 						.isEqualTo(new CommonException(ExceptionCode.INVALID_OR_EXPIRED_INVITATION_CODE))
 				);
-			;
 		}
 
 		@Test
@@ -599,6 +603,95 @@ class TeamspaceServiceTest extends ServiceTest {
 				.satisfies(actualException ->
 					assertThat(actualException).usingRecursiveComparison()
 						.isEqualTo(new CommonException(ExceptionCode.ONLY_LEADER_ACCESS))
+				);
+		}
+	}
+
+	@Nested
+	@DisplayName("팀스페이스 태그 생성 시")
+	class UpdateSettingsTest {
+		User USER1;
+		CustomUserDetails USER1_DETAILS;
+		Teamspace OS_TEAMSPACE;
+		UserTeamspace USER1_OS_USERTEAMSPACE;
+		Tag FRONTEND_TAG;
+
+		@BeforeEach
+		void setUp() {
+			// given
+			USER1 = testFixtureBuilder.buildUser(USER1());
+			USER1_DETAILS = createCustomUserDetailsByUser(USER1);
+
+			OS_TEAMSPACE = testFixtureBuilder.buildTeamspace(OS_TEAMSPACE());
+
+			USER1_OS_USERTEAMSPACE = testFixtureBuilder.buildUserTeamspace(
+				LEADER_USERTEAMSPACE(USER1, OS_TEAMSPACE));
+
+			FRONTEND_TAG = testFixtureBuilder.buildTag(FRONTEND_TAG(OS_TEAMSPACE));
+		}
+
+		@Test
+		@DisplayName("팀스페이스 설정 업데이트에 성공한다.")
+		void updateSettingsSuccessfully() {
+			final String TEAMSPACE_NAME = "새 팀스페이스 이름";
+			final String PROFILE_URL = "https://example.com";
+
+			// given
+			UpdateTeamspaceSettingsRequest request =
+				new UpdateTeamspaceSettingsRequest(PROFILE_URL, TEAMSPACE_NAME,
+					List.of(new UpdateTeamspaceSettingsRequest.UserUpdateInfo(USER1.getId(), FRONTEND_TAG.getId())));
+
+			// when
+			teamspaceService.updateSettings(USER1_DETAILS, OS_TEAMSPACE.getId(), request);
+
+			// then
+			SoftAssertions.assertSoftly(softly -> {
+				softly.assertThat(OS_TEAMSPACE.getTeamspaceNameValue()).isEqualTo(TEAMSPACE_NAME);
+				softly.assertThat(OS_TEAMSPACE.getProfileImageUrlValue()).isEqualTo(PROFILE_URL);
+				softly.assertThat(OS_TEAMSPACE.getUserTeamspaces().get(0).getTag().getTagName())
+					.isEqualTo(FRONTEND_TAG.getTagName());
+			});
+		}
+
+		@Test
+		@DisplayName("팀스페이스 리더가 아닌 사용자가 설정을 업데이트할 때 예외가 발생한다.")
+		void updateSettingsNotLeaderFailure() {
+			final String TEAMSPACE_NAME = "새 팀스페이스 이름";
+			final String PROFILE_URL = "https://example.com";
+
+			// given
+			User USER2 = testFixtureBuilder.buildUser(USER2());
+			CustomUserDetails USER2_DETAILS = createCustomUserDetailsByUser(USER2);
+			testFixtureBuilder.buildUserTeamspace(MEMBER_USERTEAMSPACE(USER2, OS_TEAMSPACE));
+
+			UpdateTeamspaceSettingsRequest request =
+				new UpdateTeamspaceSettingsRequest(null, null, null);
+
+			// when then
+			assertThatThrownBy(() -> teamspaceService.updateSettings(USER2_DETAILS, OS_TEAMSPACE.getId(), request))
+				.isExactlyInstanceOf(CommonException.class)
+				.satisfies(actualException ->
+					assertThat(actualException).usingRecursiveComparison()
+						.isEqualTo(new CommonException(ExceptionCode.ONLY_LEADER_ACCESS))
+				);
+		}
+
+		@Test
+		@DisplayName("팀스페이스 설정 업데이트 중 태그가 존재하지 않는 경우 예외가 발생한다.")
+		void updateSettingsTagNotFoundFailure() {
+			final Long INVALID_TAG_ID = -1L;
+
+			// given
+			UpdateTeamspaceSettingsRequest request =
+				new UpdateTeamspaceSettingsRequest(null, null,
+					List.of(new UpdateTeamspaceSettingsRequest.UserUpdateInfo(USER1.getId(), INVALID_TAG_ID)));
+
+			// when then
+			assertThatThrownBy(() -> teamspaceService.updateSettings(USER1_DETAILS, OS_TEAMSPACE.getId(), request))
+				.isExactlyInstanceOf(CommonException.class)
+				.satisfies(actualException ->
+					assertThat(actualException).usingRecursiveComparison()
+						.isEqualTo(new CommonException(ExceptionCode.FAIL_CHANGE_USERTAG))
 				);
 		}
 	}

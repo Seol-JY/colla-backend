@@ -35,6 +35,7 @@ import one.colla.teamspace.application.dto.request.CreateTagRequest;
 import one.colla.teamspace.application.dto.request.CreateTeamspaceRequest;
 import one.colla.teamspace.application.dto.request.ParticipateRequest;
 import one.colla.teamspace.application.dto.request.SendMailInviteCodeRequest;
+import one.colla.teamspace.application.dto.request.UpdateTeamspaceSettingsRequest;
 import one.colla.teamspace.application.dto.response.CreateTagResponse;
 import one.colla.teamspace.application.dto.response.CreateTeamspaceResponse;
 import one.colla.teamspace.application.dto.response.InviteCodeResponse;
@@ -568,12 +569,85 @@ class TeamspaceControllerTest extends ControllerTest {
 							fieldWithPath("tagName").description("생성할 태그의 이름").type(JsonFieldType.STRING)
 						)
 						.responseFields(responseFields)
-						.responseSchema(Schema.schema("CreateTagRequest"))
 						.responseSchema(Schema.schema(responseSchemaTitle))
 						.build()
 					)))
 				.andDo(print());
 
+		}
+	}
+
+	@Nested
+	@DisplayName("팀스페이스 설정 수정 문서화")
+	class UpdateTeamspaceSettingsDocs {
+		Long teamspaceId = 1L;
+		UpdateTeamspaceSettingsRequest request =
+			new UpdateTeamspaceSettingsRequest("https://example.com/image.jpg", "Example Teamspace",
+				List.of(new UpdateTeamspaceSettingsRequest.UserUpdateInfo(1L, 2L)));
+
+		@Test
+		@WithMockCustomUser
+		@DisplayName("팀스페이스 설정 수정 성공")
+		void updateTeamspaceSettingsSuccessfully() throws Exception {
+			doNothing().when(teamspaceService).updateSettings(any(CustomUserDetails.class), eq(teamspaceId),
+				any(UpdateTeamspaceSettingsRequest.class));
+
+			doTest(
+				ApiResponse.createSuccessResponse(Map.of()),
+				status().isOk(),
+				apiDocHelper.createSuccessResponseFields(),
+				"ApiResponse<UpdateTeamspaceSettings>"
+			);
+		}
+
+		@Test
+		@WithMockCustomUser
+		@DisplayName("팀스페이스 설정 수정 실패 - 사용자 역할 수정 실패")
+		void updateTeamspaceSettingsFailure() throws Exception {
+			doThrow(new CommonException(ExceptionCode.FAIL_CHANGE_USERTAG)).when(teamspaceService)
+				.updateSettings(any(CustomUserDetails.class), eq(teamspaceId),
+					any(UpdateTeamspaceSettingsRequest.class));
+
+			doTest(
+				ApiResponse.createErrorResponse(ExceptionCode.FAIL_CHANGE_USERTAG),
+				status().isNotFound(),
+				apiDocHelper.createErrorResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		private void doTest(
+			ApiResponse<?> response,
+			ResultMatcher statusMatcher,
+			FieldDescriptor[] responseFields,
+			String responseSchemaTitle
+		) throws Exception {
+			mockMvc.perform(patch("/api/v1/teamspaces/{teamspaceId}/settings", teamspaceId)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(request))
+					.with(csrf()))
+				.andExpect(statusMatcher)
+				.andExpect(content().json(objectMapper.writeValueAsString(response)))
+				.andDo(restDocs.document(
+					resource(ResourceSnippetParameters.builder()
+						.tag("teamspace-controller")
+						.description("특정 팀스페이스의 설정을 수정합니다.")
+						.pathParameters(
+							parameterWithName("teamspaceId").description("팀스페이스의 고유 식별자")
+						)
+						.requestFields(
+							fieldWithPath("profileImageUrl").description("변경할 팀스페이스 프로필 이미지 Url(선택)")
+								.type(JsonFieldType.STRING),
+							fieldWithPath("name").description("변경할 팀스페이스명(선택)").type(JsonFieldType.STRING),
+							fieldWithPath("users").description("팀스페이스 참가자 태그 변경 목록").type(JsonFieldType.ARRAY),
+							fieldWithPath("users[0].id").description("태그를 변경할 사용자 Id").type(JsonFieldType.NUMBER),
+							fieldWithPath("users[0].tagId").description("변경할 대상 태그 Id").type(JsonFieldType.NUMBER)
+						)
+						.responseFields(responseFields)
+						.responseSchema(Schema.schema(responseSchemaTitle))
+						.build()
+					)))
+				.andDo(print());
 		}
 	}
 }
