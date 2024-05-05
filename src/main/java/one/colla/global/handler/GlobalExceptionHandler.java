@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -112,6 +113,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		}
 		logger.error("Unexpected error 발생: " + ex.getMessage(), ex);
 		return ApiResponse.createServerErrorResponseEntity();
+	}
+
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<ApiResponse<String>> handleConflict(MethodArgumentTypeMismatchException ex) {
+		return ApiResponse.createErrorResponseEntity();
 	}
 
 	@ExceptionHandler(Exception.class)
