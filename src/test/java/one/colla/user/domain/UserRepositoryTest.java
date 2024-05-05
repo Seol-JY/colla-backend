@@ -23,8 +23,6 @@ public class UserRepositoryTest extends RepositoryTest {
 		// Given
 		final User USER1 = testFixtureBuilder.buildUser(USER1());
 
-		userRepository.save(USER1);
-
 		// When
 		Email emailVo = new Email(USER1.getEmailValue());
 		Optional<User> foundUser = userRepository.findByEmail(emailVo);
