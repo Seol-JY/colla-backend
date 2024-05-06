@@ -33,7 +33,6 @@ import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.TeamspaceRole;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.user.domain.vo.Email;
-import one.colla.user.domain.vo.Password;
 import one.colla.user.domain.vo.ProfileImageUrl;
 import one.colla.user.domain.vo.Username;
 
@@ -54,8 +53,8 @@ public class User extends BaseEntity {
 	@Embedded
 	private Username username;
 
-	@Embedded
-	private Password password;
+	@Column(name = "password")
+	private String password;
 
 	@Embedded
 	private Email email;
@@ -70,7 +69,7 @@ public class User extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private CommentNotification commentNotification;
 
-	private User(Username username, Password password, Email email, ProfileImageUrl profileImageUrl) {
+	private User(Username username, String password, Email email, ProfileImageUrl profileImageUrl) {
 		this.role = Role.USER;
 		this.username = username;
 		this.password = password;
@@ -81,9 +80,8 @@ public class User extends BaseEntity {
 
 	public static User createGeneralUser(String createUsername, String createPassword, String createEmail) {
 		Username username = Username.from(createUsername);
-		Password password = Password.from(createPassword);
 		Email email = Email.from(createEmail);
-		return new User(username, password, email, null);
+		return new User(username, createPassword, email, null);
 	}
 
 	public static User createSocialUser(String createUsername, String createEmail, String createProfileImageUrl) {
@@ -142,10 +140,6 @@ public class User extends BaseEntity {
 
 	public String getEmailValue() {
 		return email.getValue();
-	}
-
-	public String getPasswordValue() {
-		return password.getValue();
 	}
 
 	public String getProfileImageUrlValue() {

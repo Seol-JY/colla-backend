@@ -52,7 +52,11 @@ public class AuthService {
 		User user = userRepository.findByEmail(new Email(dto.email()))
 			.orElseThrow(() -> new CommonException(INVALID_EMAIL_OR_PASSWORD));
 
-		if (!passwordEncoder.matches(dto.password(), user.getPasswordValue())) {
+		if (user.getPassword() == null) {
+			throw new CommonException(SOCIAL_EMAIL_ALREADY_REGISTERED);
+		}
+
+		if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
 			throw new CommonException(INVALID_EMAIL_OR_PASSWORD);
 		}
 

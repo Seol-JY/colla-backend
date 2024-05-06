@@ -2,10 +2,12 @@ package one.colla.auth.application;
 
 import static one.colla.global.exception.ExceptionCode.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.SoftAssertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,8 @@ import org.mockito.Mock;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import one.colla.auth.application.dto.JwtPair;
+import one.colla.auth.application.dto.request.LoginRequest;
 import one.colla.auth.application.dto.request.RegisterRequest;
 import one.colla.auth.application.dto.request.VerificationCheckRequest;
 import one.colla.auth.application.dto.request.VerifyMailSendRequest;
@@ -45,6 +49,9 @@ class AuthServiceTest extends ServiceTest {
 	@Mock
 	private ApplicationEventPublisher publisher;
 
+	@Mock
+	private JwtService jwtService;
+
 	@InjectMocks
 	private AuthService authService;
 
@@ -52,8 +59,11 @@ class AuthServiceTest extends ServiceTest {
 	final String PASSWORD = "testPassword1";
 	final String ENCODED_PASSWORD = "encodedPassword1";
 	final String TARGET_EMAIL = "email@example.com";
+	final String PROFILE_IMAGE_URL = "http://example.com";
 	final String VERIFY_CODE = "ABCDEFG";
 	final String INVALID_CODE = "ZZZZZZZ";
+	final String ACCESS_TOKEN = "accessToken";
+	final String REFRESH_TOKEN = "accessToken";
 	final long TTL = 1200;
 
 	@Nested
@@ -79,7 +89,7 @@ class AuthServiceTest extends ServiceTest {
 			verify(userRepository).save(userCaptor.capture());
 			User savedUser = userCaptor.getValue();
 			assertThat(savedUser.getUsernameValue()).isEqualTo(USER_NAME);
-			assertThat(savedUser.getPasswordValue()).matches(passwordEncoder.encode(PASSWORD));
+			assertThat(savedUser.getPassword()).matches(passwordEncoder.encode(PASSWORD));
 			assertThat(savedUser.getEmail().getValue()).isEqualTo(TARGET_EMAIL);
 		}
 
@@ -154,6 +164,68 @@ class AuthServiceTest extends ServiceTest {
 			assertThatCode(() -> authService.checkDuplication(DUPLICATED_EMAIL))
 				.isInstanceOf(CommonException.class)
 				.hasMessageContaining(DUPLICATED_USER_EMAIL.getMessage());
+		}
+	}
+
+	@Nested
+	@DisplayName("자체 로그인시")
+	class signInTest {
+
+		@Test
+		@DisplayName("이메일과 비밀번호가 일치하면 로그인에 성공한다.")
+		void signInSuccess() {
+
+			// given
+			LoginRequest request = new LoginRequest(TARGET_EMAIL, PASSWORD);
+			User existingUser = User.createGeneralUser(USER_NAME, ENCODED_PASSWORD, TARGET_EMAIL);
+			JwtPair jwtPair = JwtPair.of(ACCESS_TOKEN, REFRESH_TOKEN);
+
+			given(userRepository.findByEmail(new Email(TARGET_EMAIL))).willReturn(Optional.of(existingUser));
+			given(passwordEncoder.matches(PASSWORD, ENCODED_PASSWORD)).willReturn(true);
+			given(jwtService.createToken(existingUser)).willReturn(jwtPair);
+
+			// when
+			Pair<Long, JwtPair> pair = authService.login(request);
+
+			// then
+			assertSoftly(softly -> {
+				softly.assertThat(pair).isNotNull();
+				softly.assertThat(pair.getLeft()).isEqualTo(existingUser.getId());
+				softly.assertThat(pair.getRight().accessToken()).isEqualTo(ACCESS_TOKEN);
+				softly.assertThat(pair.getRight().refreshToken()).isEqualTo(REFRESH_TOKEN);
+			});
+
+		}
+
+		@Test
+		@DisplayName("이메일과 비밀번호가 일치하지 않으면 로그인에 실패한다.")
+		void signInFail_Mismatch() {
+
+			// given
+			LoginRequest request = new LoginRequest(TARGET_EMAIL, PASSWORD);
+			User existingUser = User.createGeneralUser(USER_NAME, ENCODED_PASSWORD, TARGET_EMAIL);
+			given(userRepository.findByEmail(new Email(TARGET_EMAIL))).willReturn(Optional.of(existingUser));
+			given(passwordEncoder.matches(PASSWORD, ENCODED_PASSWORD)).willReturn(false);
+
+			// when & then
+			assertThatThrownBy(() -> authService.login(request))
+				.isInstanceOf(CommonException.class)
+				.hasMessageContaining(INVALID_EMAIL_OR_PASSWORD.getMessage());
+		}
+
+		@Test
+		@DisplayName("소셜 회원가입한 이메일로 자체 로그인을 진행할 경우 로그인에 실패한다.")
+		void signInFail_SocialEmailAlreadyRegistered() {
+
+			// given
+			LoginRequest request = new LoginRequest(TARGET_EMAIL, PASSWORD);
+			User existingUser = User.createSocialUser(USER_NAME, TARGET_EMAIL, PROFILE_IMAGE_URL);
+			given(userRepository.findByEmail(new Email(TARGET_EMAIL))).willReturn(Optional.of(existingUser));
+
+			// when & then
+			assertThatThrownBy(() -> authService.login(request))
+				.isInstanceOf(CommonException.class)
+				.hasMessageContaining(SOCIAL_EMAIL_ALREADY_REGISTERED.getMessage());
 		}
 	}
 
