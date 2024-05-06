@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  testing:
+  CI:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout PR
@@ -58,6 +58,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
+          comment_title: 🧪 Test Results
           files: "**/build/test-results/test/TEST-*.xml"
 
       - name: Comment(Annotation) for Failed Test
