@@ -6,6 +6,7 @@ plugins {
     id 'checkstyle'
     id 'com.epages.restdocs-api-spec' version '0.18.2'
     id 'org.hidetake.swagger.generator' version '2.18.2'
+    id 'jacoco'
 }
 
 compileJava.options.encoding = 'UTF-8'
@@ -74,10 +75,29 @@ dependencies {
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
+tasks.register('copyPrivate', Copy) {
+    from 'colla-backend-private'
+    include "*.properties"
+    into 'src/main/resources'
+}
+
+processResources.dependsOn('copyPrivate')
+
 test {
+    finalizedBy jacocoTestReport
     useJUnitPlatform()
 }
 
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required.set(true)
+    }
+}
 
 def localStaticDocsPath = "${rootDir}/src/main/resources/static/docs/"
 def buildStaticDocsPath = "${rootDir}/build/resources/main/static/docs/"
