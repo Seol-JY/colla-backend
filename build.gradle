@@ -86,6 +86,9 @@ jacoco {
 
 jacocoTestReport {
     dependsOn test
+    reports {
+        xml.required.set(true)
+    }
 }
 
 def localStaticDocsPath = "${rootDir}/src/main/resources/static/docs/"
