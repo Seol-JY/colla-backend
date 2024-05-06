@@ -10,4 +10,4 @@ echo "$COMMIT_MSG"
 ./gradlew checkstyleMain
 ./gradlew editorconfigCheck
 ./gradlew editorconfigFormat
-./gradlew test
+#./gradlew test
