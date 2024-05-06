@@ -20,8 +20,7 @@ CREATE TABLE oauth_approvals
 (
     id           BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id      BIGINT       NOT NULL,
-    client_id    VARCHAR(255) NOT NULL,
-    provider     VARCHAR(50)  NOT NULL,
+    provider     ENUM('GOOGLE', 'KAKAO', 'NAVER')  NOT NULL,
     access_token VARCHAR(255) NOT NULL,
     created_at   DATETIME     NOT NULL,
     updated_at   DATETIME     NOT NULL,

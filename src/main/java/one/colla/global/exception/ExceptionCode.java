@@ -11,9 +11,12 @@ public enum ExceptionCode {
 
 	/* 401xx AUTH */
 	INVALID_VERIFY_TOKEN(HttpStatus.UNAUTHORIZED, 40101, "인증번호가 일치하지 않거나 인증시간을 초과했습니다."),
-	INVALID_USERNAME_OR_PASSWORD(HttpStatus.UNAUTHORIZED, 40102, "이메일 또는 비밀번호가 일치하지 않습니다."),
+	INVALID_EMAIL_OR_PASSWORD(HttpStatus.UNAUTHORIZED, 40102, "이메일 또는 비밀번호가 일치하지 않습니다."),
 	UNAUTHORIZED_OR_EXPIRED_VERIFY_TOKEN(HttpStatus.UNAUTHORIZED, 40103, "인증된 메일이 아니거나 인증 정보가 만료됐습니다."),
 	DUPLICATED_USER_EMAIL(HttpStatus.CONFLICT, 40104, "이미 가입한 메일입니다."),
+	INVALID_OAUTH_PROVIDER(HttpStatus.NOT_FOUND, 40105, "지원하지 않는 OAuth 공급자 입니다."),
+	INVALID_AUTHORIZATION_CODE(HttpStatus.NOT_FOUND, 40106, "Authorization code가 올바르지 않습니다."),
+	SOCIAL_EMAIL_ALREADY_REGISTERED(HttpStatus.UNAUTHORIZED, 40107, "소셜 로그인으로 가입한 이메일 입니다."),
 	FORBIDDEN_ACCESS_TOKEN(HttpStatus.FORBIDDEN, 40181, "토큰에 접근 권한이 없습니다."),
 	EMPTY_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, 40182, "토큰이 포함되어 있지 않습니다."),
 	EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, 40183, "사용기간이 만료된 토큰입니다."),

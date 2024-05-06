@@ -2,6 +2,8 @@ package one.colla.user.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,12 +30,29 @@ public class OauthApproval extends BaseEntity {
 	@JoinColumn(name = "user_id", nullable = false, updatable = false)
 	private User user;
 
-	@Column(name = "client_id", nullable = false)
-	private String clientId;
-
 	@Column(name = "provider", nullable = false)
-	private String provider;
+	@Enumerated(EnumType.STRING)
+	private Provider provider;
 
 	@Column(name = "access_token", nullable = false)
 	private String accessToken;
+
+	private OauthApproval(final User user, final Provider provider, final String accessToken) {
+		this.user = user;
+		this.provider = provider;
+		this.accessToken = accessToken;
+	}
+
+	public static OauthApproval createOAuthApproval(
+		final User user,
+		final Provider provider,
+		final String accessToken) {
+
+		return new OauthApproval(user, provider, accessToken);
+	}
+
+	public void changeAccessToken(final String accessToken) {
+		this.accessToken = accessToken;
+	}
+
 }
