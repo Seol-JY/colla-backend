@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import one.colla.user.domain.Provider;
 
 @Slf4j
-public class StringToEnumConverter implements Converter<String, Provider> {
+public class StringToProviderConverter implements Converter<String, Provider> {
 	@Override
 	public Provider convert(final String provider) {
 
