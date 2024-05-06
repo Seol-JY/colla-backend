@@ -6,6 +6,7 @@ plugins {
     id 'checkstyle'
     id 'com.epages.restdocs-api-spec' version '0.18.2'
     id 'org.hidetake.swagger.generator' version '2.18.2'
+    id 'jacoco'
 }
 
 compileJava.options.encoding = 'UTF-8'
@@ -75,9 +76,17 @@ dependencies {
 }
 
 test {
+    finalizedBy jacocoTestReport
     useJUnitPlatform()
 }
 
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+jacocoTestReport {
+    dependsOn test
+}
 
 def localStaticDocsPath = "${rootDir}/src/main/resources/static/docs/"
 def buildStaticDocsPath = "${rootDir}/build/resources/main/static/docs/"
