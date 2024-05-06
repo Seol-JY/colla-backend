@@ -75,6 +75,14 @@ dependencies {
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
+tasks.register('copyPrivate', Copy) {
+    from 'colla-backend-private'
+    include "*.properties"
+    into 'src/main/resources'
+}
+
+processResources.dependsOn('copyPrivate')
+
 test {
     finalizedBy jacocoTestReport
     useJUnitPlatform()
