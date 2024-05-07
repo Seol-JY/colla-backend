@@ -65,10 +65,17 @@ public class UserService {
 		);
 	}
 
+	@Transactional(readOnly = true)
+	public boolean hasTeam(Long userId) {
+		final User user = userRepository.findById(userId)
+			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_USER));
+
+		return !user.getUserTeamspaces().isEmpty();
+	}
+
 	private int getNumOfTeamspaceParticipants(UserTeamspace userTeamspace) {
 		return userTeamspace.getTeamspace()
 			.getUserTeamspaces()
 			.size();
 	}
-
 }

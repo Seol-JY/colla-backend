@@ -44,12 +44,16 @@ import one.colla.common.util.CookieUtil;
 import one.colla.common.util.oauth.OAuthUriGenerator;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
+import one.colla.user.application.UserService;
 import one.colla.user.domain.OauthProvider;
 
 @WebMvcTest(AuthController.class)
 class AuthControllerTest extends ControllerTest {
 
 	final ApiResponse<Object> SUCCESS_RESPONSE = ApiResponse.createSuccessResponse(Map.of());
+
+	@MockBean
+	UserService userService;
 
 	@MockBean
 	CookieUtil cookieUtil;
@@ -126,7 +130,9 @@ class AuthControllerTest extends ControllerTest {
 
 			final String CODE = "authCode";
 			final OAuthLoginRequest oAuthLoginRequest = new OAuthLoginRequest(CODE);
+			final boolean hasTeam = true;
 
+			given(userService.hasTeam(any())).willReturn(hasTeam);
 			given(oAuthService.createToken(oAuthLoginRequest, oauthProvider))
 				.willReturn(pair);
 
@@ -141,7 +147,7 @@ class AuthControllerTest extends ControllerTest {
 					.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(content().json(objectMapper.writeValueAsString(
-					ApiResponse.createSuccessResponse(LoginResponse.of(tokens.accessToken(), USER_ID))))
+					ApiResponse.createSuccessResponse(LoginResponse.of(tokens.accessToken(), USER_ID, hasTeam))))
 				)
 				.andDo(restDocs.document(
 					resource(ResourceSnippetParameters.builder()
@@ -155,6 +161,7 @@ class AuthControllerTest extends ControllerTest {
 							fieldWithPath("content").description("응답 내용").type(JsonFieldType.OBJECT),
 							fieldWithPath("content.accessToken").description("Access token").type(JsonFieldType.STRING),
 							fieldWithPath("content.userId").description("User ID").type(JsonFieldType.NUMBER),
+							fieldWithPath("content.hasTeam").description("팀 참여 여부").type(JsonFieldType.BOOLEAN),
 							fieldWithPath("message").description("응답 메시지").type(JsonFieldType.NULL)
 						)
 						.requestSchema(Schema.schema("OAuthLoginRequest"))
@@ -292,7 +299,9 @@ class AuthControllerTest extends ControllerTest {
 
 			final String PASSWORD = "testPassword123";
 			final LoginRequest loginRequest = new LoginRequest(EMAIL, PASSWORD);
+			final boolean hasTeam = true;
 
+			given(userService.hasTeam(any())).willReturn(hasTeam);
 			given(authService.login(loginRequest)).willReturn(pair);
 			given(cookieUtil.createCookie("refreshToken", tokens.refreshToken(),
 				Duration.ofDays(REFRESH_TOKEN_EXPIRES_IN_DAYS).toSeconds())).willReturn(cookie);
@@ -303,7 +312,7 @@ class AuthControllerTest extends ControllerTest {
 					.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(content().json(objectMapper.writeValueAsString(
-					ApiResponse.createSuccessResponse(LoginResponse.of(tokens.accessToken(), USER_ID)))))
+					ApiResponse.createSuccessResponse(LoginResponse.of(tokens.accessToken(), USER_ID, hasTeam)))))
 				.andDo(restDocs.document(
 					resource(ResourceSnippetParameters.builder()
 						.tag("auth-controller")
@@ -318,6 +327,7 @@ class AuthControllerTest extends ControllerTest {
 							fieldWithPath("content.accessToken").description("성공적인 인증 후 제공되는 액세스 토큰")
 								.type(JsonFieldType.STRING),
 							fieldWithPath("content.userId").description("인증된 사용자의 ID").type(JsonFieldType.NUMBER),
+							fieldWithPath("content.hasTeam").description("팀 참여 여부").type(JsonFieldType.BOOLEAN),
 							fieldWithPath("message").description("응답 메시지").type(JsonFieldType.NULL)
 						)
 						.requestSchema(Schema.schema("LoginRequest"))

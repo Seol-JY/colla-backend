@@ -35,6 +35,7 @@ import one.colla.auth.config.OAuthPropertyFactory;
 import one.colla.common.presentation.ApiResponse;
 import one.colla.common.util.CookieUtil;
 import one.colla.common.util.oauth.OAuthUriGenerator;
+import one.colla.user.application.UserService;
 import one.colla.user.domain.OauthProvider;
 
 @RestController
@@ -49,6 +50,7 @@ public class AuthController {
 	private final OAuthPropertyFactory oAuthPropertyFactory;
 	private final OAuthUriGenerator oAuthUriGenerator;
 	private final OAuthService oAuthService;
+	private final UserService userService;
 
 	@GetMapping("/oauth/{provider}/login")
 	public ResponseEntity<ApiResponse<OauthLoginUrlResponse>> getOAuthUrl(
@@ -117,8 +119,11 @@ public class AuthController {
 
 		ResponseCookie cookie = cookieUtil.createCookie("refreshToken", refreshToken,
 			Duration.ofDays(REFRESH_TOKEN_EXPIRES_IN_DAYS).toSeconds());
+
+		boolean hasTeam = userService.hasTeam(userId);
+
 		return ResponseEntity.ok()
 			.header(HttpHeaders.SET_COOKIE, cookie.toString())
-			.body(ApiResponse.createSuccessResponse(LoginResponse.of(accessToken, userId)));
+			.body(ApiResponse.createSuccessResponse(LoginResponse.of(accessToken, userId, hasTeam)));
 	}
 }
