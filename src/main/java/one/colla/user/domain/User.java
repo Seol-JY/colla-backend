@@ -146,6 +146,10 @@ public class User extends BaseEntity {
 		return profileImageUrl != null ? profileImageUrl.getValue() : null;
 	}
 
+	public void updateProfileImage(ProfileImageUrl newProfileImageUrl) {
+		this.profileImageUrl = newProfileImageUrl;
+	}
+
 	public UserTeamspace participate(
 		final Teamspace teamspace,
 		final TeamspaceRole teamspaceRole
