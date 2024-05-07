@@ -55,6 +55,7 @@ public class UserService {
 		return UserStatusResponse.of(profile, participatedTeamspaces);
 	}
 
+	@Transactional
 	public void updateLastSeenTeamspace(CustomUserDetails userDetails, LastSeenUpdateRequest request) {
 		UserTeamspace userTeamspace = teamspaceService.getUserTeamspace(userDetails, request.teamspaceId());
 
