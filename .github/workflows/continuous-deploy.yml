@@ -7,7 +7,7 @@ on:
 
 env:
   CONTAINER_NAME: colla
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository | lower }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -51,8 +51,6 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ghcr.io/${{ env.IMAGE_NAME }}
-          flavor: |
-            latest=${{ github.ref == 'refs/heads/main' }}
           tags: |
             type=sha
 
@@ -84,4 +82,4 @@ jobs:
       - name: Run the Docker container
         run: |
           docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q)
-          docker run -d --name ${{ env.NAME }} -p 80:8080 ${{ needs.build-and-upload.outputs.image-tag }}
+          docker run -d --name ${{ env.CONTAINER_NAME }} -p 80:8080 ${{ needs.build-and-upload.outputs.image-tag }}
