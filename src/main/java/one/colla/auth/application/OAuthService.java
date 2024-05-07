@@ -52,7 +52,7 @@ public class OAuthService {
 		User user = User.createSocialUser(oAuthUserInfo.nickname(), oAuthUserInfo.email(), oAuthUserInfo.picture());
 		userRepository.save(user);
 		addOAuthApproval(user, oauthProvider, accessToken);
-		log.info("소셜 회원가입 - 유저 Id: {}", user.getId());
+		log.info("소셜 회원가입 - 유저 Id: {}, 공급자: {}", user.getId(), oauthProvider);
 		return user;
 	}
 
@@ -64,7 +64,7 @@ public class OAuthService {
 				approval -> updateAccessToken(approval, accessToken),
 				() -> addOAuthApproval(user, oauthProvider, accessToken));
 
-		log.info("소셜 로그인 - 유저 Id: {}", user.getId());
+		log.info("소셜 로그인 - 유저 Id: {}, 공급자: {}", user.getId(), oauthProvider);
 		return user;
 	}
 
@@ -78,6 +78,6 @@ public class OAuthService {
 		user.addOAuthApproval(oauthApproval);
 		oauthApprovalRepository.save(oauthApproval);
 
-		log.info("계정이 {}와 연동 되었습니다. - 유저 Id: {}", oauthProvider, user.getId());
+		log.info("계정 연동 - 유저 Id: {}, 공급자: {}", user.getId(), oauthProvider);
 	}
 }

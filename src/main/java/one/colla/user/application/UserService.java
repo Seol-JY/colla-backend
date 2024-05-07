@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import one.colla.common.security.authentication.CustomUserDetails;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
@@ -23,6 +24,7 @@ import one.colla.user.domain.UserRepository;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 	private final UserRepository userRepository;
 	private final LastSeenTeamspaceService lastSeenTeamspaceService;
@@ -52,6 +54,7 @@ public class UserService {
 			)
 			.toList();
 
+		log.info("사용자 관련 정보 조회 - 사용자 Id: {}", userDetails.getUserId());
 		return UserStatusResponse.of(profile, participatedTeamspaces);
 	}
 
@@ -63,6 +66,7 @@ public class UserService {
 			userTeamspace.getUser().getId(),
 			userTeamspace.getTeamspace().getId()
 		);
+		log.info("마지막 접근 팀스페이스 업데이트 - 팀스페이스 Id: {}, 사용자 Id: {}", request.teamspaceId(), userDetails.getUserId());
 	}
 
 	@Transactional(readOnly = true)
