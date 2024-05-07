@@ -150,12 +150,12 @@ bootJar {
     doFirst {
         def swaggerUIFile = file("${openapi3.outputDirectory}${swaggerFileName}")
         def securitySchemesContent = "  securitySchemes:\n" +
-                "    APIKey:\n" +
-                "      type: apiKey\n" +
-                "      name: Authorization\n" +
-                "      in: header\n" +
+                "    BearerAuth:\n" +
+                "      type: http\n" +
+                "      scheme: bearer\n" +
+                "      bearerFormat: JWT\n" +
                 "security:\n" +
-                "  - APIKey: []  # Apply the security scheme here\n"
+                "   - BearerAuth: []  # Apply the Bearer token security scheme here\n"
 
         swaggerUIFile.append securitySchemesContent
     }
