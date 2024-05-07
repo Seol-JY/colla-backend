@@ -1,10 +1,12 @@
 package one.colla.teamspace.domain.vo;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import one.colla.common.domain.vo.Url;
 
+@Embeddable
 @EqualsAndHashCode(callSuper = false)
 @Getter
 public class TeamspaceProfileImageUrl extends Url {

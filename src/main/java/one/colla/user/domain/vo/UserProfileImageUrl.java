@@ -1,16 +1,22 @@
 package one.colla.user.domain.vo;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import one.colla.common.domain.vo.Url;
 
+@Embeddable
 @EqualsAndHashCode(callSuper = false)
 @Getter
 public class UserProfileImageUrl extends Url {
 
 	@Column(name = "profile_image_url")
 	private String value;
+
+	public UserProfileImageUrl() {
+		this.value = null;
+	}
 
 	public UserProfileImageUrl(final String value) {
 		validate(value);
