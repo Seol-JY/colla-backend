@@ -36,7 +36,7 @@ public class CustomUserDetails implements UserDetails {
 			.userId(user.getId())
 			.username(user.getUsernameValue())
 			.userEmail(user.getEmailValue())
-			.authorities(List.of(new SimpleGrantedAuthority(ROLE_PREFIX + user.getRole().name())))
+			.authorities(List.of(new SimpleGrantedAuthority(ROLE_PREFIX + user.getUserRole().name())))
 			.build();
 	}
 

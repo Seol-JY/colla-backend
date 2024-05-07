@@ -44,7 +44,7 @@ import one.colla.common.util.CookieUtil;
 import one.colla.common.util.oauth.OAuthUriGenerator;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
-import one.colla.user.domain.Provider;
+import one.colla.user.domain.OauthProvider;
 
 @WebMvcTest(AuthController.class)
 class AuthControllerTest extends ControllerTest {
@@ -81,7 +81,7 @@ class AuthControllerTest extends ControllerTest {
 	class OAuthDocs {
 
 		final String URL = "example.com";
-		final Provider provider = Provider.GOOGLE;
+		final OauthProvider oauthProvider = OauthProvider.GOOGLE;
 		final OAuthProperties oAuthProperties = new GoogleOAuthProperties();
 		final OauthLoginUrlResponse oauthLoginUrlResponse = new OauthLoginUrlResponse(URL);
 
@@ -90,12 +90,12 @@ class AuthControllerTest extends ControllerTest {
 		@WithMockAnonymous
 		void getOAuthUrl() throws Exception {
 
-			given(oAuthPropertyFactory.createOAuthProperty(provider))
+			given(oAuthPropertyFactory.createOAuthProperty(oauthProvider))
 				.willReturn(oAuthProperties);
 			given(oAuthUriGenerator.generate(oAuthProperties))
 				.willReturn(oauthLoginUrlResponse);
 
-			mockMvc.perform(get("/api/v1/auth/oauth/{provider}/login", provider).with(csrf()))
+			mockMvc.perform(get("/api/v1/auth/oauth/{provider}/login", oauthProvider).with(csrf()))
 				.andExpect(status().isOk())
 				.andExpect(content().json(objectMapper.writeValueAsString(
 					ApiResponse.createSuccessResponse(oauthLoginUrlResponse))))
@@ -127,7 +127,7 @@ class AuthControllerTest extends ControllerTest {
 			final String CODE = "authCode";
 			final OAuthLoginRequest oAuthLoginRequest = new OAuthLoginRequest(CODE);
 
-			given(oAuthService.createToken(oAuthLoginRequest, provider))
+			given(oAuthService.createToken(oAuthLoginRequest, oauthProvider))
 				.willReturn(pair);
 
 			given(cookieUtil.createCookie(REFRESH_TOKEN, tokens.refreshToken(),
@@ -136,7 +136,7 @@ class AuthControllerTest extends ControllerTest {
 
 			given(cookie.toString()).willReturn(COOKIE_STRING);
 
-			mockMvc.perform(post("/api/v1/auth/oauth/{provider}/code", provider).with(csrf())
+			mockMvc.perform(post("/api/v1/auth/oauth/{provider}/code", oauthProvider).with(csrf())
 					.content(objectMapper.writeValueAsString(oAuthLoginRequest))
 					.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())

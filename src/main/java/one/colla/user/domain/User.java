@@ -48,7 +48,7 @@ public class User extends BaseEntity {
 
 	@Column(name = "role", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private Role role;
+	private UserRole userRole;
 
 	@Embedded
 	private Username username;
@@ -70,7 +70,7 @@ public class User extends BaseEntity {
 	private CommentNotification commentNotification;
 
 	private User(Username username, String password, Email email, ProfileImageUrl profileImageUrl) {
-		this.role = Role.USER;
+		this.userRole = UserRole.USER;
 		this.username = username;
 		this.password = password;
 		this.email = email;

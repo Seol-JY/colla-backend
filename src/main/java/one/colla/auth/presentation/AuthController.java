@@ -35,7 +35,7 @@ import one.colla.auth.config.OAuthPropertyFactory;
 import one.colla.common.presentation.ApiResponse;
 import one.colla.common.util.CookieUtil;
 import one.colla.common.util.oauth.OAuthUriGenerator;
-import one.colla.user.domain.Provider;
+import one.colla.user.domain.OauthProvider;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,8 +52,8 @@ public class AuthController {
 
 	@GetMapping("/oauth/{provider}/login")
 	public ResponseEntity<ApiResponse<OauthLoginUrlResponse>> getOAuthUrl(
-		@PathVariable(value = "provider") final Provider provider) {
-		OAuthProperties oAuthProperties = oAuthPropertyFactory.createOAuthProperty(provider);
+		@PathVariable(value = "provider") final OauthProvider oauthProvider) {
+		OAuthProperties oAuthProperties = oAuthPropertyFactory.createOAuthProperty(oauthProvider);
 		OauthLoginUrlResponse oauthUrl = oAuthUriGenerator.generate(oAuthProperties);
 		return ResponseEntity.ok()
 			.body(ApiResponse.createSuccessResponse(oauthUrl));
@@ -61,8 +61,8 @@ public class AuthController {
 
 	@PostMapping("/oauth/{provider}/code")
 	public ResponseEntity<ApiResponse<LoginResponse>> oauthRegisterOrLogin(
-		@PathVariable("provider") final Provider provider, @RequestBody @Valid OAuthLoginRequest request) {
-		return createAuthResponse(oAuthService.createToken(request, provider));
+		@PathVariable("provider") final OauthProvider oauthProvider, @RequestBody @Valid OAuthLoginRequest request) {
+		return createAuthResponse(oAuthService.createToken(request, oauthProvider));
 	}
 
 	@PostMapping("/login")

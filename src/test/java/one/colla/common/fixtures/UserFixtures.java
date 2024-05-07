@@ -6,8 +6,8 @@ import java.util.UUID;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import one.colla.common.security.authentication.CustomUserDetails;
-import one.colla.user.domain.Role;
 import one.colla.user.domain.User;
+import one.colla.user.domain.UserRole;
 
 public class UserFixtures {
 
@@ -52,7 +52,7 @@ public class UserFixtures {
 			.userId(user.getId())
 			.username(user.getUsernameValue())
 			.userEmail(user.getEmailValue())
-			.authorities(List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())))
+			.authorities(List.of(new SimpleGrantedAuthority("ROLE_" + user.getUserRole().name())))
 			.build();
 	}
 
@@ -61,7 +61,7 @@ public class UserFixtures {
 			.userId(userId)
 			.username(USER1_USERNAME)
 			.userEmail(USER1_EMAIL)
-			.authorities(List.of(new SimpleGrantedAuthority("ROLE_" + Role.USER.name())))
+			.authorities(List.of(new SimpleGrantedAuthority("ROLE_" + UserRole.USER.name())))
 			.build();
 	}
 }

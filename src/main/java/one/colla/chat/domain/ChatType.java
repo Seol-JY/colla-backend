@@ -1,6 +1,6 @@
 package one.colla.chat.domain;
 
-public enum Type {
+public enum ChatType {
 	TEXT,
 	IMAGE,
 	FILE

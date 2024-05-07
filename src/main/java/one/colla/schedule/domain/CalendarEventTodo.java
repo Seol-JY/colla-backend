@@ -19,7 +19,7 @@ public class CalendarEventTodo extends CalendarEvent {
 
 	@Column(name = "status", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private Status status;
+	private CalendarEventTodoStatus status;
 
 	@OneToMany(mappedBy = "calendarEventTodo", fetch = FetchType.LAZY)
 	private final List<CalendarEventSubtodo> calendarEventSubtodos = new ArrayList<>();

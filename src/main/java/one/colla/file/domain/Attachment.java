@@ -43,7 +43,7 @@ public class Attachment extends BaseEntity {
 
 	@Column(name = "type", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private Type type;
+	private AttachmentType attachmentType;
 
 	@Column(name = "size", nullable = false)
 	private Long size;

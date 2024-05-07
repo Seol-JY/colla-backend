@@ -1,6 +1,6 @@
 package one.colla.user.domain;
 
-public enum Role {
+public enum UserRole {
 	ADMIN,
 	USER
 }

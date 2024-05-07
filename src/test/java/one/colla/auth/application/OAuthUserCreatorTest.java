@@ -28,7 +28,7 @@ import one.colla.common.CommonTest;
 import one.colla.common.util.TokenParser;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
-import one.colla.user.domain.Provider;
+import one.colla.user.domain.OauthProvider;
 
 public class OAuthUserCreatorTest extends CommonTest {
 
@@ -85,7 +85,7 @@ public class OAuthUserCreatorTest extends CommonTest {
 			eq(JsonNode.class)))
 			.willReturn(ResponseEntity.ok(responseNode));
 
-		OAuthUserInfo oAuthUserInfo = oAuthUserCreator.createUser(tokenResponse, Provider.NAVER);
+		OAuthUserInfo oAuthUserInfo = oAuthUserCreator.createUser(tokenResponse, OauthProvider.NAVER);
 
 		assertSoftly(softly -> {
 			softly.assertThat(oAuthUserInfo.email()).isEqualTo(EMAIL);
@@ -102,7 +102,7 @@ public class OAuthUserCreatorTest extends CommonTest {
 		OAuthTokenResponse tokenResponse = new OAuthTokenResponse(null, null, null);
 
 		// when & then
-		assertThatThrownBy(() -> oAuthUserCreator.createUser(tokenResponse, Provider.NAVER))
+		assertThatThrownBy(() -> oAuthUserCreator.createUser(tokenResponse, OauthProvider.NAVER))
 			.isInstanceOf(CommonException.class)
 			.hasMessageContaining(ExceptionCode.INVALID_AUTHORIZATION_CODE.getMessage());
 	}
@@ -129,8 +129,8 @@ public class OAuthUserCreatorTest extends CommonTest {
 		OAuthTokenResponse kakaoTokenResponse = new OAuthTokenResponse(ACCESS_TOKEN, REFRESH_TOKEN, KAKAO_ID_TOKEN);
 
 		// when
-		OAuthUserInfo googleUser = oAuthUserCreator.createUser(googleTokenResponse, Provider.GOOGLE);
-		OAuthUserInfo kakaoUser = oAuthUserCreator.createUser(kakaoTokenResponse, Provider.KAKAO);
+		OAuthUserInfo googleUser = oAuthUserCreator.createUser(googleTokenResponse, OauthProvider.GOOGLE);
+		OAuthUserInfo kakaoUser = oAuthUserCreator.createUser(kakaoTokenResponse, OauthProvider.KAKAO);
 
 		// then
 		assertSoftly(softly -> {

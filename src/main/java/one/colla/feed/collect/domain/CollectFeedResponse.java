@@ -44,7 +44,7 @@ public class CollectFeedResponse extends BaseEntity {
 
 	@Column(name = "status", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private Status status;
+	private CollectFeedStatus collectFeedStatus;
 
 	public static class CollectFeedResponseId extends CompositeKeyBase {
 		@Column(name = "collect_feed_id")
