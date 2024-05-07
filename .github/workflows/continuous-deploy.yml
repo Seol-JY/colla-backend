@@ -79,7 +79,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull the Docker image
-        run: docker pull ghcr.io/${{ env.IMAGE_NAME }}:${{ tag }}
+        run: docker pull ghcr.io/${{ env.IMAGE_NAME }}:${{ needs.build-and-upload.outputs.image-tag }}
 
       - name: Run the Docker container
         run: |
