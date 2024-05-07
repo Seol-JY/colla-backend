@@ -79,9 +79,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull the Docker image
-        run: docker pull ghcr.io/${{ env.IMAGE_NAME }}:${{ needs.build-and-upload.outputs.image-tag }}
+        run: docker pull ${{ needs.build-and-upload.outputs.image-tag }}
 
       - name: Run the Docker container
         run: |
           docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q)
-          docker run -d --name ${{ env.NAME }} -p 80:8080 ghcr.io/${{ env.IMAGE_NAME }}:${{ needs.build-and-upload.outputs.image-tag }}
+          docker run -d --name ${{ env.NAME }} -p 80:8080 ${{ needs.build-and-upload.outputs.image-tag }}
