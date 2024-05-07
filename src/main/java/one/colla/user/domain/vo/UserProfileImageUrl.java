@@ -7,22 +7,22 @@ import one.colla.common.domain.vo.Url;
 
 @EqualsAndHashCode(callSuper = false)
 @Getter
-public class ProfileImageUrl extends Url {
+public class UserProfileImageUrl extends Url {
 
 	@Column(name = "profile_image_url")
 	private String value;
 
-	public ProfileImageUrl(final String value) {
+	public UserProfileImageUrl(final String value) {
 		validate(value);
 		this.value = value;
 	}
 
-	public static ProfileImageUrl from(final String url) {
-		return new ProfileImageUrl(url);
+	public static UserProfileImageUrl from(final String url) {
+		return new UserProfileImageUrl(url);
 	}
 
-	public ProfileImageUrl change(final String newUrl) {
-		return new ProfileImageUrl(newUrl);
+	public UserProfileImageUrl change(final String newUrl) {
+		return new UserProfileImageUrl(newUrl);
 	}
 
 }

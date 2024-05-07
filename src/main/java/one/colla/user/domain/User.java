@@ -33,7 +33,7 @@ import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.TeamspaceRole;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.user.domain.vo.Email;
-import one.colla.user.domain.vo.ProfileImageUrl;
+import one.colla.user.domain.vo.UserProfileImageUrl;
 import one.colla.user.domain.vo.Username;
 
 @Getter
@@ -63,19 +63,19 @@ public class User extends BaseEntity {
 	private boolean emailSubscription = true;
 
 	@Embedded
-	private ProfileImageUrl profileImageUrl;
+	private UserProfileImageUrl userProfileImageUrl;
 
 	@Column(name = "comment_notification", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private CommentNotification commentNotification;
 
-	private User(Username username, String password, Email email, ProfileImageUrl profileImageUrl) {
+	private User(Username username, String password, Email email, UserProfileImageUrl userProfileImageUrl) {
 		this.userRole = UserRole.USER;
 		this.username = username;
 		this.password = password;
 		this.email = email;
 		this.commentNotification = CommentNotification.ALL;
-		this.profileImageUrl = profileImageUrl;
+		this.userProfileImageUrl = userProfileImageUrl;
 	}
 
 	public static User createGeneralUser(String createUsername, String createPassword, String createEmail) {
@@ -87,8 +87,8 @@ public class User extends BaseEntity {
 	public static User createSocialUser(String createUsername, String createEmail, String createProfileImageUrl) {
 		Username username = Username.from(createUsername);
 		Email email = Email.from(createEmail);
-		ProfileImageUrl profileImageUrl = ProfileImageUrl.from(createProfileImageUrl);
-		return new User(username, null, email, profileImageUrl);
+		UserProfileImageUrl userProfileImageUrl = UserProfileImageUrl.from(createProfileImageUrl);
+		return new User(username, null, email, userProfileImageUrl);
 	}
 
 	public void addOAuthApproval(final OauthApproval oauthApproval) {
@@ -143,11 +143,11 @@ public class User extends BaseEntity {
 	}
 
 	public String getProfileImageUrlValue() {
-		return profileImageUrl != null ? profileImageUrl.getValue() : null;
+		return userProfileImageUrl != null ? userProfileImageUrl.getValue() : null;
 	}
 
-	public void updateProfileImage(ProfileImageUrl newProfileImageUrl) {
-		this.profileImageUrl = newProfileImageUrl;
+	public void updateProfileImage(UserProfileImageUrl newUserProfileImageUrl) {
+		this.userProfileImageUrl = newUserProfileImageUrl;
 	}
 
 	public UserTeamspace participate(

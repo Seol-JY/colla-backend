@@ -35,13 +35,14 @@ import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.UserTeamspace;
-import one.colla.teamspace.domain.vo.ProfileImageUrl;
+import one.colla.teamspace.domain.vo.TeamspaceProfileImageUrl;
 import one.colla.user.application.UserService;
 import one.colla.user.application.dto.request.LastSeenUpdateRequest;
 import one.colla.user.application.dto.response.ParticipatedTeamspaceDto;
 import one.colla.user.application.dto.response.ProfileDto;
 import one.colla.user.application.dto.response.UserStatusResponse;
 import one.colla.user.domain.User;
+import one.colla.user.domain.vo.UserProfileImageUrl;
 
 @WebMvcTest(UserController.class)
 class UserControllerTest extends ControllerTest {
@@ -69,9 +70,9 @@ class UserControllerTest extends ControllerTest {
 		@DisplayName("사용자 프로필 및 팀스페이스 참여 세부 사항 문서화")
 		@WithMockCustomUser
 		void getUserStatus() throws Exception {
-			user.updateProfileImage(new one.colla.user.domain.vo.ProfileImageUrl(USER_PROFILE_IMAGE_URL));
-			osTeamspace.changeProfileImageUrl(new ProfileImageUrl(OS_TEAMSPACE_PROFILE_IMAGE_URL));
-			dbTeamspace.changeProfileImageUrl(new ProfileImageUrl(DB_TEAMSPACE_PROFILE_IMAGE_URL));
+			user.updateProfileImage(new UserProfileImageUrl(USER_PROFILE_IMAGE_URL));
+			osTeamspace.changeProfileImageUrl(new TeamspaceProfileImageUrl(OS_TEAMSPACE_PROFILE_IMAGE_URL));
+			dbTeamspace.changeProfileImageUrl(new TeamspaceProfileImageUrl(DB_TEAMSPACE_PROFILE_IMAGE_URL));
 
 			final UserTeamspace osUserTeamspace = MEMBER_USERTEAMSPACE(user, osTeamspace);
 			final UserTeamspace dbUserTeamspace = MEMBER_USERTEAMSPACE(user, dbTeamspace);

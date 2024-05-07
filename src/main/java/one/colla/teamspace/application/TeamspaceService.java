@@ -37,9 +37,9 @@ import one.colla.teamspace.domain.TeamspaceRepository;
 import one.colla.teamspace.domain.TeamspaceRole;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.teamspace.domain.UserTeamspaceRepository;
-import one.colla.teamspace.domain.vo.ProfileImageUrl;
 import one.colla.teamspace.domain.vo.TagName;
 import one.colla.teamspace.domain.vo.TeamspaceName;
+import one.colla.teamspace.domain.vo.TeamspaceProfileImageUrl;
 import one.colla.user.domain.User;
 import one.colla.user.domain.UserRepository;
 
@@ -208,8 +208,8 @@ public class TeamspaceService {
 		}
 
 		if (request.profileImageUrl() != null) {
-			ProfileImageUrl profileImageUrl = new ProfileImageUrl(request.profileImageUrl());
-			teamspace.changeProfileImageUrl(profileImageUrl);
+			TeamspaceProfileImageUrl teamspaceProfileImageUrl = new TeamspaceProfileImageUrl(request.profileImageUrl());
+			teamspace.changeProfileImageUrl(teamspaceProfileImageUrl);
 		}
 
 		if (request.users() != null && !request.users().isEmpty()) {

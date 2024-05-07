@@ -19,8 +19,8 @@ import one.colla.common.domain.BaseEntity;
 import one.colla.feed.common.domain.Feed;
 import one.colla.file.domain.Attachment;
 import one.colla.schedule.domain.CalendarEvent;
-import one.colla.teamspace.domain.vo.ProfileImageUrl;
 import one.colla.teamspace.domain.vo.TeamspaceName;
+import one.colla.teamspace.domain.vo.TeamspaceProfileImageUrl;
 
 @Getter
 @Entity
@@ -35,7 +35,7 @@ public class Teamspace extends BaseEntity {
 	private TeamspaceName teamspaceName;
 
 	@Embedded
-	private ProfileImageUrl profileImageUrl;
+	private TeamspaceProfileImageUrl teamspaceProfileImageUrl;
 
 	@OneToMany(mappedBy = "teamspace", fetch = FetchType.LAZY)
 	private final List<UserTeamspace> userTeamspaces = new ArrayList<>();
@@ -69,7 +69,7 @@ public class Teamspace extends BaseEntity {
 	}
 
 	public String getProfileImageUrlValue() {
-		return profileImageUrl != null ? profileImageUrl.getValue() : null;
+		return teamspaceProfileImageUrl != null ? teamspaceProfileImageUrl.getValue() : null;
 	}
 
 	public void addUserTeamspace(final UserTeamspace userTeamspace) {
@@ -84,7 +84,7 @@ public class Teamspace extends BaseEntity {
 		this.teamspaceName = teamspaceName;
 	}
 
-	public void changeProfileImageUrl(final ProfileImageUrl profileImageUrl) {
-		this.profileImageUrl = profileImageUrl;
+	public void changeProfileImageUrl(final TeamspaceProfileImageUrl teamspaceProfileImageUrl) {
+		this.teamspaceProfileImageUrl = teamspaceProfileImageUrl;
 	}
 }

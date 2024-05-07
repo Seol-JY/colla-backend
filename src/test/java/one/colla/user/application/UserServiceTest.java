@@ -26,10 +26,11 @@ import one.colla.infra.redis.lastseen.LastSeenTeamspaceService;
 import one.colla.teamspace.application.TeamspaceService;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.UserTeamspace;
-import one.colla.teamspace.domain.vo.ProfileImageUrl;
+import one.colla.teamspace.domain.vo.TeamspaceProfileImageUrl;
 import one.colla.user.application.dto.request.LastSeenUpdateRequest;
 import one.colla.user.application.dto.response.UserStatusResponse;
 import one.colla.user.domain.User;
+import one.colla.user.domain.vo.UserProfileImageUrl;
 
 public class UserServiceTest extends ServiceTest {
 
@@ -56,12 +57,12 @@ public class UserServiceTest extends ServiceTest {
 	@BeforeEach
 	void setUp() {
 		user = testFixtureBuilder.buildUser(USER1());
-		user.updateProfileImage(new one.colla.user.domain.vo.ProfileImageUrl(USER_PROFILE_IMAGE_URL));
+		user.updateProfileImage(new UserProfileImageUrl(USER_PROFILE_IMAGE_URL));
 		userDetails = createCustomUserDetailsByUser(user);
 		osTeamspace = testFixtureBuilder.buildTeamspace(OS_TEAMSPACE());
 		dbTeamspace = testFixtureBuilder.buildTeamspace(DATABASE_TEAMSPACE());
-		osTeamspace.changeProfileImageUrl(new ProfileImageUrl(OS_TEAMSPACE_PROFILE_IMAGE_URL));
-		dbTeamspace.changeProfileImageUrl(new ProfileImageUrl(DB_TEAMSPACE_PROFILE_IMAGE_URL));
+		osTeamspace.changeProfileImageUrl(new TeamspaceProfileImageUrl(OS_TEAMSPACE_PROFILE_IMAGE_URL));
+		dbTeamspace.changeProfileImageUrl(new TeamspaceProfileImageUrl(DB_TEAMSPACE_PROFILE_IMAGE_URL));
 		osUserTeamspace = testFixtureBuilder.buildUserTeamspace(MEMBER_USERTEAMSPACE(user, osTeamspace));
 		dbUserTeamspace = testFixtureBuilder.buildUserTeamspace(MEMBER_USERTEAMSPACE(user, dbTeamspace));
 	}
