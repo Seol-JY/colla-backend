@@ -107,7 +107,7 @@ def swaggerFileName = "${fileNamePrefix}.${fileFormat}"
 
 openapi3 {
     servers = [
-            { url = "http://localhost:8080/" },
+            { url = "/" },
     ]
     title = "Colla API 문서"
     description = "Spring REST Docs with SwaggerUI."
@@ -118,7 +118,7 @@ openapi3 {
 }
 
 editorconfig {
-    excludes = ['build', 'node_modules', '.husky', '**/open-api-3.0.1.yaml', 'docker']
+    excludes = ['build', 'node_modules', '.husky', '**/open-api-3.0.1.yaml', 'docker-infra']
 }
 
 check.dependsOn editorconfigCheck
