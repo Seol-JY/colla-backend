@@ -1,6 +1,6 @@
 package one.colla.file.domain;
 
-public enum Type {
+public enum AttachmentType {
 	IMAGE,
 	FILE
 }

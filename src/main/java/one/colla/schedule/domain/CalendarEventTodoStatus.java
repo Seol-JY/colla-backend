@@ -1,6 +1,6 @@
 package one.colla.schedule.domain;
 
-public enum Status {
+public enum CalendarEventTodoStatus {
 	REQUEST,
 	PROCESS,
 	FEEDBACK,

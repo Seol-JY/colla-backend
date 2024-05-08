@@ -16,7 +16,7 @@ import one.colla.auth.application.dto.oauth.OAuthUserInfo;
 import one.colla.common.util.TokenParser;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
-import one.colla.user.domain.Provider;
+import one.colla.user.domain.OauthProvider;
 import one.colla.user.domain.vo.Username;
 
 @Component
@@ -33,10 +33,10 @@ public class OAuthUserCreator {
 		this.tokenParser = tokenParser;
 	}
 
-	public OAuthUserInfo createUser(OAuthTokenResponse tokenResponse, Provider provider) {
-		return switch (provider) {
+	public OAuthUserInfo createUser(OAuthTokenResponse tokenResponse, OauthProvider oauthProvider) {
+		return switch (oauthProvider) {
 			case NAVER -> createNaverUser(tokenResponse.accessToken());
-			case GOOGLE, KAKAO -> createOtherUser(tokenResponse.idToken(), provider);
+			case GOOGLE, KAKAO -> createOtherUser(tokenResponse.idToken(), oauthProvider);
 		};
 	}
 
@@ -52,16 +52,16 @@ public class OAuthUserCreator {
 		return new OAuthUserInfo(email, adjustNameLength(username), picture);
 	}
 
-	private OAuthUserInfo createOtherUser(String idToken, Provider provider) {
+	private OAuthUserInfo createOtherUser(String idToken, OauthProvider oauthProvider) {
 		Map<String, Object> payload = tokenParser.parseIdTokenPayload(idToken);
 		String email = (String)payload.get("email");
-		String username = extractNameFromPayload(payload, provider);
+		String username = extractNameFromPayload(payload, oauthProvider);
 		String picture = (String)payload.get("picture");
 		return new OAuthUserInfo(email, adjustNameLength(username), picture);
 	}
 
-	private String extractNameFromPayload(Map<String, Object> payload, Provider provider) {
-		return switch (provider) {
+	private String extractNameFromPayload(Map<String, Object> payload, OauthProvider oauthProvider) {
+		return switch (oauthProvider) {
 			case GOOGLE -> (String)payload.get("name");
 			case KAKAO -> (String)payload.get("nickname");
 			default -> throw new CommonException(ExceptionCode.INVALID_OAUTH_PROVIDER);

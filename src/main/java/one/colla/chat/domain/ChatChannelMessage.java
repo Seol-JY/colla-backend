@@ -43,7 +43,7 @@ public class ChatChannelMessage {
 
 	@Column(name = "type", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private Type type;
+	private ChatType chatType;
 
 	@Column(name = "content")
 	private String content;

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import one.colla.user.domain.Provider;
+import one.colla.user.domain.OauthProvider;
 
 @Slf4j
 @Component
@@ -15,8 +15,8 @@ public class OAuthPropertyFactory {
 	private final KakaoOAuthProperties kakaoOAuthProperties;
 	private final NaverOAuthProperties naverOAuthProperties;
 
-	public OAuthProperties createOAuthProperty(final Provider provider) {
-		return switch (provider) {
+	public OAuthProperties createOAuthProperty(final OauthProvider oauthProvider) {
+		return switch (oauthProvider) {
 			case GOOGLE -> googleOAuthProperties;
 			case KAKAO -> kakaoOAuthProperties;
 			case NAVER -> naverOAuthProperties;

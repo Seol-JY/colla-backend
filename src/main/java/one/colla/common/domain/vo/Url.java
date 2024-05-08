@@ -2,14 +2,9 @@ package one.colla.common.domain.vo;
 
 import java.util.regex.Pattern;
 
-import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import one.colla.global.exception.VoException;
 
-@Embeddable
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public abstract class Url {
 	protected static final String URL_REGEX =

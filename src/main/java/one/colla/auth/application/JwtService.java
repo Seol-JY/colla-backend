@@ -35,9 +35,9 @@ public class JwtService {
 
 	public JwtPair createToken(User user) {
 		String accessToken = accessTokenProvider.generateToken(
-			AccessTokenClaim.of(user.getId(), user.getRole().name()));
+			AccessTokenClaim.of(user.getId(), user.getUserRole().name()));
 		String refreshToken = refreshTokenProvider.generateToken(
-			RefreshTokenClaim.of(user.getId(), user.getRole().name()));
+			RefreshTokenClaim.of(user.getId(), user.getUserRole().name()));
 
 		refreshTokenService.save(
 			RefreshToken.of(user.getId(), refreshToken, toSeconds(refreshTokenProvider.getExpiryDate(refreshToken))));

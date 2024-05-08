@@ -32,23 +32,23 @@ public class OauthApproval extends BaseEntity {
 
 	@Column(name = "provider", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private Provider provider;
+	private OauthProvider oauthProvider;
 
 	@Column(name = "access_token", nullable = false)
 	private String accessToken;
 
-	private OauthApproval(final User user, final Provider provider, final String accessToken) {
+	private OauthApproval(final User user, final OauthProvider oauthProvider, final String accessToken) {
 		this.user = user;
-		this.provider = provider;
+		this.oauthProvider = oauthProvider;
 		this.accessToken = accessToken;
 	}
 
 	public static OauthApproval createOAuthApproval(
 		final User user,
-		final Provider provider,
+		final OauthProvider oauthProvider,
 		final String accessToken) {
 
-		return new OauthApproval(user, provider, accessToken);
+		return new OauthApproval(user, oauthProvider, accessToken);
 	}
 
 	public void changeAccessToken(final String accessToken) {

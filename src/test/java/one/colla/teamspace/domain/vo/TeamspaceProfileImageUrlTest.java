@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import one.colla.global.exception.VoException;
 
-class ProfileImageUrlTest {
+class TeamspaceProfileImageUrlTest {
 	@Test
 	@DisplayName("두 객체의 값이 같으면 같은 객체이다.")
 	void testEqualsAndHashCode1() {
@@ -15,8 +15,8 @@ class ProfileImageUrlTest {
 		String input = "https://example.com/profile.jpg";
 
 		// when
-		ProfileImageUrl url1 = new ProfileImageUrl(input);
-		ProfileImageUrl url2 = new ProfileImageUrl(input);
+		TeamspaceProfileImageUrl url1 = new TeamspaceProfileImageUrl(input);
+		TeamspaceProfileImageUrl url2 = new TeamspaceProfileImageUrl(input);
 
 		// then
 		assertThat(url1).isEqualTo(url2);
@@ -30,8 +30,8 @@ class ProfileImageUrlTest {
 		String input2 = "https://example.com/another.jpg";
 
 		// when
-		ProfileImageUrl url1 = new ProfileImageUrl(input1);
-		ProfileImageUrl url2 = new ProfileImageUrl(input2);
+		TeamspaceProfileImageUrl url1 = new TeamspaceProfileImageUrl(input1);
+		TeamspaceProfileImageUrl url2 = new TeamspaceProfileImageUrl(input2);
 
 		// then
 		assertThat(url1).isNotEqualTo(url2);
@@ -44,7 +44,7 @@ class ProfileImageUrlTest {
 		String validUrl = "https://example.com/profile.jpg";
 
 		// when
-		ProfileImageUrl imageUrl = new ProfileImageUrl(validUrl);
+		TeamspaceProfileImageUrl imageUrl = new TeamspaceProfileImageUrl(validUrl);
 
 		// then
 		assertThat(imageUrl.getValue()).isEqualTo(validUrl);
@@ -57,7 +57,7 @@ class ProfileImageUrlTest {
 		String invalidUrl = "htp:/example.com";
 
 		// when/then
-		assertThatThrownBy(() -> new ProfileImageUrl(invalidUrl))
+		assertThatThrownBy(() -> new TeamspaceProfileImageUrl(invalidUrl))
 			.isInstanceOf(VoException.class)
 			.hasMessageContaining("url 형식이 아닙니다.");
 	}
@@ -69,7 +69,7 @@ class ProfileImageUrlTest {
 		String blankUrl = "   ";
 
 		// when/then
-		assertThatThrownBy(() -> new ProfileImageUrl(blankUrl))
+		assertThatThrownBy(() -> new TeamspaceProfileImageUrl(blankUrl))
 			.isInstanceOf(VoException.class)
 			.hasMessageContaining("url은 공백일 수 없습니다.");
 	}
@@ -80,10 +80,10 @@ class ProfileImageUrlTest {
 		// given
 		String initialUrl = "https://example.com/old_profile.jpg";
 		String newUrl = "https://example.com/new_profile.jpg";
-		ProfileImageUrl imageUrl = new ProfileImageUrl(initialUrl);
+		TeamspaceProfileImageUrl imageUrl = new TeamspaceProfileImageUrl(initialUrl);
 
 		// when
-		ProfileImageUrl updatedImageUrl = imageUrl.change(newUrl);
+		TeamspaceProfileImageUrl updatedImageUrl = imageUrl.change(newUrl);
 
 		// then
 		assertThat(updatedImageUrl.getValue()).isNotEqualTo(initialUrl);

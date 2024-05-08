@@ -1,6 +1,6 @@
 package one.colla.feed.collect.domain;
 
-public enum Status {
+public enum CollectFeedStatus {
 	PENDING,
 	COMPLETED
 }

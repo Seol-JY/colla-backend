@@ -14,7 +14,7 @@ import one.colla.auth.config.OAuthProperties;
 import one.colla.auth.config.OAuthPropertyFactory;
 import one.colla.user.domain.OauthApproval;
 import one.colla.user.domain.OauthApprovalRepository;
-import one.colla.user.domain.Provider;
+import one.colla.user.domain.OauthProvider;
 import one.colla.user.domain.User;
 import one.colla.user.domain.UserRepository;
 import one.colla.user.domain.vo.Email;
@@ -32,39 +32,39 @@ public class OAuthService {
 	private final OAuthClient oAuthClient;
 	private final OauthApprovalRepository oauthApprovalRepository;
 
-	public Pair<Long, JwtPair> createToken(final OAuthLoginRequest dto, final Provider provider) {
-		OAuthProperties oAuthProperties = oAuthPropertyFactory.createOAuthProperty(provider);
+	public Pair<Long, JwtPair> createToken(final OAuthLoginRequest dto, final OauthProvider oauthProvider) {
+		OAuthProperties oAuthProperties = oAuthPropertyFactory.createOAuthProperty(oauthProvider);
 		OAuthTokenResponse tokenResponse = oAuthClient.getAccessToken(oAuthProperties, dto.code());
-		OAuthUserInfo oAuthUserInfo = oAuthUserCreator.createUser(tokenResponse, provider);
-		User user = findOrCreateUser(oAuthUserInfo, provider, tokenResponse.accessToken());
+		OAuthUserInfo oAuthUserInfo = oAuthUserCreator.createUser(tokenResponse, oauthProvider);
+		User user = findOrCreateUser(oAuthUserInfo, oauthProvider, tokenResponse.accessToken());
 		JwtPair jwtPair = jwtService.createToken(user);
 		return Pair.of(user.getId(), jwtPair);
 	}
 
-	private User findOrCreateUser(final OAuthUserInfo oAuthUserInfo, final Provider provider,
+	private User findOrCreateUser(final OAuthUserInfo oAuthUserInfo, final OauthProvider oauthProvider,
 		final String accessToken) {
 		return userRepository.findByEmail(new Email(oAuthUserInfo.email()))
-			.map(user -> updateUserWithOAuthApproval(user, provider, accessToken))
-			.orElseGet(() -> registerNewUser(oAuthUserInfo, provider, accessToken));
+			.map(user -> updateUserWithOAuthApproval(user, oauthProvider, accessToken))
+			.orElseGet(() -> registerNewUser(oAuthUserInfo, oauthProvider, accessToken));
 	}
 
-	private User registerNewUser(OAuthUserInfo oAuthUserInfo, Provider provider, String accessToken) {
+	private User registerNewUser(OAuthUserInfo oAuthUserInfo, OauthProvider oauthProvider, String accessToken) {
 		User user = User.createSocialUser(oAuthUserInfo.nickname(), oAuthUserInfo.email(), oAuthUserInfo.picture());
 		userRepository.save(user);
-		addOAuthApproval(user, provider, accessToken);
-		log.info("소셜 회원가입 - 유저 Id: {}", user.getId());
+		addOAuthApproval(user, oauthProvider, accessToken);
+		log.info("소셜 회원가입 - 유저 Id: {}, 공급자: {}", user.getId(), oauthProvider);
 		return user;
 	}
 
-	private User updateUserWithOAuthApproval(User user, Provider provider, String accessToken) {
+	private User updateUserWithOAuthApproval(User user, OauthProvider oauthProvider, String accessToken) {
 		user.getOauthApprovals().stream()
-			.filter(approval -> approval.getProvider().equals(provider))
+			.filter(approval -> approval.getOauthProvider().equals(oauthProvider))
 			.findFirst()
 			.ifPresentOrElse(
 				approval -> updateAccessToken(approval, accessToken),
-				() -> addOAuthApproval(user, provider, accessToken));
+				() -> addOAuthApproval(user, oauthProvider, accessToken));
 
-		log.info("소셜 로그인 - 유저 Id: {}", user.getId());
+		log.info("소셜 로그인 - 유저 Id: {}, 공급자: {}", user.getId(), oauthProvider);
 		return user;
 	}
 
@@ -73,11 +73,11 @@ public class OAuthService {
 		// log.info("유저 {}의 {} Access token이 업데이트 되었습니다.", approval.getUser().getId(), approval.getProvider());
 	}
 
-	private void addOAuthApproval(User user, Provider provider, String accessToken) {
-		OauthApproval oauthApproval = OauthApproval.createOAuthApproval(user, provider, accessToken);
+	private void addOAuthApproval(User user, OauthProvider oauthProvider, String accessToken) {
+		OauthApproval oauthApproval = OauthApproval.createOAuthApproval(user, oauthProvider, accessToken);
 		user.addOAuthApproval(oauthApproval);
 		oauthApprovalRepository.save(oauthApproval);
 
-		log.info("계정이 {}와 연동 되었습니다. - 유저 Id: {}", provider, user.getId());
+		log.info("계정 연동 - 유저 Id: {}, 공급자: {}", user.getId(), oauthProvider);
 	}
 }

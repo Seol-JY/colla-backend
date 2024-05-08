@@ -1,6 +1,6 @@
 package one.colla.user.domain;
 
-public enum Provider {
+public enum OauthProvider {
 	GOOGLE,
 	KAKAO,
 	NAVER

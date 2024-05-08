@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import one.colla.global.exception.VoException;
 
-public class ProfileImageUrlTest {
+public class UserProfileImageUrlTest {
 
 	@Test
 	@DisplayName("두 객체의 값이 같으면 같은 객체이다.")
@@ -16,8 +16,8 @@ public class ProfileImageUrlTest {
 		String input = "http://example.com/profile.jpg";
 
 		// when
-		ProfileImageUrl url1 = new ProfileImageUrl(input);
-		ProfileImageUrl url2 = new ProfileImageUrl(input);
+		UserProfileImageUrl url1 = new UserProfileImageUrl(input);
+		UserProfileImageUrl url2 = new UserProfileImageUrl(input);
 
 		// then
 		assertThat(url1).isEqualTo(url2);
@@ -31,8 +31,8 @@ public class ProfileImageUrlTest {
 		String input2 = "http://example.com/another.jpg";
 
 		// when
-		ProfileImageUrl url1 = new ProfileImageUrl(input1);
-		ProfileImageUrl url2 = new ProfileImageUrl(input2);
+		UserProfileImageUrl url1 = new UserProfileImageUrl(input1);
+		UserProfileImageUrl url2 = new UserProfileImageUrl(input2);
 
 		// then
 		assertThat(url1).isNotEqualTo(url2);
@@ -45,7 +45,7 @@ public class ProfileImageUrlTest {
 		String validUrl = "http://example.com/profile.jpg";
 
 		// when
-		ProfileImageUrl imageUrl = new ProfileImageUrl(validUrl);
+		UserProfileImageUrl imageUrl = new UserProfileImageUrl(validUrl);
 
 		// then
 		assertThat(imageUrl.getValue()).isEqualTo(validUrl);
@@ -58,7 +58,7 @@ public class ProfileImageUrlTest {
 		String invalidUrl = "htp:/example.com";
 
 		// when/then
-		assertThatThrownBy(() -> new ProfileImageUrl(invalidUrl))
+		assertThatThrownBy(() -> new UserProfileImageUrl(invalidUrl))
 			.isInstanceOf(VoException.class)
 			.hasMessageContaining("url 형식이 아닙니다.");
 	}
@@ -70,7 +70,7 @@ public class ProfileImageUrlTest {
 		String blankUrl = "   ";
 
 		// when/then
-		assertThatThrownBy(() -> new ProfileImageUrl(blankUrl))
+		assertThatThrownBy(() -> new UserProfileImageUrl(blankUrl))
 			.isInstanceOf(VoException.class)
 			.hasMessageContaining("url은 공백일 수 없습니다.");
 	}
@@ -81,10 +81,10 @@ public class ProfileImageUrlTest {
 		// given
 		String initialUrl = "http://example.com/old_profile.jpg";
 		String newUrl = "http://example.com/new_profile.jpg";
-		ProfileImageUrl imageUrl = new ProfileImageUrl(initialUrl);
+		UserProfileImageUrl imageUrl = new UserProfileImageUrl(initialUrl);
 
 		// when
-		ProfileImageUrl updatedImageUrl = imageUrl.change(newUrl);
+		UserProfileImageUrl updatedImageUrl = imageUrl.change(newUrl);
 
 		// then
 		assertThat(updatedImageUrl.getValue()).isNotEqualTo(initialUrl);

@@ -24,7 +24,7 @@ import one.colla.auth.config.OAuthPropertyFactory;
 import one.colla.common.ServiceTest;
 import one.colla.user.domain.OauthApproval;
 import one.colla.user.domain.OauthApprovalRepository;
-import one.colla.user.domain.Provider;
+import one.colla.user.domain.OauthProvider;
 import one.colla.user.domain.User;
 import one.colla.user.domain.UserRepository;
 import one.colla.user.domain.vo.Email;
@@ -39,8 +39,8 @@ public class OAuthServiceTest extends ServiceTest {
 	private static final String EMAIL = "email@example.com";
 	private static final String NICKNAME = "nickname";
 	private static final String PICTURE_URL = "http://prcture.com";
-	private static final Provider EXIST_PROVIDER = Provider.GOOGLE;
-	private static final Provider NOT_EXIST_PROVIDER = Provider.KAKAO;
+	private static final OauthProvider EXIST_OAUTH_PROVIDER = OauthProvider.GOOGLE;
+	private static final OauthProvider NOT_EXIST_OAUTH_PROVIDER = OauthProvider.KAKAO;
 
 	@Mock
 	private OAuthPropertyFactory oAuthPropertyFactory;
@@ -79,17 +79,18 @@ public class OAuthServiceTest extends ServiceTest {
 	public void whenExistingUserLogInWithSameProvider_UpdateAccessToken() {
 
 		// given
-		Provider provider = Provider.GOOGLE;
+		OauthProvider oauthProvider = OauthProvider.GOOGLE;
 		user = testFixtureBuilder.buildUser(USER1());
-		setupMock(provider, true, true);
+		setupMock(oauthProvider, true, true);
 
 		// when
-		Pair<Long, JwtPair> response = oAuthService.createToken(new OAuthLoginRequest(AUTHORIZATION_CODE), provider);
+		Pair<Long, JwtPair> response = oAuthService.createToken(new OAuthLoginRequest(AUTHORIZATION_CODE),
+			oauthProvider);
 
 		// then
 		List<OauthApproval> oauthApprovalList = user.getOauthApprovals();
 		Optional<OauthApproval> oauthApproval = oauthApprovalList.stream()
-			.filter(approval -> approval.getProvider().equals(provider))
+			.filter(approval -> approval.getOauthProvider().equals(oauthProvider))
 			.findFirst();
 
 		assertSoftly(softly -> {
@@ -98,7 +99,7 @@ public class OAuthServiceTest extends ServiceTest {
 			softly.assertThat(response.getRight().refreshToken()).isEqualTo(REFRESH_TOKEN);
 			softly.assertThat(oauthApprovalList).hasSize(1);
 			softly.assertThat(oauthApproval).isPresent();
-			softly.assertThat(oauthApproval.get().getProvider()).isEqualTo(provider);
+			softly.assertThat(oauthApproval.get().getOauthProvider()).isEqualTo(oauthProvider);
 			softly.assertThat(oauthApproval.get().getAccessToken()).isEqualTo(NEW_ACCESS_TOKEN);
 
 		});
@@ -110,12 +111,13 @@ public class OAuthServiceTest extends ServiceTest {
 	public void whenExistingUserLogsInWithNewProvider_CreateOAuthApproval() {
 
 		// given
-		Provider provider = Provider.GOOGLE;
+		OauthProvider oauthProvider = OauthProvider.GOOGLE;
 		user = testFixtureBuilder.buildUser(USER1());
-		setupMock(provider, true, false);
+		setupMock(oauthProvider, true, false);
 
 		// when
-		Pair<Long, JwtPair> response = oAuthService.createToken(new OAuthLoginRequest(AUTHORIZATION_CODE), provider);
+		Pair<Long, JwtPair> response = oAuthService.createToken(new OAuthLoginRequest(AUTHORIZATION_CODE),
+			oauthProvider);
 
 		// then
 		List<OauthApproval> findOauthApprovalList = user.getOauthApprovals();
@@ -128,7 +130,7 @@ public class OAuthServiceTest extends ServiceTest {
 			softly.assertThat(response.getRight().accessToken()).isEqualTo(NEW_ACCESS_TOKEN);
 			softly.assertThat(response.getRight().refreshToken()).isEqualTo(REFRESH_TOKEN);
 			softly.assertThat(findOauthApprovalList).hasSize(2);
-			softly.assertThat(savedApproval.getProvider()).isEqualTo(provider);
+			softly.assertThat(savedApproval.getOauthProvider()).isEqualTo(oauthProvider);
 			softly.assertThat(savedApproval.getAccessToken()).isEqualTo(NEW_ACCESS_TOKEN);
 
 		});
@@ -139,12 +141,13 @@ public class OAuthServiceTest extends ServiceTest {
 	public void whenNewUserRegistersWithSocialLogin_CreateUserAndOAuthApproval() {
 
 		// given
-		Provider provider = Provider.GOOGLE;
+		OauthProvider oauthProvider = OauthProvider.GOOGLE;
 		user = User.createSocialUser(NICKNAME, EMAIL, PICTURE_URL);
-		setupMock(provider, false, false);
+		setupMock(oauthProvider, false, false);
 
 		// when
-		Pair<Long, JwtPair> response = oAuthService.createToken(new OAuthLoginRequest(AUTHORIZATION_CODE), provider);
+		Pair<Long, JwtPair> response = oAuthService.createToken(new OAuthLoginRequest(AUTHORIZATION_CODE),
+			oauthProvider);
 
 		// then
 		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
@@ -161,27 +164,28 @@ public class OAuthServiceTest extends ServiceTest {
 			softly.assertThat(savedUser.getProfileImageUrlValue()).isEqualTo(oAuthUserInfo.picture());
 
 			softly.assertThat(savedUser.getOauthApprovals()).hasSize(1);
-			softly.assertThat(savedUser.getOauthApprovals().get(0).getProvider()).isEqualTo(provider);
+			softly.assertThat(savedUser.getOauthApprovals().get(0).getOauthProvider()).isEqualTo(oauthProvider);
 			softly.assertThat(savedUser.getOauthApprovals().get(0).getAccessToken()).isEqualTo(NEW_ACCESS_TOKEN);
 		});
 
 	}
 
-	private void setupMock(Provider provider, boolean userExists, boolean providerExists) {
+	private void setupMock(OauthProvider oauthProvider, boolean userExists, boolean providerExists) {
 
 		if (userExists) {
 			if (providerExists) {
-				user.addOAuthApproval(OauthApproval.createOAuthApproval(user, EXIST_PROVIDER, OLD_ACCESS_TOKEN));
+				user.addOAuthApproval(OauthApproval.createOAuthApproval(user, EXIST_OAUTH_PROVIDER, OLD_ACCESS_TOKEN));
 			} else {
-				user.addOAuthApproval(OauthApproval.createOAuthApproval(user, NOT_EXIST_PROVIDER, OLD_ACCESS_TOKEN));
+				user.addOAuthApproval(
+					OauthApproval.createOAuthApproval(user, NOT_EXIST_OAUTH_PROVIDER, OLD_ACCESS_TOKEN));
 			}
 			given(userRepository.findByEmail(new Email(EMAIL))).willReturn(Optional.of(user));
 		} else {
 			given(userRepository.findByEmail(new Email(EMAIL))).willReturn(Optional.empty());
 		}
-		given(oAuthPropertyFactory.createOAuthProperty(provider)).willReturn(oAuthProperties);
+		given(oAuthPropertyFactory.createOAuthProperty(oauthProvider)).willReturn(oAuthProperties);
 		given(oAuthClient.getAccessToken(oAuthProperties, AUTHORIZATION_CODE)).willReturn(oAuthTokenResponse);
-		given(oAuthUserCreator.createUser(oAuthTokenResponse, provider)).willReturn(oAuthUserInfo);
+		given(oAuthUserCreator.createUser(oAuthTokenResponse, oauthProvider)).willReturn(oAuthUserInfo);
 		given(userRepository.save(user)).willReturn(user);
 		given(jwtService.createToken(any(User.class))).willReturn(jwtPair);
 		given(oauthApprovalRepository.save(oauthApproval)).willReturn(oauthApproval);
