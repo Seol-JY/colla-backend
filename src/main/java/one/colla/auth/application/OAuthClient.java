@@ -42,7 +42,7 @@ public class OAuthClient {
 			);
 			return response.getBody();
 		} catch (HttpClientErrorException ex) {
-			log.warn("Authorization code가 올바르지 않습니다.");
+			log.error("Authorization code가 올바르지 않습니다.", ex);
 			throw new CommonException(ExceptionCode.INVALID_AUTHORIZATION_CODE);
 		}
 	}
