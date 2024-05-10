@@ -10,17 +10,13 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import jakarta.validation.ConstraintViolation;
+import one.colla.common.CommonTest;
 import one.colla.teamspace.application.dto.request.UpdateTeamspaceSettingsRequest;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class UpdateTeamspaceSettingsRequestValidationTest {
-
+class UpdateTeamspaceSettingsRequestValidationTest extends CommonTest {
 	@Autowired
 	private LocalValidatorFactoryBean validator;
 
