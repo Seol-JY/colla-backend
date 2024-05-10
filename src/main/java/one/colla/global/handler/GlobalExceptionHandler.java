@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -18,6 +19,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -113,6 +117,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		}
 		logger.error("Unexpected error 발생: " + ex.getMessage(), ex);
 		return ApiResponse.createServerErrorResponseEntity();
+	}
+
+	@Override
+	@Nullable
+	protected ResponseEntity<Object> handleHttpMessageNotReadable(
+		HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+		Map<String, String> errors = new HashMap<>();
+		if (ex.getCause() instanceof MismatchedInputException mismatchedInputException) {
+			for (JsonMappingException.Reference reference : mismatchedInputException.getPath()) {
+				errors.put(reference.getFieldName(), "필드의 값이 잘못되었습니다. Type 을 확인하세요.");
+			}
+		} else {
+			errors.put("common", "확인할 수 없는 형태의 데이터가 들어왔습니다. JSON 형식인지 확인하세요.");
+			log.error("HttpMessageNotReadable 에러 발생: {}", ex.getMessage(), ex);
+		}
+		return ApiResponse.createValidationResponseEntity(errors);
 	}
 
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
