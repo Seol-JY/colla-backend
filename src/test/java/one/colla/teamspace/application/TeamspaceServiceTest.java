@@ -582,7 +582,7 @@ class TeamspaceServiceTest extends ServiceTest {
 	}
 
 	@Nested
-	@DisplayName("팀스페이스 태그 생성 시")
+	@DisplayName("팀스페이스 설정 시")
 	class UpdateSettingsTest {
 		User USER1;
 		CustomUserDetails USER1_DETAILS;
