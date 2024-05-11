@@ -596,7 +596,7 @@ class TeamspaceControllerTest extends ControllerTest {
 				ApiResponse.createSuccessResponse(Map.of()),
 				status().isOk(),
 				apiDocHelper.createSuccessResponseFields(),
-				"ApiResponse<UpdateTeamspaceSettings>"
+				"ApiResponse"
 			);
 		}
 

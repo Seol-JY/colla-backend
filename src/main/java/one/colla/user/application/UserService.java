@@ -16,11 +16,14 @@ import one.colla.infra.redis.lastseen.LastSeenTeamspaceService;
 import one.colla.teamspace.application.TeamspaceService;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.user.application.dto.request.LastSeenUpdateRequest;
+import one.colla.user.application.dto.request.UpdateUserSettingRequest;
 import one.colla.user.application.dto.response.ParticipatedTeamspaceDto;
 import one.colla.user.application.dto.response.ProfileDto;
 import one.colla.user.application.dto.response.UserStatusResponse;
 import one.colla.user.domain.User;
 import one.colla.user.domain.UserRepository;
+import one.colla.user.domain.vo.UserProfileImageUrl;
+import one.colla.user.domain.vo.Username;
 
 @Service
 @RequiredArgsConstructor
@@ -75,6 +78,33 @@ public class UserService {
 			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_USER));
 
 		return !user.getUserTeamspaces().isEmpty();
+	}
+
+	@Transactional
+	public void updateSettings(CustomUserDetails userDetails, UpdateUserSettingRequest request) {
+		final User user = userRepository.findById(userDetails.getUserId())
+			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_USER));
+
+		if (request.profileImageUrl() != null) {
+			UserProfileImageUrl userProfileImageUrl = UserProfileImageUrl.from(request.profileImageUrl());
+			user.changeProfileImageUrl(userProfileImageUrl);
+		}
+
+		if (request.emailSubscription() != null) {
+			log.debug(request.emailSubscription().toString());
+			user.changeEmailSubscription(request.emailSubscription());
+		}
+
+		if (request.commentNotification() != null) {
+			user.changeCommentNotification(request.commentNotification());
+		}
+
+		if (request.username() != null) {
+			Username username = Username.from(request.username());
+			user.changeUsername(username);
+		}
+
+		log.info("사용자 설정 업데이트 - 사용자 Id: {}", userDetails.getUserId());
 	}
 
 	private int getNumOfTeamspaceParticipants(UserTeamspace userTeamspace) {
