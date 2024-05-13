@@ -242,6 +242,20 @@ public class TeamspaceService {
 		log.info("팀 스페이스 설정 업데이트 - 팀 스페이스 Id: {}, 사용자 Id: {}", teamspaceId, userDetails.getUserId());
 	}
 
+	@Transactional
+	public void deleteProfileImageUrl(CustomUserDetails userDetails, Long teamspaceId) {
+		UserTeamspace userTeamspace = getUserTeamspace(userDetails, teamspaceId);
+
+		if (userTeamspace.getTeamspaceRole() != TeamspaceRole.LEADER) {
+			throw new CommonException(ExceptionCode.ONLY_LEADER_ACCESS);
+		}
+
+		Teamspace teamspace = userTeamspace.getTeamspace();
+		teamspace.deleteProfileImageUrl();
+
+		log.info("팀스페이스 프로필 사진 삭제 완료 - 팀 스페이스 Id: {} 사용자 Id: {}", teamspace, userDetails.getUserId());
+	}
+
 	private Pair<InviteCode, UserTeamspace> generateAndSaveInviteCodeByTeamspaceId(CustomUserDetails userDetails,
 		Long teamspaceId) {
 		UserTeamspace userTeamspace = getUserTeamspace(userDetails, teamspaceId);

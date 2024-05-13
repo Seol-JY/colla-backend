@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -138,6 +139,16 @@ public class TeamspaceController {
 		@RequestBody @Valid final UpdateTeamspaceSettingsRequest request
 	) {
 		teamspaceService.updateSettings(userDetails, teamspaceId, request);
+		return ResponseEntity.ok().body(ApiResponse.createSuccessResponse(Map.of()));
+	}
+
+	@DeleteMapping("/{teamspaceId}/settings/profile-image")
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<ApiResponse<Object>> deleteTeamspaceProfileImageUrl(
+		@AuthenticationPrincipal final CustomUserDetails userDetails,
+		@PathVariable final Long teamspaceId
+	) {
+		teamspaceService.deleteProfileImageUrl(userDetails, teamspaceId);
 		return ResponseEntity.ok().body(ApiResponse.createSuccessResponse(Map.of()));
 	}
 }

@@ -87,4 +87,8 @@ public class Teamspace extends BaseEntity {
 	public void changeProfileImageUrl(final TeamspaceProfileImageUrl teamspaceProfileImageUrl) {
 		this.teamspaceProfileImageUrl = teamspaceProfileImageUrl;
 	}
+
+	public void deleteProfileImageUrl() {
+		this.teamspaceProfileImageUrl = null;
+	}
 }
