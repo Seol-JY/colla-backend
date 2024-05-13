@@ -19,12 +19,10 @@ public class ApiResponse<T> {
 	public static final int SUCCESS_CODE = 20000;
 	public static final int VALIDATION_ERROR_CODE = 30001;
 	public static final int VO_ERROR_CODE = 30002;
-	public static final int TYPE_MISMATCH_ERROR_CODE = 30003;
 	public static final int SERVER_ERROR_CODE = 50001;
 	public static final String VO_ERROR_MESSAGE = "데이터 형식이 유효하지 않습니다.";
 	public static final String VALIDATION_ERROR_MESSAGE = "잘못된 요청 형식입니다.";
 	public static final String SERVER_ERROR_MESSAGE = "서버 오류입니다.";
-	public static final String TYPE_MISMATCH_ERROR_MESSAGE = "요청된 필드의 타입이 유효하지 않습니다.";
 
 	private final int code;
 	private final T content;
@@ -52,10 +50,6 @@ public class ApiResponse<T> {
 
 	public static <T> ApiResponse<T> createServerErrorResponse() {
 		return new ApiResponse<>(SERVER_ERROR_CODE, null, SERVER_ERROR_MESSAGE);
-	}
-
-	public static <T> ApiResponse<T> createMethodArgumentTypeMismatchErrorResponse() {
-		return new ApiResponse<>(TYPE_MISMATCH_ERROR_CODE, null, TYPE_MISMATCH_ERROR_MESSAGE);
 	}
 
 	public static ResponseEntity<Object> createValidationResponseEntity(
@@ -87,11 +81,5 @@ public class ApiResponse<T> {
 		return ResponseEntity
 			.status(HttpStatus.INTERNAL_SERVER_ERROR)
 			.body(createServerErrorResponse());
-	}
-
-	public static <T> ResponseEntity<ApiResponse<T>> createErrorResponseEntity() {
-		return ResponseEntity
-			.status(HttpStatus.BAD_REQUEST)
-			.body(createMethodArgumentTypeMismatchErrorResponse());
 	}
 }
