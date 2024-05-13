@@ -73,6 +73,10 @@ dependencies {
 
     /* findbugs */
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
+    /* AWS S3 */
+    implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
+    implementation 'io.awspring.cloud:spring-cloud-starter-aws-secrets-manager-config:2.4.4'
 }
 
 tasks.register('copyPrivate', Copy) {
