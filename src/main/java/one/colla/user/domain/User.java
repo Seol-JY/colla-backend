@@ -146,10 +146,6 @@ public class User extends BaseEntity {
 		return userProfileImageUrl != null ? userProfileImageUrl.getValue() : null;
 	}
 
-	public void updateProfileImage(UserProfileImageUrl newUserProfileImageUrl) {
-		this.userProfileImageUrl = newUserProfileImageUrl;
-	}
-
 	public UserTeamspace participate(
 		final Teamspace teamspace,
 		final TeamspaceRole teamspaceRole
@@ -158,5 +154,25 @@ public class User extends BaseEntity {
 		userTeamspaces.add(userTeamspace);
 		teamspace.addUserTeamspace(userTeamspace);
 		return userTeamspace;
+	}
+
+	public void changeUsername(final Username username) {
+		this.username = username;
+	}
+
+	public void changeEmailSubscription(final boolean emailSubscription) {
+		this.emailSubscription = emailSubscription;
+	}
+
+	public void changeCommentNotification(final CommentNotification commentNotification) {
+		this.commentNotification = commentNotification;
+	}
+
+	public void changeProfileImageUrl(final UserProfileImageUrl userProfileImageUrl) {
+		this.userProfileImageUrl = userProfileImageUrl;
+	}
+
+	public void deleteProfileImageUrl() {
+		this.userProfileImageUrl = null;
 	}
 }

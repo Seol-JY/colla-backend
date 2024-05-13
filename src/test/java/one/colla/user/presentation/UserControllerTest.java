@@ -38,9 +38,11 @@ import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.teamspace.domain.vo.TeamspaceProfileImageUrl;
 import one.colla.user.application.UserService;
 import one.colla.user.application.dto.request.LastSeenUpdateRequest;
+import one.colla.user.application.dto.request.UpdateUserSettingRequest;
 import one.colla.user.application.dto.response.ParticipatedTeamspaceDto;
 import one.colla.user.application.dto.response.ProfileDto;
 import one.colla.user.application.dto.response.UserStatusResponse;
+import one.colla.user.domain.CommentNotification;
 import one.colla.user.domain.User;
 import one.colla.user.domain.vo.UserProfileImageUrl;
 
@@ -48,7 +50,7 @@ import one.colla.user.domain.vo.UserProfileImageUrl;
 class UserControllerTest extends ControllerTest {
 
 	@MockBean
-	UserService userservice;
+	UserService userService;
 
 	@Nested
 	@DisplayName("팀스페이스 태그 생성 문서화")
@@ -70,7 +72,7 @@ class UserControllerTest extends ControllerTest {
 		@DisplayName("사용자 프로필 및 팀스페이스 참여 세부 사항 문서화")
 		@WithMockCustomUser
 		void getUserStatus() throws Exception {
-			user.updateProfileImage(new UserProfileImageUrl(USER_PROFILE_IMAGE_URL));
+			user.changeProfileImageUrl(new UserProfileImageUrl(USER_PROFILE_IMAGE_URL));
 			osTeamspace.changeProfileImageUrl(new TeamspaceProfileImageUrl(OS_TEAMSPACE_PROFILE_IMAGE_URL));
 			dbTeamspace.changeProfileImageUrl(new TeamspaceProfileImageUrl(DB_TEAMSPACE_PROFILE_IMAGE_URL));
 
@@ -83,7 +85,7 @@ class UserControllerTest extends ControllerTest {
 			);
 			UserStatusResponse userStatusResponse = UserStatusResponse.of(profile, participatedTeamspaceDto);
 
-			given(userservice.getUserStatus(any(CustomUserDetails.class))).willReturn(userStatusResponse);
+			given(userService.getUserStatus(any(CustomUserDetails.class))).willReturn(userStatusResponse);
 
 			doTest(
 				ApiResponse.createSuccessResponse(userStatusResponse),
@@ -152,7 +154,7 @@ class UserControllerTest extends ControllerTest {
 		@DisplayName("마지막으로 본 팀스페이스 Id를 업데이트 할 수 있다.")
 		@WithMockCustomUser
 		void updateLastSeenTeamspace_Success() throws Exception {
-			willDoNothing().given(userservice).updateLastSeenTeamspace(any(CustomUserDetails.class), eq(request));
+			willDoNothing().given(userService).updateLastSeenTeamspace(any(CustomUserDetails.class), eq(request));
 			doTest(
 				ApiResponse.createSuccessResponse(Map.of()),
 				status().isOk(),
@@ -166,7 +168,7 @@ class UserControllerTest extends ControllerTest {
 		@DisplayName("참여하지 않은 팀스페이스 Id로 업데이트 할 수 없다.")
 		@WithMockCustomUser
 		void updateLastSeenTeamspace_Fail() throws Exception {
-			willThrow(new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)).given(userservice)
+			willThrow(new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)).given(userService)
 				.updateLastSeenTeamspace(any(CustomUserDetails.class), eq(request));
 
 			doTest(
@@ -204,4 +206,106 @@ class UserControllerTest extends ControllerTest {
 
 	}
 
+	@Nested
+	@DisplayName("사용자 설정 수정 문서화")
+	class UpdateUserSettingsDocs {
+		final String USER_PROFILE_IMAGE_URL = "http://user-profile-image.com";
+		final String USER_USERNAME = "홍길동";
+		final Boolean USER_EMAIL_SUBSCRIPTION = false;
+		final CommentNotification USER_COMMENTNOTIFICATION = CommentNotification.MENTION;
+
+		UpdateUserSettingRequest request = new UpdateUserSettingRequest(USER_PROFILE_IMAGE_URL, USER_USERNAME,
+			USER_EMAIL_SUBSCRIPTION, USER_COMMENTNOTIFICATION);
+
+		@Test
+		@WithMockCustomUser
+		@DisplayName("사용자 설정 수정 - 성공")
+		void updateUserSettings_success() throws Exception {
+			willDoNothing()
+				.given(userService).updateSettings(any(CustomUserDetails.class), any(UpdateUserSettingRequest.class));
+
+			doTest(
+				ApiResponse.createSuccessResponse(Map.of()),
+				status().isOk(),
+				apiDocHelper.createSuccessResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		private void doTest(
+			ApiResponse<?> response,
+			ResultMatcher statusMatcher,
+			FieldDescriptor[] responseFields,
+			String responseSchemaTitle
+		) throws Exception {
+			mockMvc.perform(patch("/api/v1/users/settings")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(request))
+					.with(csrf()))
+				.andExpect(statusMatcher)
+				.andExpect(content().json(objectMapper.writeValueAsString(response)))
+				.andDo(restDocs.document(
+					resource(ResourceSnippetParameters.builder()
+						.tag("user-controller")
+						.description("사용자 자신의 설정을 수정합니다.")
+						.requestFields(
+							fieldWithPath("profileImageUrl").description("변경할 사용자 프로필 이미지 Url(선택)")
+								.type(JsonFieldType.STRING),
+							fieldWithPath("username").description("변경할 사용자 이름(선택)")
+								.type(JsonFieldType.STRING),
+							fieldWithPath("emailSubscription").description("변경할 사용자 팀스페이스 활동 메일 수신 여부(선택)")
+								.type(JsonFieldType.BOOLEAN),
+							fieldWithPath("commentNotification").description(
+									"변경할 사용자 댓글 알림 수신 범위 지정(선택) ('ALL', 'MENTION')")
+								.type(JsonFieldType.STRING)
+						)
+						.responseFields(responseFields)
+						.responseSchema(Schema.schema(responseSchemaTitle))
+						.build()
+					)))
+				.andDo(print());
+		}
+	}
+
+	@Nested
+	@DisplayName("사용자 프로필 사진 삭제 문서화")
+	class DeleteUserProfileImageUrlDocs {
+		@Test
+		@WithMockCustomUser
+		@DisplayName("사용자 설정 수정 - 성공")
+		void deleteUserProfileImageUrl_success() throws Exception {
+			willDoNothing()
+				.given(userService)
+				.deleteProfileImageUrl(any(CustomUserDetails.class));
+
+			doTest(
+				ApiResponse.createSuccessResponse(Map.of()),
+				status().isOk(),
+				apiDocHelper.createSuccessResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		private void doTest(
+			ApiResponse<?> response,
+			ResultMatcher statusMatcher,
+			FieldDescriptor[] responseFields,
+			String responseSchemaTitle
+		) throws Exception {
+			mockMvc.perform(delete("/api/v1/users/settings/profile-image")
+					.contentType(MediaType.APPLICATION_JSON)
+					.with(csrf()))
+				.andExpect(statusMatcher)
+				.andExpect(content().json(objectMapper.writeValueAsString(response)))
+				.andDo(restDocs.document(
+					resource(ResourceSnippetParameters.builder()
+						.tag("user-controller")
+						.description("사용자 자신의 프로필 사진을 삭제합니다.")
+						.responseFields(responseFields)
+						.responseSchema(Schema.schema(responseSchemaTitle))
+						.build()
+					)))
+				.andDo(print());
+		}
+	}
 }

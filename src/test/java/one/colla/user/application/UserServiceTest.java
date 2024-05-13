@@ -28,7 +28,9 @@ import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.teamspace.domain.vo.TeamspaceProfileImageUrl;
 import one.colla.user.application.dto.request.LastSeenUpdateRequest;
+import one.colla.user.application.dto.request.UpdateUserSettingRequest;
 import one.colla.user.application.dto.response.UserStatusResponse;
+import one.colla.user.domain.CommentNotification;
 import one.colla.user.domain.User;
 import one.colla.user.domain.vo.UserProfileImageUrl;
 
@@ -57,7 +59,7 @@ public class UserServiceTest extends ServiceTest {
 	@BeforeEach
 	void setUp() {
 		user = testFixtureBuilder.buildUser(USER1());
-		user.updateProfileImage(new UserProfileImageUrl(USER_PROFILE_IMAGE_URL));
+		user.changeProfileImageUrl(new UserProfileImageUrl(USER_PROFILE_IMAGE_URL));
 		userDetails = createCustomUserDetailsByUser(user);
 		osTeamspace = testFixtureBuilder.buildTeamspace(OS_TEAMSPACE());
 		dbTeamspace = testFixtureBuilder.buildTeamspace(DATABASE_TEAMSPACE());
@@ -155,4 +157,80 @@ public class UserServiceTest extends ServiceTest {
 		}
 	}
 
+	@Nested
+	@DisplayName("사용자 설정 업데이트시")
+	class UpdateSettingsTest {
+		final String NEW_IMAGE_URL = "https://www.example.com/image";
+		final String NEW_USERNAME = "new_username";
+		final Boolean NEW_EMAIL_SUBSCRIPTION = false;
+		final CommentNotification NEW_COMMENT_NOTIFICATION = CommentNotification.MENTION;
+
+		@Test
+		@DisplayName("유저 정보 업데이트에 성공한다.")
+		void updateSettings_successfullyUpdatesUserInfo() {
+			// given
+			UpdateUserSettingRequest request = new UpdateUserSettingRequest(
+				NEW_IMAGE_URL,
+				NEW_USERNAME,
+				NEW_EMAIL_SUBSCRIPTION,
+				NEW_COMMENT_NOTIFICATION
+			);
+
+			// when
+			userService.updateSettings(userDetails, request);
+
+			// then
+			assertSoftly(softly -> {
+				softly.assertThat(user.getProfileImageUrlValue()).isEqualTo(NEW_IMAGE_URL);
+				softly.assertThat(user.getUsernameValue()).isEqualTo(NEW_USERNAME);
+				softly.assertThat(user.isEmailSubscription()).isEqualTo(NEW_EMAIL_SUBSCRIPTION);
+				softly.assertThat(user.getCommentNotification()).isEqualTo(NEW_COMMENT_NOTIFICATION);
+			});
+		}
+
+		@Test
+		@DisplayName("유저가 존재하지 않을 경우 예외가 발생한다.")
+		void updateSettings_throwsExceptionWhenUserNotFound() {
+			// given
+			CustomUserDetails userDetails = createCustomUserDetailsByUserId(-1L);
+			UpdateUserSettingRequest request = new UpdateUserSettingRequest(
+				NEW_IMAGE_URL,
+				NEW_USERNAME,
+				NEW_EMAIL_SUBSCRIPTION,
+				NEW_COMMENT_NOTIFICATION
+			);
+
+			// when then
+			assertThatThrownBy(() -> userService.updateSettings(userDetails, request))
+				.isInstanceOf(CommonException.class)
+				.hasMessageContaining(NOT_FOUND_USER.getMessage());
+		}
+
+		@Test
+		@DisplayName("유저 프로필 이미지만 업데이트 할 수 있다.")
+		void updateSettings_updatesOnlyProfileImage() {
+			// given
+			UpdateUserSettingRequest request = new UpdateUserSettingRequest(NEW_IMAGE_URL, null, null, null);
+
+			// when
+			userService.updateSettings(userDetails, request);
+
+			// then
+			assertThat(user.getProfileImageUrlValue()).isEqualTo(NEW_IMAGE_URL);
+		}
+	}
+
+	@Nested
+	@DisplayName("사용자 프로필 이미지 삭제 시")
+	class DeleteProfileImageUrlTest {
+		@Test
+		@DisplayName("삭제에 성공한다.")
+		void deleteProfileImageUrlSuccessfully() {
+			// when
+			userService.deleteProfileImageUrl(userDetails);
+
+			// then
+			assertThat(user.getProfileImageUrlValue()).isNull();
+		}
+	}
 }

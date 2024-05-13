@@ -596,7 +596,7 @@ class TeamspaceControllerTest extends ControllerTest {
 				ApiResponse.createSuccessResponse(Map.of()),
 				status().isOk(),
 				apiDocHelper.createSuccessResponseFields(),
-				"ApiResponse<UpdateTeamspaceSettings>"
+				"ApiResponse"
 			);
 		}
 
@@ -642,6 +642,51 @@ class TeamspaceControllerTest extends ControllerTest {
 							fieldWithPath("users").description("팀스페이스 참가자 태그 변경 목록").type(JsonFieldType.ARRAY),
 							fieldWithPath("users[0].id").description("태그를 변경할 사용자 Id").type(JsonFieldType.NUMBER),
 							fieldWithPath("users[0].tagId").description("변경할 대상 태그 Id").type(JsonFieldType.NUMBER)
+						)
+						.responseFields(responseFields)
+						.responseSchema(Schema.schema(responseSchemaTitle))
+						.build()
+					)))
+				.andDo(print());
+		}
+	}
+
+	@Nested
+	@DisplayName("팀스페이스 프로필 사진 삭제 문서화")
+	class DeleteTeamspaceProfileImageUrlDocs {
+		Long teamspaceId = 1L;
+
+		@Test
+		@WithMockCustomUser
+		@DisplayName("팀스페이스 설정 수정 성공")
+		void updateTeamspaceSettingsSuccessfully() throws Exception {
+			doNothing().when(teamspaceService).deleteProfileImageUrl(any(CustomUserDetails.class), eq(teamspaceId));
+
+			doTest(
+				ApiResponse.createSuccessResponse(Map.of()),
+				status().isOk(),
+				apiDocHelper.createSuccessResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		private void doTest(
+			ApiResponse<?> response,
+			ResultMatcher statusMatcher,
+			FieldDescriptor[] responseFields,
+			String responseSchemaTitle
+		) throws Exception {
+			mockMvc.perform(delete("/api/v1/teamspaces/{teamspaceId}/settings/profile-image", teamspaceId)
+					.contentType(MediaType.APPLICATION_JSON)
+					.with(csrf()))
+				.andExpect(statusMatcher)
+				.andExpect(content().json(objectMapper.writeValueAsString(response)))
+				.andDo(restDocs.document(
+					resource(ResourceSnippetParameters.builder()
+						.tag("teamspace-controller")
+						.description("특정 팀스페이스의 프로필 사진을 삭제합니다.")
+						.pathParameters(
+							parameterWithName("teamspaceId").description("팀스페이스의 고유 식별자")
 						)
 						.responseFields(responseFields)
 						.responseSchema(Schema.schema(responseSchemaTitle))

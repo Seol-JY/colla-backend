@@ -48,6 +48,7 @@ import one.colla.teamspace.domain.TeamspaceRepository;
 import one.colla.teamspace.domain.TeamspaceRole;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.teamspace.domain.UserTeamspaceRepository;
+import one.colla.teamspace.domain.vo.TeamspaceProfileImageUrl;
 import one.colla.user.domain.User;
 
 class TeamspaceServiceTest extends ServiceTest {
@@ -582,7 +583,7 @@ class TeamspaceServiceTest extends ServiceTest {
 	}
 
 	@Nested
-	@DisplayName("팀스페이스 태그 생성 시")
+	@DisplayName("팀스페이스 설정 시")
 	class UpdateSettingsTest {
 		User USER1;
 		CustomUserDetails USER1_DETAILS;
@@ -662,5 +663,59 @@ class TeamspaceServiceTest extends ServiceTest {
 				.isExactlyInstanceOf(CommonException.class)
 				.hasMessageContaining(ExceptionCode.FAIL_CHANGE_USERTAG.getMessage());
 		}
+	}
+
+	@Nested
+	@DisplayName("팀스페이스 프로필 사진 삭제 시")
+	class deleteProfileImageUrlTest {
+		User USER1;
+		CustomUserDetails USER1_DETAILS;
+		Teamspace OS_TEAMSPACE;
+		UserTeamspace USER1_OS_USERTEAMSPACE;
+		Tag FRONTEND_TAG;
+
+		@BeforeEach
+		void setUp() {
+			// given
+			USER1 = testFixtureBuilder.buildUser(USER1());
+			USER1_DETAILS = createCustomUserDetailsByUser(USER1);
+
+			OS_TEAMSPACE = testFixtureBuilder.buildTeamspace(OS_TEAMSPACE());
+
+			USER1_OS_USERTEAMSPACE = testFixtureBuilder.buildUserTeamspace(
+				LEADER_USERTEAMSPACE(USER1, OS_TEAMSPACE));
+
+			FRONTEND_TAG = testFixtureBuilder.buildTag(FRONTEND_TAG(OS_TEAMSPACE));
+		}
+
+		@Test
+		@DisplayName("삭제에 성공한다.")
+		void updateSettingsSuccessfully() {
+			final String PROFILE_URL = "https://example.com";
+
+			// given
+			OS_TEAMSPACE.changeProfileImageUrl(new TeamspaceProfileImageUrl(PROFILE_URL));
+
+			// when
+			teamspaceService.deleteProfileImageUrl(USER1_DETAILS, OS_TEAMSPACE.getId());
+
+			// then
+			assertThat(OS_TEAMSPACE.getProfileImageUrlValue()).isNull();
+		}
+
+		@Test
+		@DisplayName("팀스페이스 리더가 아닌 사용자면 예외가 발생한다.")
+		void updateSettingsNotLeaderFailure() {
+			// given
+			User USER2 = testFixtureBuilder.buildUser(USER2());
+			CustomUserDetails USER2_DETAILS = createCustomUserDetailsByUser(USER2);
+			testFixtureBuilder.buildUserTeamspace(MEMBER_USERTEAMSPACE(USER2, OS_TEAMSPACE));
+
+			// when then
+			assertThatThrownBy(() -> teamspaceService.deleteProfileImageUrl(USER2_DETAILS, OS_TEAMSPACE.getId()))
+				.isExactlyInstanceOf(CommonException.class)
+				.hasMessageContaining(ExceptionCode.ONLY_LEADER_ACCESS.getMessage());
+		}
+
 	}
 }
