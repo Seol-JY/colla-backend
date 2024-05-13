@@ -125,9 +125,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		Map<String, String> errors = new HashMap<>();
 		if (ex.getCause() instanceof MismatchedInputException mismatchedInputException) {
+			StringBuilder sb = new StringBuilder();
+
 			for (JsonMappingException.Reference reference : mismatchedInputException.getPath()) {
-				errors.put(reference.getFieldName(), "필드의 값이 잘못되었습니다. Type 을 확인하세요.");
+				String fieldName = reference.getFieldName();
+				if (fieldName == null) {
+					sb.append("[").append(reference.getIndex()).append("]");
+				} else {
+					if (!sb.isEmpty()) {
+						sb.append(".");
+					}
+					sb.append(reference.getFieldName());
+				}
 			}
+
+			errors.put(sb.toString(), "필드의 값이 잘못되었습니다. Type 을 확인하세요.");
 		} else {
 			errors.put("common", "확인할 수 없는 형태의 데이터가 들어왔습니다. JSON 형식인지 확인하세요.");
 			log.error("HttpMessageNotReadable 에러 발생: {}", ex.getMessage(), ex);
@@ -136,8 +148,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
-	public ResponseEntity<ApiResponse<String>> handleConflict(MethodArgumentTypeMismatchException ex) {
-		return ApiResponse.createErrorResponseEntity();
+	public ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+		Map<String, String> errors = new HashMap<>();
+		String fieldName = ex.getName();
+		String errorMessage = String.format("값 '%s'이(가) 유효하지 않습니다. 필요한 타입: '%s'.", ex.getValue(),
+			ex.getRequiredType() == null ? "알수없음" : ex.getRequiredType().getSimpleName());
+		errors.put(fieldName, errorMessage);
+
+		return ApiResponse.createValidationResponseEntity(errors);
 	}
 
 	@ExceptionHandler(Exception.class)
