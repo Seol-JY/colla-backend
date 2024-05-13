@@ -107,6 +107,15 @@ public class UserService {
 		log.info("사용자 설정 업데이트 - 사용자 Id: {}", userDetails.getUserId());
 	}
 
+	@Transactional
+	public void deleteProfileImageUrl(CustomUserDetails userDetails) {
+		final User user = userRepository.findById(userDetails.getUserId())
+			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_USER));
+
+		user.deleteProfileImageUrl();
+		log.info("사용자 프로필 사진 삭제 완료 - 사용자 Id: {}", userDetails.getUserId());
+	}
+
 	private int getNumOfTeamspaceParticipants(UserTeamspace userTeamspace) {
 		return userTeamspace.getTeamspace()
 			.getUserTeamspaces()

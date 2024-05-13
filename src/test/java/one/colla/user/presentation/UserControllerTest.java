@@ -266,4 +266,46 @@ class UserControllerTest extends ControllerTest {
 				.andDo(print());
 		}
 	}
+
+	@Nested
+	@DisplayName("사용자 프로필 사진 삭제 문서화")
+	class DeleteUserProfileImageUrlDocs {
+		@Test
+		@WithMockCustomUser
+		@DisplayName("사용자 설정 수정 - 성공")
+		void deleteUserProfileImageUrl_success() throws Exception {
+			willDoNothing()
+				.given(userService)
+				.deleteProfileImageUrl(any(CustomUserDetails.class));
+
+			doTest(
+				ApiResponse.createSuccessResponse(Map.of()),
+				status().isOk(),
+				apiDocHelper.createSuccessResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		private void doTest(
+			ApiResponse<?> response,
+			ResultMatcher statusMatcher,
+			FieldDescriptor[] responseFields,
+			String responseSchemaTitle
+		) throws Exception {
+			mockMvc.perform(delete("/api/v1/users/settings/profile-image")
+					.contentType(MediaType.APPLICATION_JSON)
+					.with(csrf()))
+				.andExpect(statusMatcher)
+				.andExpect(content().json(objectMapper.writeValueAsString(response)))
+				.andDo(restDocs.document(
+					resource(ResourceSnippetParameters.builder()
+						.tag("user-controller")
+						.description("사용자 자신의 프로필 사진을 삭제합니다.")
+						.responseFields(responseFields)
+						.responseSchema(Schema.schema(responseSchemaTitle))
+						.build()
+					)))
+				.andDo(print());
+		}
+	}
 }

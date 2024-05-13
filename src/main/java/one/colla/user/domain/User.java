@@ -171,4 +171,8 @@ public class User extends BaseEntity {
 	public void changeProfileImageUrl(final UserProfileImageUrl userProfileImageUrl) {
 		this.userProfileImageUrl = userProfileImageUrl;
 	}
+
+	public void deleteProfileImageUrl() {
+		this.userProfileImageUrl = null;
+	}
 }

@@ -219,4 +219,18 @@ public class UserServiceTest extends ServiceTest {
 			assertThat(user.getProfileImageUrlValue()).isEqualTo(NEW_IMAGE_URL);
 		}
 	}
+
+	@Nested
+	@DisplayName("사용자 프로필 이미지 삭제 시")
+	class DeleteProfileImageUrlTest {
+		@Test
+		@DisplayName("삭제에 성공한다.")
+		void deleteProfileImageUrlSuccessfully() {
+			// when
+			userService.deleteProfileImageUrl(userDetails);
+
+			// then
+			assertThat(user.getProfileImageUrlValue()).isNull();
+		}
+	}
 }
