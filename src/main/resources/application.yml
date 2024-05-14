@@ -81,6 +81,19 @@ jwt:
     access-token: 1_800_000 # 30m (30 * 60 * 1000)
     refresh-token: 604_800_000 # 7d (7 * 24 * 60 * 60 * 1000)
 
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+    s3:
+      endpoint: ${AWS_END_POINT}
+      bucket: ${AWS_SECRET_S3_BUCKET}
+    region:
+      static: ${AWS_SECRET_REGION_STATIC}
+    stack:
+      auto: false
+
 ---
 spring:
   config:
@@ -161,3 +174,16 @@ jwt:
   expiration-time:
     access-token: ${JWT_ACCESS_TOKEN_EXPIRATION}
     refresh-token: ${JWT_REFRESH_TOKEN_EXPIRATION}
+
+cloud:
+  aws:
+    credentials:
+      accessKey: ${AWS_ACCESS_KEY_ID}
+      secretKey: ${AWS_SECRET_ACCESS_KEY}
+    s3:
+      endpoint: ${AWS_END_POINT}
+      bucket: ${AWS_SECRET_S3_BUCKET}
+    region:
+      static: ${AWS_SECRET_REGION_STATIC}
+    stack:
+      auto: false
