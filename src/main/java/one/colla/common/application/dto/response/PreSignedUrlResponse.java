@@ -6,9 +6,9 @@ import lombok.Builder;
 
 @Builder
 public record PreSignedUrlResponse(
-	List<AttachmentResponse> attachmentResponses
+	List<FileUploadUrlsDto> fileUploadUrlsDtos
 ) {
-	public static PreSignedUrlResponse from(List<AttachmentResponse> attachmentResponses) {
-		return new PreSignedUrlResponse(attachmentResponses);
+	public static PreSignedUrlResponse from(List<FileUploadUrlsDto> fileUploadUrlsDtos) {
+		return new PreSignedUrlResponse(fileUploadUrlsDtos);
 	}
 }

@@ -23,7 +23,7 @@ import com.amazonaws.services.s3.AmazonS3;
 
 import one.colla.common.ServiceTest;
 import one.colla.common.application.dto.request.DomainType;
-import one.colla.common.application.dto.request.PreSignedUploadDto;
+import one.colla.common.application.dto.request.FileUploadDto;
 import one.colla.common.application.dto.request.PreSignedUrlRequest;
 import one.colla.common.application.dto.response.PreSignedUrlResponse;
 import one.colla.common.security.authentication.CustomUserDetails;
@@ -76,21 +76,21 @@ class FileServiceTest extends ServiceTest {
 		void getPresignedUrl() throws MalformedURLException {
 
 			// given
-			PreSignedUploadDto preSignedUploadDto = new PreSignedUploadDto(DomainType.USER, null, "profile.jpg");
-			PreSignedUrlRequest preSignedUrlRequest = new PreSignedUrlRequest(List.of(preSignedUploadDto));
+			FileUploadDto fileUploadDto = new FileUploadDto(DomainType.USER, null, "profile.jpg");
+			PreSignedUrlRequest preSignedUrlRequest = new PreSignedUrlRequest(List.of(fileUploadDto));
 
 			String objectKey = "users/profile.jpg";
 			given(s3Util.createObjectKey(
-				preSignedUploadDto.domainType(),
-				preSignedUploadDto.teamspaceId(),
-				preSignedUploadDto.originalAttachmentName(),
+				fileUploadDto.domainType(),
+				fileUploadDto.teamspaceId(),
+				fileUploadDto.originalAttachmentName(),
 				USER1_DETAILS.getUserId())
 			).willReturn(objectKey);
 
 			URL presignedUrl = new URL("https://presigned-url.com");
 			given(amazonS3.generatePresignedUrl(any())).willReturn(presignedUrl);
 
-			given(teamspaceService.getUserTeamspace(USER1_DETAILS, preSignedUploadDto.teamspaceId()))
+			given(teamspaceService.getUserTeamspace(USER1_DETAILS, fileUploadDto.teamspaceId()))
 				.willReturn(USER1_OS_USERTEAMSPACE);
 
 			String attachmentUrl = endPoint + DELIMITER + objectKey;
@@ -102,9 +102,9 @@ class FileServiceTest extends ServiceTest {
 			// then
 			SoftAssertions.assertSoftly(softly -> {
 				softly.assertThat(response).isNotNull();
-				softly.assertThat(response.attachmentResponses()).hasSize(1);
-				softly.assertThat(response.attachmentResponses().get(0).presignedUrl()).isEqualTo(presignedUrl);
-				softly.assertThat(response.attachmentResponses().get(0).attachmentUrl()).isEqualTo(attachmentUrl);
+				softly.assertThat(response.fileUploadUrlsDtos()).hasSize(1);
+				softly.assertThat(response.fileUploadUrlsDtos().get(0).presignedUrl()).isEqualTo(presignedUrl);
+				softly.assertThat(response.fileUploadUrlsDtos().get(0).attachmentUrl()).isEqualTo(attachmentUrl);
 			});
 		}
 
@@ -112,12 +112,12 @@ class FileServiceTest extends ServiceTest {
 		@DisplayName("요청 팀스페이스에 참가하지 않은 사용자가 요청시 presigned URL 발급에 실패한다.")
 		void getPresignedUrl_Fail() throws Exception {
 			// given
-			PreSignedUploadDto preSignedUploadDto = new PreSignedUploadDto(DomainType.TEAMSPACE, 999L,
+			FileUploadDto fileUploadDto = new FileUploadDto(DomainType.TEAMSPACE, 999L,
 				"profile.jpg");
-			PreSignedUrlRequest preSignedUrlRequest = new PreSignedUrlRequest(List.of(preSignedUploadDto));
+			PreSignedUrlRequest preSignedUrlRequest = new PreSignedUrlRequest(List.of(fileUploadDto));
 
 			willThrow(new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE))
-				.given(teamspaceService).getUserTeamspace(USER1_DETAILS, preSignedUploadDto.teamspaceId());
+				.given(teamspaceService).getUserTeamspace(USER1_DETAILS, fileUploadDto.teamspaceId());
 
 			// when & then
 			assertThatThrownBy(() -> fileService.getPresignedUrl(preSignedUrlRequest, USER1_DETAILS))

@@ -5,5 +5,5 @@ import java.net.URL;
 import lombok.Builder;
 
 @Builder
-public record AttachmentResponse(URL presignedUrl, String attachmentUrl) {
+public record FileUploadUrlsDto(URL presignedUrl, String attachmentUrl) {
 }

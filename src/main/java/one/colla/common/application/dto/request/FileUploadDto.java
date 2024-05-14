@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-public record PreSignedUploadDto(
+public record FileUploadDto(
 	@NotNull(message = "도메인 타입을 입력해주세요.")
 	DomainType domainType,
 

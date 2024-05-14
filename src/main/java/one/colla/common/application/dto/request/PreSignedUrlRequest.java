@@ -5,7 +5,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 public record PreSignedUrlRequest(
-	@Valid List<PreSignedUploadDto> preSignedUploadInitiates
+	@Valid List<FileUploadDto> fileUploadDtos
 ) {
 
 }

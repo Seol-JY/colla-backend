@@ -16,9 +16,9 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 
 import lombok.RequiredArgsConstructor;
 import one.colla.common.application.dto.request.DomainType;
-import one.colla.common.application.dto.request.PreSignedUploadDto;
+import one.colla.common.application.dto.request.FileUploadDto;
 import one.colla.common.application.dto.request.PreSignedUrlRequest;
-import one.colla.common.application.dto.response.AttachmentResponse;
+import one.colla.common.application.dto.response.FileUploadUrlsDto;
 import one.colla.common.application.dto.response.PreSignedUrlResponse;
 import one.colla.common.security.authentication.CustomUserDetails;
 import one.colla.common.util.S3Util;
@@ -41,7 +41,7 @@ public class FileService {
 	public PreSignedUrlResponse getPresignedUrl(PreSignedUrlRequest request,
 		CustomUserDetails userDetails) {
 
-		List<AttachmentResponse> attachmentResponses = request.preSignedUploadInitiates().stream()
+		List<FileUploadUrlsDto> fileUploadUrlsDtos = request.fileUploadDtos().stream()
 			.map(ui -> {
 				validateParticipationIfTeamspaceType(ui, userDetails);
 
@@ -53,11 +53,11 @@ public class FileService {
 				);
 				URL presignedUrl = generatePresignedUrl(bucket, objectKey);
 				String attachmentUrl = s3Util.createAttachmentUrl(objectKey);
-				return new AttachmentResponse(presignedUrl, attachmentUrl);
+				return new FileUploadUrlsDto(presignedUrl, attachmentUrl);
 			})
 			.toList();
 
-		return new PreSignedUrlResponse(attachmentResponses);
+		return new PreSignedUrlResponse(fileUploadUrlsDtos);
 	}
 
 	private URL generatePresignedUrl(String bucket, String objectKey) {
@@ -73,7 +73,7 @@ public class FileService {
 		return amazonS3.generatePresignedUrl(presignedUrlRequest);
 	}
 
-	private void validateParticipationIfTeamspaceType(PreSignedUploadDto ui, CustomUserDetails userDetails) {
+	private void validateParticipationIfTeamspaceType(FileUploadDto ui, CustomUserDetails userDetails) {
 		if (ui.domainType() == DomainType.TEAMSPACE) {
 			teamspaceService.getUserTeamspace(userDetails, ui.teamspaceId());
 		}

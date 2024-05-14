@@ -29,9 +29,9 @@ import com.epages.restdocs.apispec.Schema;
 import one.colla.common.ControllerTest;
 import one.colla.common.application.FileService;
 import one.colla.common.application.dto.request.DomainType;
-import one.colla.common.application.dto.request.PreSignedUploadDto;
+import one.colla.common.application.dto.request.FileUploadDto;
 import one.colla.common.application.dto.request.PreSignedUrlRequest;
-import one.colla.common.application.dto.response.AttachmentResponse;
+import one.colla.common.application.dto.response.FileUploadUrlsDto;
 import one.colla.common.application.dto.response.PreSignedUrlResponse;
 import one.colla.common.security.authentication.CustomUserDetails;
 import one.colla.common.security.authentication.WithMockCustomUser;
@@ -58,7 +58,7 @@ class S3ControllerTest extends ControllerTest {
 	class PresignedUrlDocs {
 		Long teamspaceId = 1L;
 		PreSignedUrlRequest preSignedUrlRequest = new PreSignedUrlRequest(List.of(
-			new PreSignedUploadDto(DomainType.TEAMSPACE, teamspaceId, "profile.jpg"))
+			new FileUploadDto(DomainType.TEAMSPACE, teamspaceId, "profile.jpg"))
 		);
 
 		@Test
@@ -69,22 +69,20 @@ class S3ControllerTest extends ControllerTest {
 			URL presignedUrl = new URL("https://presigned-url.com");
 			String attachmentUrl = "https://attachment-url.com";
 
-			List<AttachmentResponse> attachmentResponses = List.of(new AttachmentResponse(presignedUrl, attachmentUrl));
-			PreSignedUrlResponse response = PreSignedUrlResponse.from(attachmentResponses);
+			List<FileUploadUrlsDto> fileUploadUrlsDtos = List.of(new FileUploadUrlsDto(presignedUrl, attachmentUrl));
+			PreSignedUrlResponse response = PreSignedUrlResponse.from(fileUploadUrlsDtos);
 
 			given(fileService.getPresignedUrl(eq(preSignedUrlRequest), any(CustomUserDetails.class))).willReturn(
 				response);
-
-			System.out.println("response = " + response);
 
 			doTest(
 				ApiResponse.createSuccessResponse(response),
 				status().isOk(),
 				apiDocHelper.createSuccessResponseFields(
-					fieldWithPath("attachmentResponses[].presignedUrl")
+					fieldWithPath("fileUploadUrlsDtos[].presignedUrl")
 						.description("생성된 presigned URL")
 						.type(JsonFieldType.STRING),
-					fieldWithPath("attachmentResponses[].attachmentUrl")
+					fieldWithPath("fileUploadUrlsDtos[].attachmentUrl")
 						.description("생성된 파일 URL")
 						.type(JsonFieldType.STRING)
 				),
@@ -128,13 +126,13 @@ class S3ControllerTest extends ControllerTest {
 						.tag("s3-controller")
 						.description("Presigned URL, 저장될 파일 주소를 생성합니다.")
 						.requestFields(
-							fieldWithPath("preSignedUploadInitiates[].domainType")
+							fieldWithPath("fileUploadDtos[].domainType")
 								.description("도메인 타입 [USER, TEAMSPACE]")
 								.type(JsonFieldType.STRING),
-							fieldWithPath("preSignedUploadInitiates[].teamspaceId")
+							fieldWithPath("fileUploadDtos[].teamspaceId")
 								.description("팀스페이스 ID [도메인 타입이 teamspace일 경우만 요청 O, user 타입일 경우 요청 X]")
 								.type(JsonFieldType.NUMBER),
-							fieldWithPath("preSignedUploadInitiates[].originalAttachmentName")
+							fieldWithPath("fileUploadDtos[].originalAttachmentName")
 								.description("파일 이름 (확장자 포함)")
 								.type(JsonFieldType.STRING)
 
