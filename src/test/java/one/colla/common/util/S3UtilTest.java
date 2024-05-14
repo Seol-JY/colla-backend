@@ -1,8 +1,5 @@
 package one.colla.common.util;
 
-import static one.colla.common.fixtures.TeamspaceFixtures.*;
-import static one.colla.common.fixtures.UserFixtures.*;
-import static one.colla.common.fixtures.UserTeamspaceFixtures.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.*;
 
@@ -19,9 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import one.colla.common.CommonTest;
 import one.colla.common.application.dto.request.DomainType;
-import one.colla.teamspace.domain.Teamspace;
-import one.colla.teamspace.domain.UserTeamspace;
-import one.colla.user.domain.User;
 
 class S3UtilTest extends CommonTest {
 
@@ -33,15 +27,13 @@ class S3UtilTest extends CommonTest {
 	@Value("${cloud.aws.s3.endpoint}")
 	private String endPoint;
 
-	User USER1;
-	Teamspace OS_TEAMSPACE;
-	UserTeamspace USER1_OS_USERTEAMSPACE;
+	Long userId;
+	Long teamspaceId;
 
 	@BeforeEach
 	void setup() {
-		USER1 = testFixtureBuilder.buildUser(USER1());
-		OS_TEAMSPACE = testFixtureBuilder.buildTeamspace(OS_TEAMSPACE());
-		USER1_OS_USERTEAMSPACE = testFixtureBuilder.buildUserTeamspace(MEMBER_USERTEAMSPACE(USER1, OS_TEAMSPACE));
+		userId = 1L;
+		teamspaceId = 1L;
 	}
 
 	static Stream<Arguments> objectKeyProvider() {
@@ -60,7 +52,7 @@ class S3UtilTest extends CommonTest {
 		String originalFileName = "test.pdf";
 
 		// when
-		String result = s3Util.createObjectKey(domainType, OS_TEAMSPACE.getId(), originalFileName, USER1.getId());
+		String result = s3Util.createObjectKey(domainType, teamspaceId, originalFileName, userId);
 
 		// then
 		assertThat(result).startsWith(expectedStart);
