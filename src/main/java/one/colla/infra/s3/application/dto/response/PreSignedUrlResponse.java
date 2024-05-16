@@ -1,4 +1,4 @@
-package one.colla.common.application.dto.response;
+package one.colla.infra.s3.application.dto.response;
 
 import java.util.List;
 

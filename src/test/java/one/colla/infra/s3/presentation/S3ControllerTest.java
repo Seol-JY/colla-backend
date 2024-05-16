@@ -1,4 +1,4 @@
-package one.colla.common.presentation;
+package one.colla.infra.s3.presentation;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
 import static one.colla.common.fixtures.UserFixtures.*;
@@ -27,16 +27,17 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 
 import one.colla.common.ControllerTest;
-import one.colla.common.application.FileService;
-import one.colla.common.application.dto.request.DomainType;
-import one.colla.common.application.dto.request.FileUploadDto;
-import one.colla.common.application.dto.request.PreSignedUrlRequest;
-import one.colla.common.application.dto.response.FileUploadUrlsDto;
-import one.colla.common.application.dto.response.PreSignedUrlResponse;
+import one.colla.common.presentation.ApiResponse;
 import one.colla.common.security.authentication.CustomUserDetails;
 import one.colla.common.security.authentication.WithMockCustomUser;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
+import one.colla.infra.s3.application.FileService;
+import one.colla.infra.s3.application.dto.request.DomainType;
+import one.colla.infra.s3.application.dto.request.FileUploadDto;
+import one.colla.infra.s3.application.dto.request.PreSignedUrlRequest;
+import one.colla.infra.s3.application.dto.response.FileUploadUrlsDto;
+import one.colla.infra.s3.application.dto.response.PreSignedUrlResponse;
 
 @WebMvcTest(S3Controller.class)
 class S3ControllerTest extends ControllerTest {
