@@ -343,3 +343,7 @@ CREATE TABLE calendar_event_subtodos
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (calendar_event_todo_id) REFERENCES calendar_event_todos(id)
 );
+
+-- Adding 'name' column to the 'attachments' table
+ALTER TABLE attachments
+ADD COLUMN name VARCHAR(50) NOT NULL;
