@@ -1,4 +1,4 @@
-package one.colla.common.util;
+package one.colla.infra.s3.util;
 
 import java.util.UUID;
 
@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
-import one.colla.common.application.dto.request.DomainType;
+import one.colla.infra.s3.application.dto.request.DomainType;
 
 @Component
 @RequiredArgsConstructor

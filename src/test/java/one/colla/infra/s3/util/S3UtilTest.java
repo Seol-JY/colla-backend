@@ -1,4 +1,4 @@
-package one.colla.common.util;
+package one.colla.infra.s3.util;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.*;
@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import one.colla.common.CommonTest;
-import one.colla.common.application.dto.request.DomainType;
+import one.colla.infra.s3.application.dto.request.DomainType;
 
 class S3UtilTest extends CommonTest {
 

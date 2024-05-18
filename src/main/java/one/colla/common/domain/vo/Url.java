@@ -12,6 +12,9 @@ public abstract class Url {
 			+ "(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$";
 
 	protected void validate(final String value) {
+		if (value == null) {
+			throw new VoException("url은 null일 수 없습니다.");
+		}
 		if (value.isBlank()) {
 			throw new VoException("url은 공백일 수 없습니다.");
 		}

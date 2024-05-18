@@ -87,7 +87,7 @@ cloud:
       access-key: ${AWS_ACCESS_KEY_ID}
       secret-key: ${AWS_SECRET_ACCESS_KEY}
     s3:
-      endpoint: ${AWS_END_POINT}
+      endpoint: ${AWS_S3_END_POINT}
       bucket: ${AWS_SECRET_S3_BUCKET}
     region:
       static: ${AWS_SECRET_REGION_STATIC}
@@ -181,7 +181,7 @@ cloud:
       accessKey: ${AWS_ACCESS_KEY_ID}
       secretKey: ${AWS_SECRET_ACCESS_KEY}
     s3:
-      endpoint: ${AWS_END_POINT}
+      endpoint: ${AWS_S3_END_POINT}
       bucket: ${AWS_SECRET_S3_BUCKET}
     region:
       static: ${AWS_SECRET_REGION_STATIC}

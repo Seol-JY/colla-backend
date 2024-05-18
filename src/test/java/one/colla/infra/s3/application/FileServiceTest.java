@@ -1,4 +1,4 @@
-package one.colla.common.application;
+package one.colla.infra.s3.application;
 
 import static one.colla.common.fixtures.TeamspaceFixtures.*;
 import static one.colla.common.fixtures.UserFixtures.*;
@@ -22,14 +22,14 @@ import org.springframework.beans.factory.annotation.Value;
 import com.amazonaws.services.s3.AmazonS3;
 
 import one.colla.common.ServiceTest;
-import one.colla.common.application.dto.request.DomainType;
-import one.colla.common.application.dto.request.FileUploadDto;
-import one.colla.common.application.dto.request.PreSignedUrlRequest;
-import one.colla.common.application.dto.response.PreSignedUrlResponse;
 import one.colla.common.security.authentication.CustomUserDetails;
-import one.colla.common.util.S3Util;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
+import one.colla.infra.s3.application.dto.request.DomainType;
+import one.colla.infra.s3.application.dto.request.FileUploadDto;
+import one.colla.infra.s3.application.dto.request.PreSignedUrlRequest;
+import one.colla.infra.s3.application.dto.response.PreSignedUrlResponse;
+import one.colla.infra.s3.util.S3Util;
 import one.colla.teamspace.application.TeamspaceService;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.UserTeamspace;
