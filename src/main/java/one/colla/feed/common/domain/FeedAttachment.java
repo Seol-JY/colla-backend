@@ -21,7 +21,7 @@ import one.colla.file.domain.Attachment;
 public class FeedAttachment {
 
 	@EmbeddedId
-	private FeedAttachmentId feedAttachmentId;
+	private FeedAttachmentId feedAttachmentId = new FeedAttachmentId();
 
 	@MapsId("feedId")
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -32,6 +32,15 @@ public class FeedAttachment {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "attachment_id", nullable = false, updatable = false)
 	private Attachment attachment;
+
+	private FeedAttachment(Feed feed, Attachment attachment) {
+		this.feed = feed;
+		this.attachment = attachment;
+	}
+
+	public static FeedAttachment of(Feed feed, Attachment attachment) {
+		return new FeedAttachment(feed, attachment);
+	}
 
 	public static class FeedAttachmentId extends CompositeKeyBase {
 		@Column(name = "feed_id")
