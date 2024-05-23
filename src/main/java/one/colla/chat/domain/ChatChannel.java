@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -16,8 +17,10 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import one.colla.chat.domain.vo.ChatChannelName;
 import one.colla.common.domain.BaseEntity;
 import one.colla.teamspace.domain.Teamspace;
+import one.colla.teamspace.domain.UserTeamspace;
 
 @Getter
 @Entity
@@ -33,8 +36,8 @@ public class ChatChannel extends BaseEntity {
 	@JoinColumn(name = "teamspace_id", nullable = false, updatable = false)
 	private Teamspace teamspace;
 
-	@Column(name = "name", nullable = false, length = 50)
-	private String name;
+	@Embedded
+	private ChatChannelName chatChannelName;
 
 	@Column(name = "last_chat_id")
 	private Long lastChatId;
@@ -45,4 +48,21 @@ public class ChatChannel extends BaseEntity {
 	@OneToMany(mappedBy = "chatChannel", fetch = FetchType.LAZY)
 	private final List<ChatChannelMessage> chatChannelMessages = new ArrayList<>();
 
+	private ChatChannel(Teamspace teamspace, ChatChannelName name) {
+		this.teamspace = teamspace;
+		this.chatChannelName = name;
+	}
+
+	public static ChatChannel of(final Teamspace teamspace, final String channelName) {
+		ChatChannelName name = ChatChannelName.from(channelName);
+		return new ChatChannel(teamspace, name);
+	}
+
+	public List<UserChatChannel> participateAllTeamspaceUser(List<UserTeamspace> userTeamspaces) {
+		List<UserChatChannel> userChatChannelList = userTeamspaces.stream()
+			.map(ut -> UserChatChannel.of(ut.getUser(), this))
+			.toList();
+		this.userChatChannels.addAll(userChatChannelList);
+		return userChatChannelList;
+	}
 }

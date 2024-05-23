@@ -22,7 +22,7 @@ import one.colla.user.domain.User;
 public class UserChatChannel extends BaseEntity {
 
 	@EmbeddedId
-	private UserChatChannelId userChatChannelId;
+	private UserChatChannelId userChatChannelId = new UserChatChannelId();
 
 	@MapsId("userId")
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -36,6 +36,15 @@ public class UserChatChannel extends BaseEntity {
 
 	@Column(name = "last_read_message_id")
 	private Long lastReadMessageId;
+
+	private UserChatChannel(User user, ChatChannel chatChannel) {
+		this.user = user;
+		this.chatChannel = chatChannel;
+	}
+
+	public static UserChatChannel of(User user, ChatChannel chatChannel) {
+		return new UserChatChannel(user, chatChannel);
+	}
 
 	public static class UserChatChannelId extends CompositeKeyBase {
 		@Column(name = "user_id")

@@ -309,5 +309,10 @@ public class TeamspaceService {
 	private boolean isParticipatedUser(@Nullable User user, Teamspace teamspace) {
 		return user != null && userTeamspaceRepository.existsByUserAndTeamspace(user, teamspace);
 	}
+
+	public Teamspace getTeamspace(Long teamspaceId) {
+		return teamspaceRepository.findById(teamspaceId)
+			.orElseThrow(() -> new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE));
+	}
 }
 
