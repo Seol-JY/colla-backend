@@ -91,4 +91,8 @@ public class Teamspace extends BaseEntity {
 	public void deleteProfileImageUrl() {
 		this.teamspaceProfileImageUrl = null;
 	}
+
+	public void addChatChannel(ChatChannel chatChannel) {
+		chatChannels.add(chatChannel);
+	}
 }

@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import one.colla.chat.application.ChatChannelService;
 import one.colla.chat.application.dto.request.CreateChatChannelRequest;
+import one.colla.chat.application.dto.response.ChatChannelsResponse;
 import one.colla.chat.application.dto.response.CreateChatChannelResponse;
 import one.colla.common.presentation.ApiResponse;
 import one.colla.common.security.authentication.CustomUserDetails;
@@ -34,6 +36,16 @@ public class ChatController {
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.createSuccessResponse(
 			chatChannelService.createChatChannel(userDetails, teamspaceId, request)));
+	}
+
+	@GetMapping
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<ApiResponse<ChatChannelsResponse>> getChatChannels(
+		@AuthenticationPrincipal final CustomUserDetails userDetails,
+		@PathVariable final Long teamspaceId) {
+
+		return ResponseEntity.ok()
+			.body(ApiResponse.createSuccessResponse(chatChannelService.getChatChannels(userDetails, teamspaceId)));
 	}
 
 }

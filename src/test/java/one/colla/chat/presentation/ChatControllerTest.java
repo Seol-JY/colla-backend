@@ -9,6 +9,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,6 +26,8 @@ import com.epages.restdocs.apispec.Schema;
 
 import one.colla.chat.application.ChatChannelService;
 import one.colla.chat.application.dto.request.CreateChatChannelRequest;
+import one.colla.chat.application.dto.response.ChatChannelInfoDto;
+import one.colla.chat.application.dto.response.ChatChannelsResponse;
 import one.colla.chat.application.dto.response.CreateChatChannelResponse;
 import one.colla.common.ControllerTest;
 import one.colla.common.presentation.ApiResponse;
@@ -105,6 +110,80 @@ class ChatControllerTest extends ControllerTest {
 					)
 				)).andDo(print());
 
+		}
+	}
+
+	@Nested
+	@DisplayName("채팅 채널 조회 문서화")
+	class GetChatChannelsDocs {
+		final Long teamspaceId = 1L;
+		final List<ChatChannelInfoDto> chatChannelInfoDtos = List.of(
+			new ChatChannelInfoDto(1L, "프론트엔드", "안녕하세요",
+				String.valueOf(LocalDateTime.of(2024, 5, 8, 4, 12, 34)))
+		);
+		final ChatChannelsResponse response = ChatChannelsResponse.from(chatChannelInfoDtos);
+
+		@DisplayName("채팅 채널 조회 성공")
+		@WithMockCustomUser
+		@Test
+		void getChatChannels_Success() throws Exception {
+
+			given(chatChannelService.getChatChannels(any(CustomUserDetails.class), eq(teamspaceId)))
+				.willReturn(response);
+
+			doTest(
+				ApiResponse.createSuccessResponse(response),
+				status().isOk(),
+				apiDocHelper.createSuccessResponseFields(
+					fieldWithPath("chatChannels").description("채팅 채널 목록"),
+					fieldWithPath("chatChannels[].id").description("채팅 채널 ID"),
+					fieldWithPath("chatChannels[].name").description("채팅 채널 이름"),
+					fieldWithPath("chatChannels[].lastChatMessage").description("채팅 채널 마지막 메시지 내용"),
+					fieldWithPath("chatChannels[].lastChatCreatedAt").description("채팅 채널 마지막 메시지 생성 시간")
+				),
+				"ApiResponse<ChatChannelsResponse>"
+			);
+		}
+
+		@DisplayName("채팅 채널 조회 실패 - 접근 권한이 없거나 존재하지 않는 팀스페이스")
+		@WithMockCustomUser
+		@Test
+		void getChatChannels_Fail() throws Exception {
+			willThrow(new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)).given(chatChannelService)
+				.getChatChannels(any(CustomUserDetails.class), eq(teamspaceId));
+
+			doTest(
+				ApiResponse.createErrorResponse(ExceptionCode.FORBIDDEN_TEAMSPACE),
+				status().isForbidden(),
+				apiDocHelper.createErrorResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		private void doTest(
+			ApiResponse<?> response,
+			ResultMatcher statusMatcher,
+			FieldDescriptor[] responseFields,
+			String responseSchemaTitle
+		) throws Exception {
+			mockMvc.perform(
+					get("/api/v1/teamspaces/{teamspaceId}/chat-channels", teamspaceId)
+						.with(csrf())
+				)
+				.andExpect(statusMatcher)
+				.andExpect(content().json(objectMapper.writeValueAsString(response)))
+				.andDo(restDocs.document(
+					resource(ResourceSnippetParameters.builder()
+						.tag("chatChannel-controller")
+						.description("채팅 채널 목록을 조회합니다.")
+						.pathParameters(
+							parameterWithName("teamspaceId").description("팀스페이스 ID")
+						)
+						.responseFields(responseFields)
+						.responseSchema(Schema.schema(responseSchemaTitle))
+						.build()
+					)
+				)).andDo(print());
 		}
 	}
 
