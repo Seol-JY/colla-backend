@@ -64,6 +64,14 @@ public class Attachment extends BaseEntity {
 	@OneToMany(mappedBy = "attachment", fetch = FetchType.LAZY)
 	private final List<ChatChannelMessageAttachment> chatChannelMessageAttachments = new ArrayList<>();
 
+	public String getAttachmentNameValue() {
+		return attachmentName.getValue();
+	}
+
+	public String getFileUrlValue() {
+		return fileUrl.getValue();
+	}
+
 	public Attachment(
 		AttachmentName attachmentName,
 		User user,
