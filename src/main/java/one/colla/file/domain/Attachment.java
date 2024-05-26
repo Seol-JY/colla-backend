@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import one.colla.chat.domain.ChatChannelMessageAttachment;
 import one.colla.common.domain.BaseEntity;
+import one.colla.file.domain.vo.AttachmentName;
 import one.colla.file.domain.vo.FileUrl;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.user.domain.User;
@@ -34,6 +35,9 @@ public class Attachment extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	@Embedded
+	private AttachmentName attachmentName;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false, updatable = false)
