@@ -6,8 +6,7 @@ public record CreateChatChannelResponse(
 	Long chatChannelId
 ) {
 	public static CreateChatChannelResponse from(final ChatChannel chatChannel) {
-		final Long chatChannelId = chatChannel.getId();
-		return new CreateChatChannelResponse(chatChannelId);
+		return new CreateChatChannelResponse(chatChannel.getId());
 	}
 }
 

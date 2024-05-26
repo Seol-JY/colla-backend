@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,6 +27,7 @@ import com.epages.restdocs.apispec.Schema;
 
 import one.colla.chat.application.ChatChannelService;
 import one.colla.chat.application.dto.request.CreateChatChannelRequest;
+import one.colla.chat.application.dto.request.UpdateChatChannelNameRequest;
 import one.colla.chat.application.dto.response.ChatChannelInfoDto;
 import one.colla.chat.application.dto.response.ChatChannelsResponse;
 import one.colla.chat.application.dto.response.CreateChatChannelResponse;
@@ -180,6 +182,87 @@ class ChatControllerTest extends ControllerTest {
 							parameterWithName("teamspaceId").description("팀스페이스 ID")
 						)
 						.responseFields(responseFields)
+						.responseSchema(Schema.schema(responseSchemaTitle))
+						.build()
+					)
+				)).andDo(print());
+		}
+	}
+
+	@Nested
+	@DisplayName("채팅 채널 이름 수정 문서화")
+	class UpdateChatChannelNameDocs {
+		final Long teamspaceId = 1L;
+		final UpdateChatChannelNameRequest request = new UpdateChatChannelNameRequest(1L, "수정할 채팅 채널 이름");
+
+		@DisplayName("채팅 채널 이름 수정 성공")
+		@WithMockCustomUser
+		@Test
+		void updateChatChannelName_Success() throws Exception {
+
+			willDoNothing().given(chatChannelService)
+				.updateChatChannelName(any(CustomUserDetails.class), eq(teamspaceId), eq(request));
+
+			doTest(
+				ApiResponse.createSuccessResponse(Map.of()),
+				status().isOk(),
+				apiDocHelper.createSuccessResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		@DisplayName("채팅 채널 이름 수정 실패 - 접근 권한이 없거나 존재하지 않는 팀스페이스 또는 채널")
+		@WithMockCustomUser
+		@Test
+		void updateChatChannelName_Fail() throws Exception {
+			willThrow(new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)).given(chatChannelService)
+				.updateChatChannelName(any(CustomUserDetails.class), eq(teamspaceId), eq(request));
+
+			doTest(
+				ApiResponse.createErrorResponse(ExceptionCode.FORBIDDEN_TEAMSPACE),
+				status().isForbidden(),
+				apiDocHelper.createErrorResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		@DisplayName("채팅 채널 이름 수정 실패 - 채널이 존재하지 않음")
+		@WithMockCustomUser
+		@Test
+		void updateChatChannelName_Fail_ChannelNotFound() throws Exception {
+			willThrow(new CommonException(ExceptionCode.NOT_FOUND_CHAT_CHANNEL)).given(chatChannelService)
+				.updateChatChannelName(any(CustomUserDetails.class), eq(teamspaceId), eq(request));
+
+			doTest(
+				ApiResponse.createErrorResponse(ExceptionCode.NOT_FOUND_CHAT_CHANNEL),
+				status().isNotFound(),
+				apiDocHelper.createErrorResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		private void doTest(
+			ApiResponse<?> response,
+			ResultMatcher statusMatcher,
+			FieldDescriptor[] responseFields,
+			String responseSchemaTitle
+		) throws Exception {
+			mockMvc.perform(
+					patch("/api/v1/teamspaces/{teamspaceId}/chat-channels/name", teamspaceId)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(request))
+						.with(csrf()))
+				.andExpect(statusMatcher)
+				.andExpect(content().json(objectMapper.writeValueAsString(response)))
+				.andDo(restDocs.document(
+					resource(ResourceSnippetParameters.builder()
+						.tag("chatChannel-controller")
+						.description("채팅 채널 이름을 수정합니다.")
+						.pathParameters(
+							parameterWithName("teamspaceId").description("팀스페이스 ID")
+						)
+						.responseFields(responseFields)
+						.requestSchema(Schema.schema("UpdateChatChannelNameRequest"))
 						.responseSchema(Schema.schema(responseSchemaTitle))
 						.build()
 					)

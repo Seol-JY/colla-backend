@@ -69,4 +69,8 @@ public class ChatChannel extends BaseEntity {
 	public void updateLastChatMessage(Long lastChatMessageId) {
 		this.lastChatId = lastChatMessageId;
 	}
+
+	public void updateChatChannelName(ChatChannelName chatChannelName) {
+		this.chatChannelName = chatChannelName;
+	}
 }

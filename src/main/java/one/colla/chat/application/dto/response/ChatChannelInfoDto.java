@@ -14,12 +14,11 @@ public record ChatChannelInfoDto(
 ) {
 	public static ChatChannelInfoDto of(ChatChannel chatChannel, String lastChatMessage,
 		LocalDateTime lastChatCreatedAt) {
-
 		return ChatChannelInfoDto.builder()
 			.id(chatChannel.getId())
 			.name(chatChannel.getChatChannelName().getValue())
 			.lastChatMessage(lastChatMessage)
-			.lastChatCreatedAt(String.valueOf(lastChatCreatedAt))
+			.lastChatCreatedAt(lastChatCreatedAt != null ? String.valueOf(lastChatCreatedAt) : null)
 			.build();
 	}
 }
