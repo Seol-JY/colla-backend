@@ -37,6 +37,9 @@ public enum ExceptionCode {
 	FORBIDDEN_TEAMSPACE(HttpStatus.FORBIDDEN, 40307, "접근 권한이 없거나 존재하지 않는 팀 스페이스입니다."),
 	ALREADY_PARTICIPATED(HttpStatus.CONFLICT, 40308, "이미 참가한 사용자입니다."),
 
+	/* FEED-COMMON */
+	NOT_FOUND_FEED(HttpStatus.NOT_FOUND, 47101, "접근 권한이 없거나 존재하지 않는 피드입니다."),
+
 	/* 499xx ETC */
 	NOT_FOUND_RESOURCE(HttpStatus.NOT_FOUND, 49901, "해당 경로를 찾을 수 없습니다."),
 	METHOD_FORBIDDEN(HttpStatus.METHOD_NOT_ALLOWED, 49902, "지원하지 않는 HTTP 메서드를 사용합니다."),
