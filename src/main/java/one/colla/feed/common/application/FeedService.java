@@ -65,6 +65,10 @@ public class FeedService {
 			.map(this::toCommonReadFeedResponse)
 			.toList();
 
+		log.info(
+			"피드 목록 조회 - 팀스페이스 Id: {}, 사용자 Id: {}, afterFeedId: {}, feedType: {}, limit: {}",
+			teamspaceId, userDetails.getUserId(), afterFeedId, feedType, limit);
+
 		return CommonReadFeedListResponse.from(feedResponses);
 	}
 
@@ -80,6 +84,10 @@ public class FeedService {
 		Feed feed = feedRepository.findByIdAndTeamspace(feedId, teamspace)
 			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_FEED));
 
+		log.info(
+			"피드 단건 조회 - 팀스페이스 Id: {}, 사용자 Id: {}, 조회 피드 Id: {}",
+			teamspaceId, userDetails.getUserId(), feedId
+		);
 		return toCommonReadFeedResponse(feed);
 	}
 
@@ -87,6 +95,7 @@ public class FeedService {
 		UserTeamspace userTeamspace = userTeamspaceRepository.findByUserIdAndTeamspaceId(
 			feed.getUser().getId(), feed.getTeamspace().getId()
 		).orElseThrow(() -> new IllegalArgumentException("탈퇴한 회원입니다."));
+		// TODO: 추후 탈퇴 회원에 대한 처리 필요
 
 		CommonReadFeedResponse.TagDto tagDto
 			= CommonReadFeedResponse.TagDto.from(userTeamspace.getTag());
