@@ -22,7 +22,7 @@ public record CommonReadFeedResponse<T extends ReadFeedDetails>(
 	FeedAuthorDto author,
 	String title,
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
 	LocalDateTime createdAt,
 	T details,
 	List<CommentDto> comments,
