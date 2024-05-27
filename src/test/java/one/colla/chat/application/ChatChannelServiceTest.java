@@ -7,6 +7,8 @@ import static one.colla.common.fixtures.UserFixtures.*;
 import static one.colla.common.fixtures.UserTeamspaceFixtures.*;
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.api.SoftAssertions;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import one.colla.chat.application.dto.request.CreateChatChannelRequest;
 import one.colla.chat.application.dto.request.UpdateChatChannelNameRequest;
+import one.colla.chat.application.dto.response.ChatChannelMessagesResponse;
 import one.colla.chat.application.dto.response.ChatChannelsResponse;
 import one.colla.chat.application.dto.response.CreateChatChannelResponse;
 import one.colla.chat.domain.ChatChannel;
@@ -246,4 +249,156 @@ class ChatChannelServiceTest extends ServiceTest {
 		}
 	}
 
+	@Nested
+	@DisplayName("채팅 채널 메시지 조회시")
+	class GetChatChannelMessagesTest {
+
+		ChatChannel FRONTEND_CHAT_CHANNEL;
+		ChatChannel BACKEND_CHAT_CHANNEL;
+
+		@BeforeEach
+		void setUp() {
+			FRONTEND_CHAT_CHANNEL = testFixtureBuilder.buildChatChannel(FRONTEND_CHAT_CHANNEL(OS_TEAMSPACE));
+			BACKEND_CHAT_CHANNEL = testFixtureBuilder.buildChatChannel(BACKEND_CHAT_CHANNEL(OS_TEAMSPACE));
+
+			/* 팀스페이스에 채팅 채널 추가 */
+			OS_TEAMSPACE.addChatChannel(FRONTEND_CHAT_CHANNEL);
+			OS_TEAMSPACE.addChatChannel(BACKEND_CHAT_CHANNEL);
+
+			/* 채팅 채널 유저 참가 */
+			testFixtureBuilder.buildUserChatChannel(
+				FRONTEND_CHAT_CHANNEL.participateAllTeamspaceUser(OS_TEAMSPACE.getUserTeamspaces()));
+			testFixtureBuilder.buildUserChatChannel(
+				BACKEND_CHAT_CHANNEL.participateAllTeamspaceUser(OS_TEAMSPACE.getUserTeamspaces()));
+		}
+
+		@Test
+		@DisplayName("조회에 성공한다.")
+		void getChatChannelMessages_Success() {
+
+			// given
+			List<ChatChannelMessage> messages = new ArrayList<>();
+			for (int i = 0; i < 100; i++) {
+				ChatChannelMessage msg = testFixtureBuilder.buildChatChannelMessage(
+					RANDOM_CHAT_MESSAGE(USER1, FRONTEND_CHAT_CHANNEL, ChatType.TEXT));
+				messages.add(msg);
+				FRONTEND_CHAT_CHANNEL.updateLastChatMessage(msg.getId());
+			}
+
+			// when
+			ChatChannelMessagesResponse response = chatChannelService.getChatChanelMessages(
+				USER1_DETAILS, OS_TEAMSPACE.getId(), FRONTEND_CHAT_CHANNEL.getId(), null, 50);
+
+			// then
+			SoftAssertions.assertSoftly(softly -> {
+				softly.assertThat(response).isNotNull();
+				softly.assertThat(response.chatChannelMessages().size()).isEqualTo(50);
+				softly.assertThat(response.chatChannelMessages().get(0).content())
+					.isEqualTo(messages.get(messages.size() - 1).getContent().getValue());
+			});
+		}
+
+		@Test
+		@DisplayName("before 파라미터가 제공되었을 때의 동작을 검증한다.")
+		void getChatChannelMessages_BeforeParameter() {
+			// given
+			List<ChatChannelMessage> messages = new ArrayList<>();
+			for (int i = 0; i < 100; i++) {
+				ChatChannelMessage msg = testFixtureBuilder.buildChatChannelMessage(
+					RANDOM_CHAT_MESSAGE(USER1, FRONTEND_CHAT_CHANNEL, ChatType.TEXT));
+				messages.add(msg);
+				FRONTEND_CHAT_CHANNEL.updateLastChatMessage(msg.getId());
+			}
+			ChatChannelMessage beforeMessage = messages.get(70);
+
+			// when
+			ChatChannelMessagesResponse response = chatChannelService.getChatChanelMessages(
+				USER1_DETAILS, OS_TEAMSPACE.getId(), FRONTEND_CHAT_CHANNEL.getId(), beforeMessage.getId(), 50);
+
+			// then
+			SoftAssertions.assertSoftly(softly -> {
+				softly.assertThat(response).isNotNull();
+				softly.assertThat(response.chatChannelMessages().size()).isEqualTo(50);
+				softly.assertThat(response.chatChannelMessages().get(0).content())
+					.isEqualTo(messages.get(69).getContent().getValue());
+			});
+		}
+
+		@Test
+		@DisplayName("limit와 before 파라미터가 같이 사용되었을 때 동작을 검증한다.")
+		void getChatChannelMessages_BeforeAndLimit() {
+			// given
+			List<ChatChannelMessage> messages = new ArrayList<>();
+			for (int i = 0; i < 100; i++) {
+				ChatChannelMessage msg = testFixtureBuilder.buildChatChannelMessage(
+					RANDOM_CHAT_MESSAGE(USER1, FRONTEND_CHAT_CHANNEL, ChatType.TEXT));
+				messages.add(msg);
+				FRONTEND_CHAT_CHANNEL.updateLastChatMessage(msg.getId());
+			}
+			ChatChannelMessage beforeMessage = messages.get(70);
+
+			// when
+			ChatChannelMessagesResponse response = chatChannelService.getChatChanelMessages(
+				USER1_DETAILS, OS_TEAMSPACE.getId(), FRONTEND_CHAT_CHANNEL.getId(), beforeMessage.getId(), 20);
+
+			// then
+			SoftAssertions.assertSoftly(softly -> {
+				softly.assertThat(response).isNotNull();
+				softly.assertThat(response.chatChannelMessages().size()).isEqualTo(20);
+				softly.assertThat(response.chatChannelMessages().get(0).content())
+					.isEqualTo(messages.get(69).getContent().getValue());
+
+				softly.assertThat(response.chatChannelMessages().get(19).content())
+					.isEqualTo(messages.get(50).getContent().getValue());
+			});
+		}
+
+		@Test
+		@DisplayName("빈 결과를 검증한다.")
+		void getChatChannelMessages_EmptyResult() {
+			// when
+			ChatChannelMessagesResponse response = chatChannelService.getChatChanelMessages(
+				USER1_DETAILS, OS_TEAMSPACE.getId(), BACKEND_CHAT_CHANNEL.getId(), null, 50);
+
+			// then
+			SoftAssertions.assertSoftly(softly -> {
+				softly.assertThat(response).isNotNull();
+				softly.assertThat(response.chatChannelMessages()).isEmpty();
+			});
+		}
+
+		@Test
+		@DisplayName("팀스페이스에 참여하고 있지 않으면 예외가 발생한다.")
+		void getChatChannelMessages_TeamspaceAccessDenied() {
+			// given
+			User OTHER_USER = testFixtureBuilder.buildUser(RANDOMUSER());
+			CustomUserDetails OTHER_USER_DETAILS = createCustomUserDetailsByUser(OTHER_USER);
+
+			// when & then
+			assertThatThrownBy(() -> chatChannelService.getChatChanelMessages(
+				OTHER_USER_DETAILS, OS_TEAMSPACE.getId(), FRONTEND_CHAT_CHANNEL.getId(), null, 50))
+				.isExactlyInstanceOf(CommonException.class)
+				.hasMessageContaining(ExceptionCode.FORBIDDEN_TEAMSPACE.getMessage());
+		}
+
+		@Test
+		@DisplayName("존재하지 않는 채팅 채널이면 예외가 발생한다.")
+		void getChatChannelMessages_ChatChannelNotFound() {
+			// when & then
+			assertThatThrownBy(() -> chatChannelService.getChatChanelMessages(
+				USER1_DETAILS, OS_TEAMSPACE.getId(), 999L, null, 50))
+				.isExactlyInstanceOf(CommonException.class)
+				.hasMessageContaining(ExceptionCode.NOT_FOUND_CHAT_CHANNEL.getMessage());
+		}
+
+		@Test
+		@DisplayName("선택한 채팅 채널에 해당 채팅 메시지가 없으면 예외가 발생한다.")
+		void getChatChannelMessages_ChatChannelMessageNotFound() {
+			// when & then
+			assertThatThrownBy(() -> chatChannelService.getChatChanelMessages(
+				USER1_DETAILS, OS_TEAMSPACE.getId(), FRONTEND_CHAT_CHANNEL.getId(), 999L, 50))
+				.isExactlyInstanceOf(CommonException.class)
+				.hasMessageContaining(ExceptionCode.NOT_FOUND_CHAT_CHANNEL_MESSAGE.getMessage());
+		}
+	}
 }

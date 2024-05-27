@@ -12,13 +12,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import one.colla.chat.application.ChatChannelService;
 import one.colla.chat.application.dto.request.CreateChatChannelRequest;
 import one.colla.chat.application.dto.request.UpdateChatChannelNameRequest;
+import one.colla.chat.application.dto.response.ChatChannelMessagesResponse;
 import one.colla.chat.application.dto.response.ChatChannelsResponse;
 import one.colla.chat.application.dto.response.CreateChatChannelResponse;
 import one.colla.common.presentation.ApiResponse;
@@ -61,6 +64,21 @@ public class ChatController {
 
 		chatChannelService.updateChatChannelName(userDetails, teamspaceId, request);
 		return ResponseEntity.ok().body(ApiResponse.createSuccessResponse(Map.of()));
+	}
+
+	@GetMapping("/{chatChannelId}/messages")
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<ApiResponse<ChatChannelMessagesResponse>> getChatChannelMessages(
+		@AuthenticationPrincipal final CustomUserDetails userDetails,
+		@PathVariable final Long teamspaceId,
+		@PathVariable final Long chatChannelId,
+		@RequestParam(value = "before", required = false) final Long beforeChatMessageId,
+		@RequestParam(value = "limit", defaultValue = "50") @Valid @Positive final int limit) {
+
+		return ResponseEntity.ok()
+			.body(ApiResponse.createSuccessResponse(
+				chatChannelService.getChatChanelMessages(
+					userDetails, teamspaceId, chatChannelId, beforeChatMessageId, limit)));
 	}
 
 }

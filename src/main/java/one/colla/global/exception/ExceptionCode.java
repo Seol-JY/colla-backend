@@ -39,6 +39,7 @@ public enum ExceptionCode {
 
 	/* 405xx CHAT */
 	NOT_FOUND_CHAT_CHANNEL(HttpStatus.NOT_FOUND, 40501, "해당 채팅 채널을 찾을 수 없습니다."),
+	NOT_FOUND_CHAT_CHANNEL_MESSAGE(HttpStatus.NOT_FOUND, 40502, "선택하신 채팅 채널에서 해당 메시지를 찾을 수 없습니다."),
 
 	/* 499xx ETC */
 	NOT_FOUND_RESOURCE(HttpStatus.NOT_FOUND, 49901, "해당 경로를 찾을 수 없습니다."),

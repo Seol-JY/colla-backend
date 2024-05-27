@@ -29,8 +29,13 @@ import one.colla.chat.application.ChatChannelService;
 import one.colla.chat.application.dto.request.CreateChatChannelRequest;
 import one.colla.chat.application.dto.request.UpdateChatChannelNameRequest;
 import one.colla.chat.application.dto.response.ChatChannelInfoDto;
+import one.colla.chat.application.dto.response.ChatChannelMessageAttachmentDto;
+import one.colla.chat.application.dto.response.ChatChannelMessageAuthorDto;
+import one.colla.chat.application.dto.response.ChatChannelMessageInfoDto;
+import one.colla.chat.application.dto.response.ChatChannelMessagesResponse;
 import one.colla.chat.application.dto.response.ChatChannelsResponse;
 import one.colla.chat.application.dto.response.CreateChatChannelResponse;
+import one.colla.chat.domain.ChatType;
 import one.colla.common.ControllerTest;
 import one.colla.common.presentation.ApiResponse;
 import one.colla.common.security.authentication.CustomUserDetails;
@@ -121,7 +126,7 @@ class ChatControllerTest extends ControllerTest {
 		final Long teamspaceId = 1L;
 		final List<ChatChannelInfoDto> chatChannelInfoDtos = List.of(
 			new ChatChannelInfoDto(1L, "프론트엔드", "안녕하세요",
-				String.valueOf(LocalDateTime.of(2024, 5, 8, 4, 12, 34)))
+				LocalDateTime.of(2024, 5, 8, 4, 12, 34))
 		);
 		final ChatChannelsResponse response = ChatChannelsResponse.from(chatChannelInfoDtos);
 
@@ -263,6 +268,156 @@ class ChatControllerTest extends ControllerTest {
 						)
 						.responseFields(responseFields)
 						.requestSchema(Schema.schema("UpdateChatChannelNameRequest"))
+						.responseSchema(Schema.schema(responseSchemaTitle))
+						.build()
+					)
+				)).andDo(print());
+		}
+	}
+
+	@Nested
+	@DisplayName("채팅 채널 메시지 조회 문서화")
+	class GetChatChannelMessagesDocs {
+
+		final Long teamspaceId = 1L;
+		final Long chatChannelId = 1L;
+		final Long beforeChatMessageId = 50L;
+		final int limit = 50;
+
+		final List<ChatChannelMessageInfoDto> chatChannelMessageInfoDtos = List.of(
+			ChatChannelMessageInfoDto.builder()
+				.id(1L)
+				.type(ChatType.TEXT)
+				.chatChannelId(chatChannelId)
+				.author(ChatChannelMessageAuthorDto.builder()
+					.id(1L)
+					.username("username")
+					.profileImageUrl("profileImageUrl")
+					.build())
+				.content("Hello World")
+				.attachments(List.of(ChatChannelMessageAttachmentDto.builder()
+					.id(1L)
+					.filename("filename")
+					.size(1024L)
+					.url("url")
+					.attachType("image")
+					.build()))
+				.createdAt(LocalDateTime.of(2024, 5, 8, 4, 12, 34))
+				.build()
+		);
+		final ChatChannelMessagesResponse response = ChatChannelMessagesResponse.from(chatChannelMessageInfoDtos);
+
+		@DisplayName("채팅 채널 메시지 조회 성공")
+		@WithMockCustomUser
+		@Test
+		void getChatChannelMessages_Success() throws Exception {
+
+			given(chatChannelService.getChatChanelMessages(any(CustomUserDetails.class), eq(teamspaceId),
+				eq(chatChannelId), eq(beforeChatMessageId), eq(limit)))
+				.willReturn(response);
+
+			doTest(
+				ApiResponse.createSuccessResponse(response),
+				status().isOk(),
+				apiDocHelper.createSuccessResponseFields(
+					fieldWithPath("chatChannelMessages").description("채팅 메시지 목록"),
+					fieldWithPath("chatChannelMessages[].id").description("채팅 메시지 ID"),
+					fieldWithPath("chatChannelMessages[].type").description("채팅 메시지 타입"),
+					fieldWithPath("chatChannelMessages[].chatChannelId").description("채팅 채널 ID"),
+					fieldWithPath("chatChannelMessages[].author.id").description("작성자 ID"),
+					fieldWithPath("chatChannelMessages[].author.username").description("작성자 이름"),
+					fieldWithPath("chatChannelMessages[].author.profileImageUrl").description("작성자 프로필 이미지 URL"),
+					fieldWithPath("chatChannelMessages[].content").description("채팅 메시지 내용"),
+					fieldWithPath("chatChannelMessages[].attachments").description("채팅 메시지 첨부 파일 목록"),
+					fieldWithPath("chatChannelMessages[].attachments[].id").description("첨부 파일 ID"),
+					fieldWithPath("chatChannelMessages[].attachments[].filename").description("첨부 파일 이름"),
+					fieldWithPath("chatChannelMessages[].attachments[].size").description("첨부 파일 크기"),
+					fieldWithPath("chatChannelMessages[].attachments[].url").description("첨부 파일 URL"),
+					fieldWithPath("chatChannelMessages[].attachments[].attachType").description("첨부 파일 타입"),
+					fieldWithPath("chatChannelMessages[].createdAt").description("채팅 메시지 생성 시간")
+				),
+				"ApiResponse<ChatChannelMessagesResponse>"
+			);
+		}
+
+		@DisplayName("채팅 채널 메시지 조회 실패 - 접근 권한이 없거나 존재하지 않는 팀스페이스")
+		@WithMockCustomUser
+		@Test
+		void getChatChannelMessages_Fail() throws Exception {
+			willThrow(new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)).given(chatChannelService)
+				.getChatChanelMessages(any(CustomUserDetails.class), eq(teamspaceId), eq(chatChannelId),
+					eq(beforeChatMessageId), eq(limit));
+
+			doTest(
+				ApiResponse.createErrorResponse(ExceptionCode.FORBIDDEN_TEAMSPACE),
+				status().isForbidden(),
+				apiDocHelper.createErrorResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		@DisplayName("채팅 채널 메시지 조회 실패 - 존재하지 않는 채팅 채널")
+		@WithMockCustomUser
+		@Test
+		void getChatChannelMessages_ChatChannelNotFound() throws Exception {
+
+			willThrow(new CommonException(ExceptionCode.NOT_FOUND_CHAT_CHANNEL)).given(chatChannelService)
+				.getChatChanelMessages(any(CustomUserDetails.class), eq(teamspaceId), eq(chatChannelId),
+					eq(beforeChatMessageId), eq(limit));
+
+			doTest(
+				ApiResponse.createErrorResponse(ExceptionCode.NOT_FOUND_CHAT_CHANNEL),
+				status().isNotFound(),
+				apiDocHelper.createErrorResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		@DisplayName("채팅 채널 메시지 조회 실패 - 선택한 채팅 채널에 존재하지 않는 채팅 메시지")
+		@WithMockCustomUser
+		@Test
+		void getChatChannelMessages_ChatChannelMessageNotFound() throws Exception {
+
+			willThrow(new CommonException(ExceptionCode.NOT_FOUND_CHAT_CHANNEL_MESSAGE)).given(chatChannelService)
+				.getChatChanelMessages(any(CustomUserDetails.class), eq(teamspaceId), eq(chatChannelId),
+					eq(beforeChatMessageId), eq(limit));
+
+			doTest(
+				ApiResponse.createErrorResponse(ExceptionCode.NOT_FOUND_CHAT_CHANNEL_MESSAGE),
+				status().isNotFound(),
+				apiDocHelper.createErrorResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		private void doTest(
+			ApiResponse<?> response,
+			ResultMatcher statusMatcher,
+			FieldDescriptor[] responseFields,
+			String responseSchemaTitle
+		) throws Exception {
+			mockMvc.perform(
+					get("/api/v1/teamspaces/{teamspaceId}/chat-channels/{chatChannelId}/messages", teamspaceId,
+						chatChannelId)
+						.queryParam("before", String.valueOf(beforeChatMessageId))
+						.queryParam("limit", String.valueOf(limit))
+						.with(csrf())
+				)
+				.andExpect(statusMatcher)
+				.andExpect(content().json(objectMapper.writeValueAsString(response)))
+				.andDo(restDocs.document(
+					resource(ResourceSnippetParameters.builder()
+						.tag("chatChannel-controller")
+						.description("채팅 채널 메시지를 조회합니다.")
+						.pathParameters(
+							parameterWithName("teamspaceId").description("팀스페이스 ID"),
+							parameterWithName("chatChannelId").description("채팅 채널 ID")
+						)
+						.queryParameters(
+							parameterWithName("before").description("이전 채팅 메시지를 조회할 기준 채팅 메시지 ID").optional(),
+							parameterWithName("limit").description("조회할 메시지 개수")
+						)
+						.responseFields(responseFields)
 						.responseSchema(Schema.schema(responseSchemaTitle))
 						.build()
 					)

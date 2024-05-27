@@ -2,6 +2,7 @@ package one.colla.chat.application;
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,9 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 import one.colla.chat.application.dto.request.CreateChatChannelRequest;
 import one.colla.chat.application.dto.request.UpdateChatChannelNameRequest;
 import one.colla.chat.application.dto.response.ChatChannelInfoDto;
+import one.colla.chat.application.dto.response.ChatChannelMessageAttachmentDto;
+import one.colla.chat.application.dto.response.ChatChannelMessageAuthorDto;
+import one.colla.chat.application.dto.response.ChatChannelMessageInfoDto;
+import one.colla.chat.application.dto.response.ChatChannelMessagesResponse;
 import one.colla.chat.application.dto.response.ChatChannelsResponse;
 import one.colla.chat.application.dto.response.CreateChatChannelResponse;
 import one.colla.chat.domain.ChatChannel;
+import one.colla.chat.domain.ChatChannelMessage;
 import one.colla.chat.domain.ChatChannelMessageRepository;
 import one.colla.chat.domain.ChatChannelRepository;
 import one.colla.chat.domain.UserChatChannel;
@@ -28,6 +34,8 @@ import one.colla.teamspace.domain.Teamspace;
 @Service
 @RequiredArgsConstructor
 public class ChatChannelService {
+
+	private static final int PAGE_REQUEST_ZERO_OFFSET = 0;
 
 	private final TeamspaceService teamspaceService;
 	private final ChatChannelRepository chatChannelRepository;
@@ -80,17 +88,74 @@ public class ChatChannelService {
 		UpdateChatChannelNameRequest request) {
 
 		final Teamspace teamspace = teamspaceService.getUserTeamspace(userDetails, teamspaceId).getTeamspace();
+
+		processChatChannelNameUpdate(request, teamspace);
+
+		log.info("채팅 채널 이름 수정 - 팀스페이스 Id: {}, 수정한 사용자 Id: {}, 수정한 채팅 채널 Id: {}",
+			teamspaceId, userDetails.getUserId(), request.chatChannelId());
+	}
+
+	private void processChatChannelNameUpdate(UpdateChatChannelNameRequest request, Teamspace teamspace) {
 		ChatChannel chatChannel = teamspace.getChatChannels().stream()
 			.filter(cc -> cc.getId().equals(request.chatChannelId()))
 			.findFirst()
 			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_CHAT_CHANNEL));
+		ChatChannelName chatChannelName = ChatChannelName.from(request.chatChannelName());
+		chatChannel.updateChatChannelName(chatChannelName);
+	}
 
-		if (request.chatChannelName() != null) {
-			ChatChannelName chatChannelName = ChatChannelName.from(request.chatChannelName());
-			chatChannel.updateChatChannelName(chatChannelName);
-		}
+	@Transactional(readOnly = true)
+	public ChatChannelMessagesResponse getChatChanelMessages(CustomUserDetails userDetails, Long teamspaceId,
+		Long chatChannelId, Long beforeChatMessageId, int limit) {
 
-		log.info("채팅 채널 이름 수정 - 팀스페이스 Id: {}, 수정한 사용자 Id: {}, 수정한 채팅 채널 Id: {}",
+		final Teamspace teamspace = teamspaceService.getUserTeamspace(userDetails, teamspaceId).getTeamspace();
+		final ChatChannel chatChannel = getChatChannel(teamspace, chatChannelId);
+
+		validateBeforeChatMessageId(beforeChatMessageId, chatChannel);
+
+		List<ChatChannelMessage> messages = fetchChatChannelMessages(chatChannel, beforeChatMessageId, limit);
+		List<ChatChannelMessageInfoDto> chatChannelMessageInfoDtos = convertToInfoDtos(messages);
+
+		log.info("채팅 채널 메세지 조회 - 팀스페이스 Id: {}, 조회한 사용자 Id: {}, 채팅 채널 Id: {} ",
 			teamspaceId, userDetails.getUserId(), chatChannel.getId());
+		return ChatChannelMessagesResponse.from(chatChannelMessageInfoDtos);
+	}
+
+	private ChatChannel getChatChannel(Teamspace teamspace, Long chatChannelId) {
+		return teamspace.getChatChannels()
+			.stream()
+			.filter(ch -> ch.getId().equals(chatChannelId))
+			.findFirst()
+			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_CHAT_CHANNEL));
+	}
+
+	private void validateBeforeChatMessageId(Long beforeChatMessageId, ChatChannel chatChannel) {
+		if (beforeChatMessageId != null && chatChannelMessageRepository.findByIdAndChatChannel(
+			beforeChatMessageId, chatChannel).isEmpty()) {
+			throw new CommonException(ExceptionCode.NOT_FOUND_CHAT_CHANNEL_MESSAGE);
+		}
+	}
+
+	private List<ChatChannelMessage> fetchChatChannelMessages(ChatChannel chatChannel, Long beforeChatMessageId,
+		int limit) {
+		PageRequest pageRequest = PageRequest.of(PAGE_REQUEST_ZERO_OFFSET, limit);
+		return chatChannelMessageRepository.findChatChannelMessageByChatChannelAndCriteria(
+			chatChannel, beforeChatMessageId, pageRequest);
+	}
+
+	private List<ChatChannelMessageInfoDto> convertToInfoDtos(List<ChatChannelMessage> messages) {
+		return messages.stream()
+			.map(msg -> {
+				ChatChannelMessageAuthorDto author = ChatChannelMessageAuthorDto.from(msg.getUser());
+				List<ChatChannelMessageAttachmentDto> attachments = getMessageAttachmentDtos(msg);
+				return ChatChannelMessageInfoDto.of(msg, author, attachments);
+			}).toList();
+	}
+
+	private static List<ChatChannelMessageAttachmentDto> getMessageAttachmentDtos(ChatChannelMessage msg) {
+		return msg.getChatChannelMessageAttachments()
+			.stream()
+			.map(ChatChannelMessageAttachmentDto::from)
+			.toList();
 	}
 }
