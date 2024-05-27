@@ -51,7 +51,7 @@ public class FeedService {
 		Teamspace teamspace = userTeamspace.getTeamspace();
 		PageRequest pageRequest = PageRequest.of(0, limit);
 
-		if (afterFeedId != null && !feedRepository.existByIdAndTeamspace(afterFeedId, teamspace)) {
+		if (afterFeedId != null && !feedRepository.existsByIdAndTeamspace(afterFeedId, teamspace)) {
 			throw new CommonException(ExceptionCode.NOT_FOUND_FEED);
 		}
 

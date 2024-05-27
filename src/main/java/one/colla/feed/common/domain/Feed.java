@@ -18,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -56,7 +57,8 @@ public abstract class Feed extends BaseEntity {
 	@OneToOne(mappedBy = "feed", cascade = CascadeType.ALL)
 	private CalendarEventFeedLink calendarEventFeedLink;
 
-	@OneToMany(mappedBy = "feed", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "feed", fetch = FetchType.LAZY, orphanRemoval = true)
+	@OrderBy("createdAt ASC")
 	private final List<Comment> comments = new ArrayList<>();
 
 	@OneToMany(mappedBy = "feed", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
@@ -110,5 +112,9 @@ public abstract class Feed extends BaseEntity {
 		return fileDtos.stream()
 			.map(fileDto -> Attachment.of(user, teamspace, attachmentType, fileDto))
 			.toList();
+	}
+
+	public void addComment(Comment comment) {
+		this.comments.add(comment);
 	}
 }
