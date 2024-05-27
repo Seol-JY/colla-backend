@@ -12,8 +12,9 @@ import jakarta.annotation.Nullable;
 import one.colla.teamspace.domain.Teamspace;
 
 public interface FeedRepository extends JpaRepository<Feed, Long> {
-
 	Optional<Feed> findByIdAndTeamspace(Long feedId, Teamspace teamspace);
+
+	boolean existByIdAndTeamspace(Long afterFeedId, Teamspace teamspace);
 
 	/**
 	 * 주어진 팀스페이스와 기준에 따라 피드를 찾습니다.

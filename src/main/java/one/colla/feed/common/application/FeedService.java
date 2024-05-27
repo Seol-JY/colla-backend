@@ -48,9 +48,10 @@ public class FeedService {
 		final int limit
 	) {
 		UserTeamspace userTeamspace = teamspaceService.getUserTeamspace(userDetails, teamspaceId);
+		Teamspace teamspace = userTeamspace.getTeamspace();
 		PageRequest pageRequest = PageRequest.of(0, limit);
 
-		if (afterFeedId != null && !feedRepository.existsById(afterFeedId)) {
+		if (afterFeedId != null && !feedRepository.existByIdAndTeamspace(afterFeedId, teamspace)) {
 			throw new CommonException(ExceptionCode.NOT_FOUND_FEED);
 		}
 
@@ -67,7 +68,8 @@ public class FeedService {
 
 		log.info(
 			"피드 목록 조회 - 팀스페이스 Id: {}, 사용자 Id: {}, afterFeedId: {}, feedType: {}, limit: {}",
-			teamspaceId, userDetails.getUserId(), afterFeedId, feedType, limit);
+			teamspaceId, userDetails.getUserId(), afterFeedId, feedType, limit
+		);
 
 		return CommonReadFeedListResponse.from(feedResponses);
 	}
