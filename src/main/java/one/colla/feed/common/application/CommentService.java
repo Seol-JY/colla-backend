@@ -15,6 +15,7 @@ import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
 import one.colla.teamspace.application.TeamspaceService;
 import one.colla.teamspace.domain.Teamspace;
+import one.colla.teamspace.domain.TeamspaceRole;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.user.domain.User;
 
@@ -73,6 +74,36 @@ public class CommentService {
 
 		log.info(
 			"댓글 수정 - 팀스페이스 Id: {}, 사용자 Id: {}, 피드 Id: {}, 수정된 댓글 Id: {}",
+			teamspaceId, user.getId(), feedId, comment.getId()
+		);
+	}
+
+	@Transactional
+	public void delete(
+		final CustomUserDetails userDetails,
+		final Long teamspaceId,
+		final Long feedId,
+		final Long commentId
+	) {
+		UserTeamspace userTeamspace = teamspaceService.getUserTeamspace(userDetails, teamspaceId);
+		Teamspace teamspace = userTeamspace.getTeamspace();
+		User user = userTeamspace.getUser();
+
+		Feed feed = feedRepository.findByIdAndTeamspace(feedId, teamspace)
+			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_FEED));
+
+		Comment comment = commentRepository.findByIdAndFeed(commentId, feed)
+			.orElseThrow(() -> new CommonException(ExceptionCode.FORBIDDEN_ACCESS_COMMENT));
+
+		if (userTeamspace.getTeamspaceRole() == TeamspaceRole.LEADER || comment.getUser().equals(user)) {
+			feed.removeComment(comment);
+			commentRepository.delete(comment);
+		} else {
+			throw new CommonException(ExceptionCode.FORBIDDEN_ACCESS_COMMENT);
+		}
+
+		log.info(
+			"댓글 삭제 - 팀스페이스 Id: {}, 사용자 Id: {}, 피드 Id: {}, 삭제된 댓글 Id: {}",
 			teamspaceId, user.getId(), feedId, comment.getId()
 		);
 	}

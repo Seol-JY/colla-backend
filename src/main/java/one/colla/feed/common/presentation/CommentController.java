@@ -67,8 +67,8 @@ public class CommentController {
 		@PathVariable final Long feedId,
 		@PathVariable final Long commentId
 	) {
+		commentService.delete(userDetails, teamspaceId, feedId, commentId);
 
-		// TODO: 댓글 삭제 구현 필요
 		return ResponseEntity.ok().body(
 			ApiResponse.createSuccessResponse(Map.of())
 		);
