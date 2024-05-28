@@ -49,10 +49,11 @@ public class CommentController {
 		@AuthenticationPrincipal final CustomUserDetails userDetails,
 		@PathVariable final Long teamspaceId,
 		@PathVariable final Long feedId,
-		@PathVariable final Long commentId
+		@PathVariable final Long commentId,
+		@RequestBody @Valid final CreateCommentRequest request
 	) {
+		commentService.update(userDetails, teamspaceId, feedId, commentId, request);
 
-		// TODO: 댓글 수정 구현 필요
 		return ResponseEntity.ok().body(
 			ApiResponse.createSuccessResponse(Map.of())
 		);

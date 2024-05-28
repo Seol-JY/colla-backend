@@ -49,4 +49,31 @@ public class CommentService {
 			teamspaceId, user.getId(), feedId, newComment.getId()
 		);
 	}
+
+	@Transactional
+	public void update(
+		final CustomUserDetails userDetails,
+		final Long teamspaceId,
+		final Long feedId,
+		final Long commentId,
+		final CreateCommentRequest request
+	) {
+		UserTeamspace userTeamspace = teamspaceService.getUserTeamspace(userDetails, teamspaceId);
+		Teamspace teamspace = userTeamspace.getTeamspace();
+		User user = userTeamspace.getUser();
+
+		Feed feed = feedRepository.findByIdAndTeamspace(feedId, teamspace)
+			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_FEED));
+
+		Comment comment = commentRepository.findByIdAndUserAndFeed(commentId, user, feed)
+			.orElseThrow(() -> new CommonException(ExceptionCode.FORBIDDEN_ACCESS_COMMENT));
+
+		comment.updateContent(request.content());
+		commentRepository.save(comment);
+
+		log.info(
+			"댓글 수정 - 팀스페이스 Id: {}, 사용자 Id: {}, 피드 Id: {}, 수정된 댓글 Id: {}",
+			teamspaceId, user.getId(), feedId, comment.getId()
+		);
+	}
 }
