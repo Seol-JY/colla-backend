@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import one.colla.feed.normal.domain.NormalFeed;
 import one.colla.teamspace.domain.Tag;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.UserTeamspace;
@@ -38,5 +39,9 @@ public class TestFixtureBuilder {
 
 	public Tag buildTag(Tag tag) {
 		return bs.tagRepository().save(tag);
+	}
+
+	public NormalFeed buildNormalFeed(final NormalFeed feed) {
+		return bs.normalFeedRepository().save(feed);
 	}
 }
