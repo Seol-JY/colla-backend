@@ -23,7 +23,7 @@ public record CommentDto(
 		return new CommentDto(commentAuthorDto, comment.getContent(), comment.getCreatedAt());
 	}
 
-	private record CommentAuthorDto(
+	public record CommentAuthorDto(
 		Long id,
 		String profileImageUrl,
 		String username
