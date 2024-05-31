@@ -3,6 +3,7 @@ package one.colla.common.builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import one.colla.feed.normal.domain.NormalFeedRepository;
 import one.colla.teamspace.domain.TagRepository;
 import one.colla.teamspace.domain.TeamspaceRepository;
 import one.colla.teamspace.domain.UserTeamspaceRepository;
@@ -23,6 +24,9 @@ public class BuilderSupporter {
 	@Autowired
 	private TagRepository tagRepository;
 
+	@Autowired
+	private NormalFeedRepository normalFeedRepository;
+
 	public UserRepository userRepository() {
 		return userRepository;
 	}
@@ -37,5 +41,9 @@ public class BuilderSupporter {
 
 	public TagRepository tagRepository() {
 		return tagRepository;
+	}
+
+	public NormalFeedRepository normalFeedRepository() {
+		return normalFeedRepository;
 	}
 }
