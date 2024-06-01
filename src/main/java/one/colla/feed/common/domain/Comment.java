@@ -36,4 +36,17 @@ public class Comment extends BaseEntity {
 	@Column(name = "content", nullable = false)
 	private String content;
 
+	private Comment(User user, Feed feed, String content) {
+		this.user = user;
+		this.feed = feed;
+		this.content = content;
+	}
+
+	public static Comment of(User user, Feed feed, String content) {
+		return new Comment(user, feed, content);
+	}
+
+	public void updateContent(String content) {
+		this.content = content;
+	}
 }

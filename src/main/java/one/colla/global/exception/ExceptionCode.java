@@ -41,6 +41,10 @@ public enum ExceptionCode {
 	NOT_FOUND_CHAT_CHANNEL(HttpStatus.NOT_FOUND, 40501, "해당 채팅 채널을 찾을 수 없습니다."),
 	NOT_FOUND_CHAT_CHANNEL_MESSAGE(HttpStatus.NOT_FOUND, 40502, "선택하신 채팅 채널에서 해당 메시지를 찾을 수 없습니다."),
 
+	/* FEED-COMMON */
+	NOT_FOUND_FEED(HttpStatus.NOT_FOUND, 47101, "접근 권한이 없거나 존재하지 않는 피드입니다."),
+	FORBIDDEN_ACCESS_COMMENT(HttpStatus.FORBIDDEN, 47102, "접근 권한이 없거나 존재하지 않는 댓글입니다."),
+
 	/* 499xx ETC */
 	NOT_FOUND_RESOURCE(HttpStatus.NOT_FOUND, 49901, "해당 경로를 찾을 수 없습니다."),
 	METHOD_FORBIDDEN(HttpStatus.METHOD_NOT_ALLOWED, 49902, "지원하지 않는 HTTP 메서드를 사용합니다."),

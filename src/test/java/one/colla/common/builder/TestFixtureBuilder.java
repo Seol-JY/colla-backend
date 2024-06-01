@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import one.colla.chat.domain.ChatChannel;
 import one.colla.chat.domain.ChatChannelMessage;
 import one.colla.chat.domain.UserChatChannel;
+import one.colla.feed.normal.domain.NormalFeed;
 import one.colla.teamspace.domain.Tag;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.UserTeamspace;
@@ -53,5 +54,9 @@ public class TestFixtureBuilder {
 
 	public ChatChannelMessage buildChatChannelMessage(ChatChannelMessage chatChannelMessage) {
 		return bs.chatChannelMessageRepository().save(chatChannelMessage);
+	}
+
+	public NormalFeed buildNormalFeed(final NormalFeed feed) {
+		return bs.normalFeedRepository().save(feed);
 	}
 }

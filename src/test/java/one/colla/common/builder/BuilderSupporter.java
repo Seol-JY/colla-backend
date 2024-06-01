@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import one.colla.chat.domain.ChatChannelMessageRepository;
 import one.colla.chat.domain.ChatChannelRepository;
 import one.colla.chat.domain.UserChatChannelRepository;
+import one.colla.feed.normal.domain.NormalFeedRepository;
 import one.colla.teamspace.domain.TagRepository;
 import one.colla.teamspace.domain.TeamspaceRepository;
 import one.colla.teamspace.domain.UserTeamspaceRepository;
@@ -35,6 +36,9 @@ public class BuilderSupporter {
 	@Autowired
 	private ChatChannelMessageRepository chatChannelMessageRepository;
 
+	@Autowired
+	private NormalFeedRepository normalFeedRepository;
+
 	public UserRepository userRepository() {
 		return userRepository;
 	}
@@ -63,4 +67,8 @@ public class BuilderSupporter {
 		return chatChannelMessageRepository;
 	}
 
+
+	public NormalFeedRepository normalFeedRepository() {
+		return normalFeedRepository;
+	}
 }

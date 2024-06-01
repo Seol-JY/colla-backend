@@ -3,6 +3,8 @@ package one.colla.global.handler;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.context.MessageSourceResolvable;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -78,6 +81,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		ex.getBindingResult().getAllErrors().forEach(error -> {
 			String fieldName = ((FieldError)error).getField();
 			String errorMessage = error.getDefaultMessage();
+			errors.put(fieldName, errorMessage);
+		});
+
+		return ApiResponse.createValidationResponseEntity(errors);
+	}
+
+	@Override
+	@Nullable
+	protected ResponseEntity<Object> handleHandlerMethodValidationException(
+		HandlerMethodValidationException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+		Map<String, String> errors = new HashMap<>();
+
+		ex.getAllValidationResults().forEach(result -> {
+			MethodParameter param = result.getMethodParameter();
+			String fieldName = param.getParameterName();
+
+			String errorMessage = result.getResolvableErrors().stream()
+				.map(MessageSourceResolvable::getDefaultMessage)
+				.findFirst()
+				.orElse("유효성 검사 오류가 발생했습니다.");
+
 			errors.put(fieldName, errorMessage);
 		});
 
@@ -151,7 +176,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	public ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
 		Map<String, String> errors = new HashMap<>();
 		String fieldName = ex.getName();
-		String errorMessage = String.format("값 '%s'이(가) 유효하지 않습니다. 필요한 타입: '%s'.", ex.getValue(),
+		String errorMessage = String.format("값 '%s'이(가) 유효하지 않습니다. 필요한 타입: '%s'", ex.getValue(),
 			ex.getRequiredType() == null ? "알수없음" : ex.getRequiredType().getSimpleName());
 		errors.put(fieldName, errorMessage);
 
