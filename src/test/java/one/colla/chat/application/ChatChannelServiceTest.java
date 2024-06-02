@@ -446,6 +446,7 @@ class ChatChannelServiceTest extends ServiceTest {
 			// then
 			SoftAssertions.assertSoftly(softly -> {
 				softly.assertThat(chatChannelRepository.findById(FRONTEND_CHAT_CHANNEL.getId())).isEmpty();
+				softly.assertThat(OS_TEAMSPACE.getChatChannels().contains(FRONTEND_CHAT_CHANNEL)).isEqualTo(false);
 				softly.assertThat(chatChannelMessageRepository.findChatChannelMessageByChatChannelAndCriteria(
 					FRONTEND_CHAT_CHANNEL, null, PageRequest.of(0, 50))).isEmpty();
 			});

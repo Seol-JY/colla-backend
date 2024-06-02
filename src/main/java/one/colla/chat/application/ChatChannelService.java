@@ -131,6 +131,8 @@ public class ChatChannelService {
 		if (!userTeamspace.getTeamspaceRole().equals(TeamspaceRole.LEADER)) {
 			throw new CommonException(ExceptionCode.ONLY_LEADER_ACCESS);
 		}
+
+		userTeamspace.getTeamspace().removeChatChannel(chatChannel);
 		chatChannelMessageRepository.deleteAllByChatChannel(chatChannel);
 		chatChannelRepository.delete(chatChannel);
 	}
