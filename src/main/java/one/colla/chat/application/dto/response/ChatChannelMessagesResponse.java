@@ -3,9 +3,9 @@ package one.colla.chat.application.dto.response;
 import java.util.List;
 
 public record ChatChannelMessagesResponse(
-	List<ChatChannelMessageInfoDto> chatChannelMessages
+	List<ChatChannelMessageResponse> chatChannelMessages
 ) {
-	public static ChatChannelMessagesResponse from(List<ChatChannelMessageInfoDto> chatChannelMessages) {
+	public static ChatChannelMessagesResponse from(List<ChatChannelMessageResponse> chatChannelMessages) {
 		return new ChatChannelMessagesResponse(chatChannelMessages);
 	}
 }

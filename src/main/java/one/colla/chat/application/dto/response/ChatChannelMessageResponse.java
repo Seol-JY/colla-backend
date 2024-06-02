@@ -12,7 +12,7 @@ import one.colla.chat.domain.ChatChannelMessage;
 import one.colla.chat.domain.ChatType;
 
 @Builder
-public record ChatChannelMessageInfoDto(
+public record ChatChannelMessageResponse(
 	Long id,
 	ChatType type,
 	Long chatChannelId,
@@ -23,14 +23,20 @@ public record ChatChannelMessageInfoDto(
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
 	LocalDateTime createdAt
 ) {
-	public static ChatChannelMessageInfoDto of(ChatChannelMessage chatChannelMessage,
+	public static ChatChannelMessageResponse of(ChatChannelMessage chatChannelMessage,
 		ChatChannelMessageAuthorDto author, List<ChatChannelMessageAttachmentDto> attachments) {
-		return ChatChannelMessageInfoDto.builder()
+
+		String content = null;
+
+		if (chatChannelMessage.getContent() != null) {
+			content = chatChannelMessage.getContent().getValue();
+		}
+		return ChatChannelMessageResponse.builder()
 			.id(chatChannelMessage.getId())
 			.type(chatChannelMessage.getChatType())
 			.chatChannelId(chatChannelMessage.getChatChannel().getId())
 			.author(author)
-			.content(chatChannelMessage.getContent().getValue())
+			.content(content)
 			.attachments(attachments)
 			.createdAt(chatChannelMessage.getCreatedAt())
 			.build();

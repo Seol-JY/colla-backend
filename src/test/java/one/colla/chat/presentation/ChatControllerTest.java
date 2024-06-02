@@ -31,7 +31,7 @@ import one.colla.chat.application.dto.request.UpdateChatChannelNameRequest;
 import one.colla.chat.application.dto.response.ChatChannelInfoDto;
 import one.colla.chat.application.dto.response.ChatChannelMessageAttachmentDto;
 import one.colla.chat.application.dto.response.ChatChannelMessageAuthorDto;
-import one.colla.chat.application.dto.response.ChatChannelMessageInfoDto;
+import one.colla.chat.application.dto.response.ChatChannelMessageResponse;
 import one.colla.chat.application.dto.response.ChatChannelMessagesResponse;
 import one.colla.chat.application.dto.response.ChatChannelsResponse;
 import one.colla.chat.application.dto.response.CreateChatChannelResponse;
@@ -284,8 +284,8 @@ class ChatControllerTest extends ControllerTest {
 		final Long beforeChatMessageId = 50L;
 		final int limit = 50;
 
-		final List<ChatChannelMessageInfoDto> chatChannelMessageInfoDtos = List.of(
-			ChatChannelMessageInfoDto.builder()
+		final List<ChatChannelMessageResponse> chatChannelMessageResponses = List.of(
+			ChatChannelMessageResponse.builder()
 				.id(1L)
 				.type(ChatType.TEXT)
 				.chatChannelId(chatChannelId)
@@ -305,7 +305,7 @@ class ChatControllerTest extends ControllerTest {
 				.createdAt(LocalDateTime.of(2024, 5, 8, 4, 12, 34))
 				.build()
 		);
-		final ChatChannelMessagesResponse response = ChatChannelMessagesResponse.from(chatChannelMessageInfoDtos);
+		final ChatChannelMessagesResponse response = ChatChannelMessagesResponse.from(chatChannelMessageResponses);
 
 		@DisplayName("채팅 채널 메시지 조회 성공")
 		@WithMockCustomUser

@@ -13,7 +13,7 @@ import one.colla.chat.application.dto.request.UpdateChatChannelNameRequest;
 import one.colla.chat.application.dto.response.ChatChannelInfoDto;
 import one.colla.chat.application.dto.response.ChatChannelMessageAttachmentDto;
 import one.colla.chat.application.dto.response.ChatChannelMessageAuthorDto;
-import one.colla.chat.application.dto.response.ChatChannelMessageInfoDto;
+import one.colla.chat.application.dto.response.ChatChannelMessageResponse;
 import one.colla.chat.application.dto.response.ChatChannelMessagesResponse;
 import one.colla.chat.application.dto.response.ChatChannelsResponse;
 import one.colla.chat.application.dto.response.CreateChatChannelResponse;
@@ -114,11 +114,11 @@ public class ChatChannelService {
 		validateBeforeChatMessageId(beforeChatMessageId, chatChannel);
 
 		List<ChatChannelMessage> messages = fetchChatChannelMessages(chatChannel, beforeChatMessageId, limit);
-		List<ChatChannelMessageInfoDto> chatChannelMessageInfoDtos = convertToInfoDtos(messages);
+		List<ChatChannelMessageResponse> chatChannelMessageResponses = convertToChatChannelMessageResponse(messages);
 
 		log.info("채팅 채널 메세지 조회 - 팀스페이스 Id: {}, 조회한 사용자 Id: {}, 채팅 채널 Id: {} ",
 			teamspaceId, userDetails.getUserId(), chatChannel.getId());
-		return ChatChannelMessagesResponse.from(chatChannelMessageInfoDtos);
+		return ChatChannelMessagesResponse.from(chatChannelMessageResponses);
 	}
 
 	private ChatChannel getChatChannel(Teamspace teamspace, Long chatChannelId) {
@@ -143,12 +143,12 @@ public class ChatChannelService {
 			chatChannel, beforeChatMessageId, pageRequest);
 	}
 
-	private List<ChatChannelMessageInfoDto> convertToInfoDtos(List<ChatChannelMessage> messages) {
+	private List<ChatChannelMessageResponse> convertToChatChannelMessageResponse(List<ChatChannelMessage> messages) {
 		return messages.stream()
 			.map(msg -> {
 				ChatChannelMessageAuthorDto author = ChatChannelMessageAuthorDto.from(msg.getUser());
 				List<ChatChannelMessageAttachmentDto> attachments = getMessageAttachmentDtos(msg);
-				return ChatChannelMessageInfoDto.of(msg, author, attachments);
+				return ChatChannelMessageResponse.of(msg, author, attachments);
 			}).toList();
 	}
 
