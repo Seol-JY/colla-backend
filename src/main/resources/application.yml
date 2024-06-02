@@ -65,6 +65,10 @@ spring:
       token-uri: https://nid.naver.com/oauth2.0/token
       redirect-uri: ${NAVER_REDIRECT_URI}
 
+  websocket:
+    allowed-origins: http://localhost:8080, http://localhost:3000, ${BASE_URL}
+
+
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
@@ -93,6 +97,8 @@ cloud:
       static: ${AWS_SECRET_REGION_STATIC}
     stack:
       auto: false
+
+
 
 ---
 spring:
@@ -159,6 +165,8 @@ spring:
       scopes: ${NAVER_SCOPE}
       token-uri: https://nid.naver.com/oauth2.0/token
       redirect-uri: ${NAVER_REDIRECT_URI}
+  websocket:
+    allowed-origins: http://localhost:8080, http://localhost:3000, ${BASE_URL}
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8

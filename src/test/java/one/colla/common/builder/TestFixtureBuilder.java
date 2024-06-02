@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import one.colla.chat.domain.ChatChannel;
+import one.colla.chat.domain.ChatChannelMessage;
+import one.colla.chat.domain.UserChatChannel;
 import one.colla.feed.normal.domain.NormalFeed;
 import one.colla.teamspace.domain.Tag;
 import one.colla.teamspace.domain.Teamspace;
@@ -39,6 +42,18 @@ public class TestFixtureBuilder {
 
 	public Tag buildTag(Tag tag) {
 		return bs.tagRepository().save(tag);
+	}
+
+	public ChatChannel buildChatChannel(ChatChannel chatChannel) {
+		return bs.chatChannelRepository().save(chatChannel);
+	}
+
+	public void buildUserChatChannel(List<UserChatChannel> userChatChannels) {
+		bs.userChatChannelRepository().saveAll(userChatChannels);
+	}
+
+	public ChatChannelMessage buildChatChannelMessage(ChatChannelMessage chatChannelMessage) {
+		return bs.chatChannelMessageRepository().save(chatChannelMessage);
 	}
 
 	public NormalFeed buildNormalFeed(final NormalFeed feed) {

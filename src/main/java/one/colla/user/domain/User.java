@@ -18,7 +18,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import one.colla.chat.domain.ChatChannelMessage;
-import one.colla.chat.domain.UserChatChannel;
 import one.colla.common.domain.BaseEntity;
 import one.colla.feed.common.domain.Feed;
 import one.colla.teamspace.domain.Teamspace;
@@ -92,9 +91,6 @@ public class User extends BaseEntity {
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private final List<UserTeamspace> userTeamspaces = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private final List<UserChatChannel> userChatChannels = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private final List<ChatChannelMessage> chatChannelMessages = new ArrayList<>();
