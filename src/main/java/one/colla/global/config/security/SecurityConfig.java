@@ -72,6 +72,7 @@ public class SecurityConfig {
 		AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
 		return auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 			.requestMatchers(HttpMethod.OPTIONS, "*").permitAll()
+			.requestMatchers("/ws-stomp/**").permitAll()
 			.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 			.requestMatchers(HttpMethod.GET, CONDITIONAL_AUTHENTICATION_GET_ENDPOINTS).permitAll()
 			.requestMatchers(ANONYMOUS_ENDPOINTS).anonymous();
