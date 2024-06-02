@@ -32,4 +32,6 @@ public interface ChatChannelMessageRepository extends JpaRepository<ChatChannelM
 	);
 
 	Optional<ChatChannelMessage> findByIdAndChatChannel(Long beforeChatMessageId, ChatChannel chatChannel);
+
+	void deleteAllByChatChannel(ChatChannel chatChannel);
 }

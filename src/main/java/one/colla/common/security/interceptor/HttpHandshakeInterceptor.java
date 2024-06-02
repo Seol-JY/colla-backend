@@ -72,7 +72,6 @@ public class HttpHandshakeInterceptor implements HandshakeInterceptor {
 				.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_USER));
 
 			attributes.put("userId", user.getId());
-			log.info("WebSocket 연결 성공 - 사용자 Id: {}", userId);
 			return true;
 		} catch (JwtException e) {
 			log.error("유효하지 않은 접근 토큰: {}", e.getMessage());

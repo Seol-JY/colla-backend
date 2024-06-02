@@ -29,6 +29,8 @@ import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
 import one.colla.teamspace.application.TeamspaceService;
 import one.colla.teamspace.domain.Teamspace;
+import one.colla.teamspace.domain.TeamspaceRole;
+import one.colla.teamspace.domain.UserTeamspace;
 
 @Slf4j
 @Service
@@ -119,6 +121,18 @@ public class ChatChannelService {
 		log.info("채팅 채널 메세지 조회 - 팀스페이스 Id: {}, 조회한 사용자 Id: {}, 채팅 채널 Id: {} ",
 			teamspaceId, userDetails.getUserId(), chatChannel.getId());
 		return ChatChannelMessagesResponse.from(chatChannelMessageResponses);
+	}
+
+	@Transactional
+	public void deleteChatChannel(CustomUserDetails userDetails, Long teamspaceId, Long chatChannelId) {
+		final UserTeamspace userTeamspace = teamspaceService.getUserTeamspace(userDetails, teamspaceId);
+		final ChatChannel chatChannel = getChatChannel(userTeamspace.getTeamspace(), chatChannelId);
+
+		if (!userTeamspace.getTeamspaceRole().equals(TeamspaceRole.LEADER)) {
+			throw new CommonException(ExceptionCode.ONLY_LEADER_ACCESS);
+		}
+		chatChannelMessageRepository.deleteAllByChatChannel(chatChannel);
+		chatChannelRepository.delete(chatChannel);
 	}
 
 	private ChatChannel getChatChannel(Teamspace teamspace, Long chatChannelId) {

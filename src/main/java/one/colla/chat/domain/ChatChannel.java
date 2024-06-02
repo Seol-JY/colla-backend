@@ -42,11 +42,8 @@ public class ChatChannel extends BaseEntity {
 	@Column(name = "last_chat_id")
 	private Long lastChatId;
 
-	@OneToMany(mappedBy = "chatChannel", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "chatChannel", fetch = FetchType.LAZY, orphanRemoval = true)
 	private final List<UserChatChannel> userChatChannels = new ArrayList<>();
-
-	@OneToMany(mappedBy = "chatChannel", fetch = FetchType.LAZY)
-	private final List<ChatChannelMessage> chatChannelMessages = new ArrayList<>();
 
 	private ChatChannel(Teamspace teamspace, ChatChannelName name) {
 		this.teamspace = teamspace;

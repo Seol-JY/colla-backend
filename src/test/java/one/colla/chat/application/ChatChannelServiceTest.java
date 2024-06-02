@@ -17,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 
 import one.colla.chat.application.dto.request.CreateChatChannelRequest;
 import one.colla.chat.application.dto.request.UpdateChatChannelNameRequest;
@@ -25,6 +26,7 @@ import one.colla.chat.application.dto.response.ChatChannelsResponse;
 import one.colla.chat.application.dto.response.CreateChatChannelResponse;
 import one.colla.chat.domain.ChatChannel;
 import one.colla.chat.domain.ChatChannelMessage;
+import one.colla.chat.domain.ChatChannelMessageRepository;
 import one.colla.chat.domain.ChatChannelRepository;
 import one.colla.chat.domain.UserChatChannelRepository;
 import one.colla.common.ServiceTest;
@@ -40,6 +42,9 @@ class ChatChannelServiceTest extends ServiceTest {
 
 	@Autowired
 	private TeamspaceService teamspaceService;
+
+	@Autowired
+	private ChatChannelMessageRepository chatChannelMessageRepository;
 
 	@Autowired
 	private ChatChannelRepository chatChannelRepository;
@@ -398,6 +403,82 @@ class ChatChannelServiceTest extends ServiceTest {
 				USER1_DETAILS, OS_TEAMSPACE.getId(), FRONTEND_CHAT_CHANNEL.getId(), 999L, 50))
 				.isExactlyInstanceOf(CommonException.class)
 				.hasMessageContaining(ExceptionCode.NOT_FOUND_CHAT_CHANNEL_MESSAGE.getMessage());
+		}
+	}
+
+	@Nested
+	@DisplayName("채팅 채널 삭제시")
+	class DeleteChatChannelTest {
+
+		ChatChannel FRONTEND_CHAT_CHANNEL;
+		ChatChannel BACKEND_CHAT_CHANNEL;
+		List<ChatChannelMessage> messages = new ArrayList<>();
+
+		@BeforeEach
+		void setUp() {
+			FRONTEND_CHAT_CHANNEL = testFixtureBuilder.buildChatChannel(FRONTEND_CHAT_CHANNEL(OS_TEAMSPACE));
+			BACKEND_CHAT_CHANNEL = testFixtureBuilder.buildChatChannel(BACKEND_CHAT_CHANNEL(OS_TEAMSPACE));
+
+			/* 팀스페이스에 채팅 채널 추가 */
+			OS_TEAMSPACE.addChatChannel(FRONTEND_CHAT_CHANNEL);
+			OS_TEAMSPACE.addChatChannel(BACKEND_CHAT_CHANNEL);
+
+			/* 채팅 채널 유저 참가 */
+			testFixtureBuilder.buildUserChatChannel(
+				FRONTEND_CHAT_CHANNEL.participateAllTeamspaceUser(OS_TEAMSPACE.getUserTeamspaces()));
+			testFixtureBuilder.buildUserChatChannel(
+				BACKEND_CHAT_CHANNEL.participateAllTeamspaceUser(OS_TEAMSPACE.getUserTeamspaces()));
+
+			for (int i = 0; i < 50; i++) {
+				ChatChannelMessage msg = testFixtureBuilder.buildChatChannelMessage(
+					RANDOM_CHAT_MESSAGE(USER1, OS_TEAMSPACE, FRONTEND_CHAT_CHANNEL));
+				messages.add(msg);
+				FRONTEND_CHAT_CHANNEL.updateLastChatMessage(msg.getId());
+			}
+		}
+
+		@Test
+		@DisplayName("삭제에 성공한다.")
+		void deleteChatChannel_Success() {
+			// when
+			chatChannelService.deleteChatChannel(USER1_DETAILS, OS_TEAMSPACE.getId(), FRONTEND_CHAT_CHANNEL.getId());
+
+			// then
+			SoftAssertions.assertSoftly(softly -> {
+				softly.assertThat(chatChannelRepository.findById(FRONTEND_CHAT_CHANNEL.getId())).isEmpty();
+				softly.assertThat(chatChannelMessageRepository.findChatChannelMessageByChatChannelAndCriteria(
+					FRONTEND_CHAT_CHANNEL, null, PageRequest.of(0, 50))).isEmpty();
+			});
+		}
+
+		@Test
+		@DisplayName("팀스페이스 리더가 아니면 삭제에 실패한다.")
+		void deleteChatChannel_Fail_NotLeader() {
+			// given
+			User RANDOM_USER = testFixtureBuilder.buildUser(RANDOMUSER());
+			CustomUserDetails MEMBER_DETAILS = createCustomUserDetailsByUser(RANDOM_USER);
+			USER1_OS_USERTEAMSPACE = testFixtureBuilder.buildUserTeamspace(
+				MEMBER_USERTEAMSPACE(RANDOM_USER, OS_TEAMSPACE));
+
+			ChatChannel chatChannel = testFixtureBuilder.buildChatChannel(FRONTEND_CHAT_CHANNEL(OS_TEAMSPACE));
+			OS_TEAMSPACE.addChatChannel(chatChannel);
+			testFixtureBuilder.buildUserChatChannel(
+				chatChannel.participateAllTeamspaceUser(OS_TEAMSPACE.getUserTeamspaces()));
+
+			// when & then
+			assertThatThrownBy(
+				() -> chatChannelService.deleteChatChannel(MEMBER_DETAILS, OS_TEAMSPACE.getId(), chatChannel.getId()))
+				.isExactlyInstanceOf(CommonException.class)
+				.hasMessageContaining(ExceptionCode.ONLY_LEADER_ACCESS.getMessage());
+		}
+
+		@Test
+		@DisplayName("존재하지 않는 채널 삭제 시도시 예외가 발생한다.")
+		void deleteChatChannel_Fail_ChannelNotFound() {
+			// when & then
+			assertThatThrownBy(() -> chatChannelService.deleteChatChannel(USER1_DETAILS, OS_TEAMSPACE.getId(), 999L))
+				.isExactlyInstanceOf(CommonException.class)
+				.hasMessageContaining(ExceptionCode.NOT_FOUND_CHAT_CHANNEL.getMessage());
 		}
 	}
 }

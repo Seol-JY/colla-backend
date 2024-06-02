@@ -425,4 +425,84 @@ class ChatControllerTest extends ControllerTest {
 		}
 	}
 
+	@Nested
+	@DisplayName("채팅 채널 삭제 문서화")
+	class DeleteChatChannelDocs {
+		final Long teamspaceId = 1L;
+		final Long chatChannelId = 1L;
+
+		@DisplayName("채팅 채널 삭제 성공")
+		@WithMockCustomUser
+		@Test
+		void deleteChatChannel_Success() throws Exception {
+			willDoNothing().given(chatChannelService)
+				.deleteChatChannel(any(CustomUserDetails.class), eq(teamspaceId), eq(chatChannelId));
+
+			doTest(
+				ApiResponse.createSuccessResponse(Map.of()),
+				status().isOk(),
+				apiDocHelper.createSuccessResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		@DisplayName("채팅 채널 삭제 실패 - 접근 권한이 없거나 존재하지 않는 팀스페이스")
+		@WithMockCustomUser
+		@Test
+		void deleteChatChannel_Fail_TeamspaceNotFoundOrForbidden() throws Exception {
+			willThrow(new CommonException(ExceptionCode.FORBIDDEN_TEAMSPACE)).given(chatChannelService)
+				.deleteChatChannel(any(CustomUserDetails.class), eq(teamspaceId), eq(chatChannelId));
+
+			doTest(
+				ApiResponse.createErrorResponse(ExceptionCode.FORBIDDEN_TEAMSPACE),
+				status().isForbidden(),
+				apiDocHelper.createErrorResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		@DisplayName("채팅 채널 삭제 실패 - 존재하지 않는 채팅 채널")
+		@WithMockCustomUser
+		@Test
+		void deleteChatChannel_Fail_ChannelNotFound() throws Exception {
+			willThrow(new CommonException(ExceptionCode.NOT_FOUND_CHAT_CHANNEL)).given(chatChannelService)
+				.deleteChatChannel(any(CustomUserDetails.class), eq(teamspaceId), eq(chatChannelId));
+
+			doTest(
+				ApiResponse.createErrorResponse(ExceptionCode.NOT_FOUND_CHAT_CHANNEL),
+				status().isNotFound(),
+				apiDocHelper.createErrorResponseFields(),
+				"ApiResponse"
+			);
+		}
+
+		private void doTest(
+			ApiResponse<?> response,
+			ResultMatcher statusMatcher,
+			FieldDescriptor[] responseFields,
+			String responseSchemaTitle
+		) throws Exception {
+			mockMvc.perform(
+					delete("/api/v1/teamspaces/{teamspaceId}/chat-channels/{chatChannelId}", teamspaceId, chatChannelId)
+						.contentType(MediaType.APPLICATION_JSON)
+						.with(csrf())
+				)
+				.andExpect(statusMatcher)
+				.andExpect(content().json(objectMapper.writeValueAsString(response)))
+				.andDo(restDocs.document(
+					resource(ResourceSnippetParameters.builder()
+						.tag("chatChannel-controller")
+						.description("채팅 채널을 삭제합니다.")
+						.pathParameters(
+							parameterWithName("teamspaceId").description("팀스페이스 ID"),
+							parameterWithName("chatChannelId").description("채팅 채널 ID")
+						)
+						.responseFields(responseFields)
+						.responseSchema(Schema.schema(responseSchemaTitle))
+						.build()
+					)
+				)).andDo(print());
+		}
+	}
+
 }

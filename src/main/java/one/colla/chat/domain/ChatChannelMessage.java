@@ -62,7 +62,8 @@ public class ChatChannelMessage {
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 
-	@OneToMany(mappedBy = "chatChannelMessage", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@OneToMany(mappedBy = "chatChannelMessage", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST,
+		orphanRemoval = true)
 	private final List<ChatChannelMessageAttachment> chatChannelMessageAttachments = new ArrayList<>();
 
 	private ChatChannelMessage(User user, Teamspace teamspace, ChatChannel chatChannel,
