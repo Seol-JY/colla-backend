@@ -19,6 +19,7 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import one.colla.chat.application.dto.request.ChatCreateRequest;
 import one.colla.chat.domain.ChatChannelMessageAttachment;
 import one.colla.common.domain.BaseEntity;
 import one.colla.feed.common.application.dto.request.CommonCreateFeedRequest;
@@ -88,6 +89,27 @@ public class Attachment extends BaseEntity {
 		this.size = size;
 		this.attachType = attachType;
 		this.fileUrl = fileUrl;
+	}
+
+	public static Attachment createChatChannelMessageAttachment(
+		User user,
+		Teamspace teamspace,
+		AttachmentType attachmentType,
+		ChatCreateRequest.FileDto fileDto
+	) {
+		AttachmentName attachmentName = AttachmentName.from(fileDto.name());
+		FileUrl fileUrl = FileUrl.from(fileDto.fileUrl());
+		String attachType = getFileExtensionByUrl(fileUrl.getValue());
+
+		return new Attachment(
+			attachmentName,
+			user,
+			teamspace,
+			attachmentType,
+			fileDto.size(),
+			attachType,
+			fileUrl
+		);
 	}
 
 	public static Attachment of(

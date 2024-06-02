@@ -81,7 +81,7 @@ class ChatChannelMessageRepositoryTest extends RepositoryTest {
 		List<ChatChannelMessage> messages = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			ChatChannelMessage message = chatChannelMessageRepository.save(
-				RANDOM_CHAT_MESSAGE(USER1, FRONTEND_CHAT_CHANNEL, ChatType.TEXT));
+				RANDOM_CHAT_MESSAGE(USER1, OS_TEAMSPACE, FRONTEND_CHAT_CHANNEL));
 			messages.add(message);
 		}
 
@@ -104,7 +104,7 @@ class ChatChannelMessageRepositoryTest extends RepositoryTest {
 		List<ChatChannelMessage> messages = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			ChatChannelMessage message = chatChannelMessageRepository.save(
-				RANDOM_CHAT_MESSAGE(USER1, FRONTEND_CHAT_CHANNEL, ChatType.TEXT));
+				RANDOM_CHAT_MESSAGE(USER1, OS_TEAMSPACE, FRONTEND_CHAT_CHANNEL));
 			messages.add(message);
 		}
 

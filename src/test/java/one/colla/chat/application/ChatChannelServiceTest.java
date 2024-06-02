@@ -26,7 +26,6 @@ import one.colla.chat.application.dto.response.CreateChatChannelResponse;
 import one.colla.chat.domain.ChatChannel;
 import one.colla.chat.domain.ChatChannelMessage;
 import one.colla.chat.domain.ChatChannelRepository;
-import one.colla.chat.domain.ChatType;
 import one.colla.chat.domain.UserChatChannelRepository;
 import one.colla.common.ServiceTest;
 import one.colla.common.security.authentication.CustomUserDetails;
@@ -138,8 +137,8 @@ class ChatChannelServiceTest extends ServiceTest {
 				BACKEND_CHAT_CHANNEL.participateAllTeamspaceUser(OS_TEAMSPACE.getUserTeamspaces()));
 
 			/* 채팅 채널 메세지 생성 */
-			CHAT_MESSAGE1 = testFixtureBuilder.buildChatChannelMessage(CHAT_MESSAGE1(USER1, FRONTEND_CHAT_CHANNEL,
-				ChatType.TEXT));
+			CHAT_MESSAGE1 = testFixtureBuilder.buildChatChannelMessage(
+				CHAT_MESSAGE1(USER1, OS_TEAMSPACE, FRONTEND_CHAT_CHANNEL));
 
 			/* 채팅채널에 last 메세지 업데이트 */
 			FRONTEND_CHAT_CHANNEL.updateLastChatMessage(CHAT_MESSAGE1.getId());
@@ -280,7 +279,7 @@ class ChatChannelServiceTest extends ServiceTest {
 			List<ChatChannelMessage> messages = new ArrayList<>();
 			for (int i = 0; i < 100; i++) {
 				ChatChannelMessage msg = testFixtureBuilder.buildChatChannelMessage(
-					RANDOM_CHAT_MESSAGE(USER1, FRONTEND_CHAT_CHANNEL, ChatType.TEXT));
+					RANDOM_CHAT_MESSAGE(USER1, OS_TEAMSPACE, FRONTEND_CHAT_CHANNEL));
 				messages.add(msg);
 				FRONTEND_CHAT_CHANNEL.updateLastChatMessage(msg.getId());
 			}
@@ -305,7 +304,7 @@ class ChatChannelServiceTest extends ServiceTest {
 			List<ChatChannelMessage> messages = new ArrayList<>();
 			for (int i = 0; i < 100; i++) {
 				ChatChannelMessage msg = testFixtureBuilder.buildChatChannelMessage(
-					RANDOM_CHAT_MESSAGE(USER1, FRONTEND_CHAT_CHANNEL, ChatType.TEXT));
+					RANDOM_CHAT_MESSAGE(USER1, OS_TEAMSPACE, FRONTEND_CHAT_CHANNEL));
 				messages.add(msg);
 				FRONTEND_CHAT_CHANNEL.updateLastChatMessage(msg.getId());
 			}
@@ -331,7 +330,7 @@ class ChatChannelServiceTest extends ServiceTest {
 			List<ChatChannelMessage> messages = new ArrayList<>();
 			for (int i = 0; i < 100; i++) {
 				ChatChannelMessage msg = testFixtureBuilder.buildChatChannelMessage(
-					RANDOM_CHAT_MESSAGE(USER1, FRONTEND_CHAT_CHANNEL, ChatType.TEXT));
+					RANDOM_CHAT_MESSAGE(USER1, OS_TEAMSPACE, FRONTEND_CHAT_CHANNEL));
 				messages.add(msg);
 				FRONTEND_CHAT_CHANNEL.updateLastChatMessage(msg.getId());
 			}

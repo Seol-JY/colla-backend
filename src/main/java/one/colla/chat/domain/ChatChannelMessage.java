@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -24,7 +25,11 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import one.colla.chat.application.dto.request.ChatCreateRequest;
 import one.colla.chat.domain.vo.ChatChannelMessageContent;
+import one.colla.file.domain.Attachment;
+import one.colla.file.domain.AttachmentType;
+import one.colla.teamspace.domain.Teamspace;
 import one.colla.user.domain.User;
 
 @Getter
@@ -57,20 +62,57 @@ public class ChatChannelMessage {
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 
-	@OneToMany(mappedBy = "chatChannelMessage", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "chatChannelMessage", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	private final List<ChatChannelMessageAttachment> chatChannelMessageAttachments = new ArrayList<>();
 
-	private ChatChannelMessage(User user, ChatChannel chatChannel, ChatType chatType,
-		ChatChannelMessageContent content) {
+	private ChatChannelMessage(User user, Teamspace teamspace, ChatChannel chatChannel,
+		ChatCreateRequest chatCreateRequest, ChatChannelMessageContent content) {
 		this.user = user;
 		this.chatChannel = chatChannel;
-		this.chatType = chatType;
+		this.chatType = chatCreateRequest.chatType();
 		this.content = content;
+
+		if (chatCreateRequest.images() != null) {
+			List<Attachment> imageFiles =
+				createAttachments(chatCreateRequest.images(), user, teamspace, AttachmentType.IMAGE);
+			addAttachments(imageFiles);
+		}
+
+		if (chatCreateRequest.attachments() != null) {
+			List<Attachment> attachmentFiles =
+				createAttachments(chatCreateRequest.attachments(), user, teamspace, AttachmentType.FILE);
+			addAttachments(attachmentFiles);
+		}
 	}
 
-	public static ChatChannelMessage of(User user, ChatChannel chatChannel, ChatType chatType, String content) {
-		ChatChannelMessageContent chatChannelMessageContent = ChatChannelMessageContent.from(content);
-		return new ChatChannelMessage(user, chatChannel, chatType, chatChannelMessageContent);
+	public static ChatChannelMessage of(User user, Teamspace teamspace, ChatChannel chatChannel,
+		ChatCreateRequest chatCreateRequest) {
+		ChatChannelMessageContent chatChannelMessageContent = null;
+		if (chatCreateRequest.content() != null) {
+			chatChannelMessageContent = ChatChannelMessageContent.from(
+				chatCreateRequest.content());
+		}
+
+		return new ChatChannelMessage(user, teamspace, chatChannel, chatCreateRequest, chatChannelMessageContent);
+	}
+
+	private void addAttachments(List<Attachment> attachments) {
+		List<ChatChannelMessageAttachment> newChannelMessageAttachments = attachments.stream()
+			.map(attachment -> ChatChannelMessageAttachment.of(this, attachment))
+			.toList();
+		this.chatChannelMessageAttachments.addAll(newChannelMessageAttachments);
+	}
+
+	private List<Attachment> createAttachments(
+		List<ChatCreateRequest.FileDto> fileDtos,
+		User user,
+		Teamspace teamspace,
+		AttachmentType attachmentType
+	) {
+
+		return fileDtos.stream()
+			.map(fileDto -> Attachment.createChatChannelMessageAttachment(user, teamspace, attachmentType, fileDto))
+			.toList();
 	}
 
 }
