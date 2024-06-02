@@ -98,8 +98,8 @@ public class CollectFeedService {
 			= ReadCollectFeedResponseResponse.CollectResponseAuthorDto.of(response.getUser(), tagDto);
 
 		log.info(
-			"피드 응답 조회 - 팀스페이스 Id: {}, 사용자 Id: {}, 피드 Id: {}, 조회된 응답 Author: {}",
-			teamspaceId, userDetails.getUserId(), feedId
+			"피드 응답 조회 - 팀스페이스 Id: {}, 사용자 Id: {}, 피드 Id: {}, 조회된 응답 작성자 Id: {}",
+			teamspaceId, userDetails.getUserId(), feedId, userId
 		);
 
 		return ReadCollectFeedResponseResponse.of(authorDto, response);
