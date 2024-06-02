@@ -43,7 +43,7 @@ class NormalFeedControllerTest extends ControllerTest {
 		Long teamspaceId = 1L;
 		CommonCreateFeedRequest<CreateNormalFeedDetails> request;
 
-		@DisplayName("댓글 생성 성공")
+		@DisplayName("일반 피드 작성 성공")
 		@WithMockCustomUser
 		@Test
 		void postNormalFeedSuccessfully() throws Exception {
