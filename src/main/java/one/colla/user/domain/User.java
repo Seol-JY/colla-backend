@@ -19,14 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import one.colla.chat.domain.ChatChannelMessage;
 import one.colla.common.domain.BaseEntity;
-import one.colla.feed.collect.domain.CollectFeedResponse;
 import one.colla.feed.common.domain.Feed;
-import one.colla.feed.scheduling.domain.SchedulingFeedAvailableTime;
-import one.colla.feed.vote.domain.VoteFeedSelection;
-import one.colla.file.domain.Attachment;
-import one.colla.schedule.domain.CalendarEventSubtodo;
-import one.colla.schedule.domain.UserCalendarEvent;
-import one.colla.schedule.domain.UserCalendarEventMention;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.TeamspaceRole;
 import one.colla.teamspace.domain.UserTeamspace;
@@ -103,28 +96,7 @@ public class User extends BaseEntity {
 	private final List<ChatChannelMessage> chatChannelMessages = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private final List<UserCalendarEventMention> userCalendarEventMentions = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private final List<UserCalendarEvent> userCalendarEvents = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private final List<CalendarEventSubtodo> calendarEventSubtodos = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private final List<Attachment> attachments = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private final List<Feed> feeds = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private final List<CollectFeedResponse> collectFeedResponses = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private final List<VoteFeedSelection> voteFeedSelections = new ArrayList<>();
-
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private final List<SchedulingFeedAvailableTime> schedulingFeedAvailableTimes = new ArrayList<>();
 
 	public String getUsernameValue() {
 		return username.getValue();
