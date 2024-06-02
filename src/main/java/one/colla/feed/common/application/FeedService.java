@@ -93,6 +93,17 @@ public class FeedService {
 		return toCommonReadFeedResponse(feed);
 	}
 
+	public Feed findFeedByTeamspaceAndType(Teamspace teamspace, Long feedId, FeedType feedType) {
+		Feed feed = feedRepository.findByIdAndTeamspace(feedId, teamspace)
+			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_FEED));
+
+		if (!feedType.getFeedClass().isInstance(feed)) {
+			throw new CommonException(ExceptionCode.NOT_FOUND_FEED);
+		}
+
+		return feed;
+	}
+
 	private CommonReadFeedResponse<ReadFeedDetails> toCommonReadFeedResponse(Feed feed) {
 		UserTeamspace userTeamspace = userTeamspaceRepository.findByUserIdAndTeamspaceId(
 			feed.getUser().getId(), feed.getTeamspace().getId()
