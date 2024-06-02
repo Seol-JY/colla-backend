@@ -40,6 +40,10 @@ public enum ExceptionCode {
 	/* FEED-COMMON */
 	NOT_FOUND_FEED(HttpStatus.NOT_FOUND, 47101, "접근 권한이 없거나 존재하지 않는 피드입니다."),
 	FORBIDDEN_ACCESS_COMMENT(HttpStatus.FORBIDDEN, 47102, "접근 권한이 없거나 존재하지 않는 댓글입니다."),
+	FORBIDDEN_ACTION_DEADLINE_PASSED(HttpStatus.FORBIDDEN, 47103, "마감일이 지나 수행할 수 없습니다."),
+
+	/* FEED-COLLECT */
+	FORBIDDEN_COLLECT_RESPONSE(HttpStatus.FORBIDDEN, 47501, "접근 권한이 없거나 존재하지 않는 하위 입력입니다."),
 
 	/* 499xx ETC */
 	NOT_FOUND_RESOURCE(HttpStatus.NOT_FOUND, 49901, "해당 경로를 찾을 수 없습니다."),

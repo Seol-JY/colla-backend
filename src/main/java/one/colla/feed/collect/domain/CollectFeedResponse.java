@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import one.colla.common.domain.BaseEntity;
 import one.colla.common.domain.CompositeKeyBase;
+import one.colla.feed.collect.application.dto.request.UpdateCollectFeedResponseRequest;
 import one.colla.user.domain.User;
 
 @Getter
@@ -24,7 +25,7 @@ import one.colla.user.domain.User;
 public class CollectFeedResponse extends BaseEntity {
 
 	@EmbeddedId
-	private CollectFeedResponseId collectFeedResponseId;
+	private CollectFeedResponseId collectFeedResponseId = new CollectFeedResponseId();
 
 	@MapsId("userId")
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -45,6 +46,25 @@ public class CollectFeedResponse extends BaseEntity {
 	@Column(name = "status", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private CollectFeedStatus collectFeedStatus;
+
+	public static CollectFeedResponse createEmptyResponse(User user, CollectFeed collectFeed) {
+		return new CollectFeedResponse(user, collectFeed, CollectFeedStatus.PENDING);
+	}
+
+	public void changeTitleAndContent(UpdateCollectFeedResponseRequest request) {
+		this.title = request.title();
+		this.content = request.content();
+	}
+
+	public void changeStatus(CollectFeedStatus collectFeedStatus) {
+		this.collectFeedStatus = collectFeedStatus;
+	}
+
+	private CollectFeedResponse(User user, CollectFeed collectFeed, CollectFeedStatus collectFeedStatus) {
+		this.user = user;
+		this.collectFeed = collectFeed;
+		this.collectFeedStatus = collectFeedStatus;
+	}
 
 	public static class CollectFeedResponseId extends CompositeKeyBase {
 		@Column(name = "collect_feed_id")
