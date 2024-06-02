@@ -99,6 +99,7 @@ class ChatWebSocketServiceTest extends ServiceTest {
 				softly.assertThat(response.content()).isEqualTo(request.content());
 				softly.assertThat(response.chatChannelId()).isEqualTo(FRONTEND_CHAT_CHANNEL.getId());
 				softly.assertThat(response.author().id()).isEqualTo(USER1.getId());
+				softly.assertThat(FRONTEND_CHAT_CHANNEL.getLastChatId()).isEqualTo(response.id());
 			});
 
 			Optional<ChatChannelMessage> savedMessage = chatChannelMessageRepository.findById(response.id());
@@ -133,6 +134,7 @@ class ChatWebSocketServiceTest extends ServiceTest {
 				softly.assertThat(response.attachments()).hasSize(2);
 				softly.assertThat(response.attachments().get(0).filename()).isEqualTo(FILE1_NAME);
 				softly.assertThat(response.attachments().get(1).filename()).isEqualTo(FILE2_NAME);
+				softly.assertThat(FRONTEND_CHAT_CHANNEL.getLastChatId()).isEqualTo(response.id());
 			});
 
 			Optional<ChatChannelMessage> savedMessage = chatChannelMessageRepository.findById(response.id());
@@ -167,6 +169,7 @@ class ChatWebSocketServiceTest extends ServiceTest {
 				softly.assertThat(response.attachments()).hasSize(2);
 				softly.assertThat(response.attachments().get(0).filename()).isEqualTo(ATTACHMENT1_NAME);
 				softly.assertThat(response.attachments().get(1).filename()).isEqualTo(ATTACHMENT2_NAME);
+				softly.assertThat(FRONTEND_CHAT_CHANNEL.getLastChatId()).isEqualTo(response.id());
 			});
 
 			Optional<ChatChannelMessage> savedMessage = chatChannelMessageRepository.findById(response.id());

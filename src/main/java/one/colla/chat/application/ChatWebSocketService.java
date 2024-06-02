@@ -53,6 +53,8 @@ public class ChatWebSocketService {
 
 		log.info("채팅 메시지 생성 & 저장  - 사용자 Id: {}, 팀스페이스 Id: {}, 채널 Id: {}", userId, teamspaceId, chatChannelId);
 
+		chatChannel.updateLastChatMessage(chatChannelMessage.getId());
+
 		ChatChannelMessageAuthorDto chatChannelMessageAuthorDto = ChatChannelMessageAuthorDto.from(user);
 		List<ChatChannelMessageAttachmentDto> chatChannelMessageAttachmentDtos =
 			chatChannelMessage.getChatChannelMessageAttachments().stream()
@@ -62,6 +64,11 @@ public class ChatWebSocketService {
 
 		return ChatChannelMessageResponse.of(
 			chatChannelMessage, chatChannelMessageAuthorDto, chatChannelMessageAttachmentDtos);
+	}
+
+	@Transactional(readOnly = true)
+	public void getChatChannelStatuses(Long userId, Long teamspaceId, Long chatChannelId) {
+
 	}
 
 	private ChatChannel findChatChannel(UserTeamspace userTeamspace, Long chatChannelId) {

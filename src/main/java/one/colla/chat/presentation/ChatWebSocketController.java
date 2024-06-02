@@ -38,6 +38,9 @@ public class ChatWebSocketController {
 		template.convertAndSend("/topic/teamspaces/" + teamspaceId + "/chat-channels/" + chatChannelId + "/messages",
 			response);
 		log.info("채팅 메시지 전송 - 사용자 Id: {}, 팀스페이스 Id: {}, 채널 Id: {}", userId, teamspaceId, chatChannelId);
+
+		template.convertAndSend("/topic/teamspaces/" + teamspaceId + "/chat-channels" + "/status-updates", response);
+		log.info("채팅 채널 상태 업데이트 - 사용자 Id: {}, 팀스페이스 Id: {}", userId, teamspaceId);
 	}
 
 	private Long getUserIdFromHeaderAccessor(StompHeaderAccessor headerAccessor) {
