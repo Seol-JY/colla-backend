@@ -44,7 +44,7 @@ public class CollectFeedController {
 
 	@GetMapping("/{feedId}/responses/users/{userId}")
 	@PreAuthorize("isAuthenticated()")
-	public ResponseEntity<ApiResponse<Object>> patchCollectFeedResponse(
+	public ResponseEntity<ApiResponse<Object>> getCollectFeedResponse(
 		@AuthenticationPrincipal final CustomUserDetails userDetails,
 		@PathVariable final Long teamspaceId,
 		@PathVariable final Long feedId,

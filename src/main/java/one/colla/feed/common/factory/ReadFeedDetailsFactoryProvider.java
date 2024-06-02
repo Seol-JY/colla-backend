@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import one.colla.feed.collect.domain.CollectFeed;
 import one.colla.feed.common.domain.Feed;
 import one.colla.feed.normal.domain.NormalFeed;
 
@@ -14,6 +15,7 @@ public class ReadFeedDetailsFactoryProvider {
 
 	public ReadFeedDetailsFactoryProvider() {
 		factories.put(NormalFeed.class, new NormalReadFeedDetailsFactory());
+		factories.put(CollectFeed.class, new CollectReadFeedDetailsFactory());
 		// 다른 피드 타입의 팩토리도 여기에 추가
 	}
 
