@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import one.colla.chat.domain.UserChatChannel;
+import one.colla.chat.domain.UserChatChannelRepository;
 import one.colla.common.security.authentication.CustomUserDetails;
 import one.colla.common.util.RandomCodeGenerator;
 import one.colla.global.exception.CommonException;
@@ -59,6 +61,7 @@ public class TeamspaceService {
 	private final TagRepository tagRepository;
 	private final ApplicationEventPublisher publisher;
 	private final RandomCodeGenerator randomCodeGenerator;
+	private final UserChatChannelRepository userChatChannelRepository;
 
 	@Transactional
 	public CreateTeamspaceResponse create(final CustomUserDetails userDetails, final CreateTeamspaceRequest request) {
@@ -141,7 +144,11 @@ public class TeamspaceService {
 		}
 
 		final UserTeamspace participatedUserTeamspace = user.participate(teamspace, TeamspaceRole.MEMBER);
+		final List<UserChatChannel> participatedUserChatChannels = teamspace.getChatChannels().stream()
+			.map(ch -> ch.participateTeamspaceUser(participatedUserTeamspace))
+			.toList();
 		userTeamspaceRepository.save(participatedUserTeamspace);
+		userChatChannelRepository.saveAll(participatedUserChatChannels);
 		log.info("팀스페이스 참가 - 팀스페이스 Id: {}, 사용자 Id: {}", teamspaceId, user.getId());
 	}
 

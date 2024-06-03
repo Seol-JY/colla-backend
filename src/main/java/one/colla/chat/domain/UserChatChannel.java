@@ -53,4 +53,8 @@ public class UserChatChannel extends BaseEntity {
 		@Column(name = "chat_channel_id")
 		private Long chatChannelId;
 	}
+
+	public void updateLastReadMessageId(Long lastReadMessageId) {
+		this.lastReadMessageId = lastReadMessageId;
+	}
 }

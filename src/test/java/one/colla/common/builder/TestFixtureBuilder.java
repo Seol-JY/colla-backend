@@ -48,8 +48,8 @@ public class TestFixtureBuilder {
 		return bs.chatChannelRepository().save(chatChannel);
 	}
 
-	public void buildUserChatChannel(List<UserChatChannel> userChatChannels) {
-		bs.userChatChannelRepository().saveAll(userChatChannels);
+	public List<UserChatChannel> buildUserChatChannel(List<UserChatChannel> userChatChannels) {
+		return bs.userChatChannelRepository().saveAll(userChatChannels);
 	}
 
 	public ChatChannelMessage buildChatChannelMessage(ChatChannelMessage chatChannelMessage) {

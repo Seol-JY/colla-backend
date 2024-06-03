@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import one.colla.chat.application.ChatWebSocketService;
 import one.colla.chat.application.dto.request.ChatCreateRequest;
 import one.colla.chat.application.dto.response.ChatChannelMessageResponse;
+import one.colla.chat.application.dto.response.ChatChannelStatusResponse;
 
 @Slf4j
 @Controller
@@ -33,11 +34,41 @@ public class ChatWebSocketController {
 
 		Long userId = getUserIdFromHeaderAccessor(headerAccessor);
 
-		ChatChannelMessageResponse response = chatWebSocketService.processMessage(
+		ChatChannelMessageResponse chatChannelMessageResponse = chatWebSocketService.processMessage(
 			request, userId, teamspaceId, chatChannelId);
+
 		template.convertAndSend("/topic/teamspaces/" + teamspaceId + "/chat-channels/" + chatChannelId + "/messages",
-			response);
+			chatChannelMessageResponse);
 		log.info("채팅 메시지 전송 - 사용자 Id: {}, 팀스페이스 Id: {}, 채널 Id: {}", userId, teamspaceId, chatChannelId);
+
+	}
+
+	@MessageMapping("/teamspaces/{teamspaceId}/chat-channels/status")
+	public void getChatChannelsStatus(
+		@DestinationVariable Long teamspaceId,
+		StompHeaderAccessor headerAccessor) {
+
+		Long userId = getUserIdFromHeaderAccessor(headerAccessor);
+
+		ChatChannelStatusResponse response = chatWebSocketService.getChatChannelsStatus(userId, teamspaceId);
+		template.convertAndSend("/topic/teamspaces/" + teamspaceId + "/chat-channels/status", response);
+
+		log.info("채팅 채널 상태 조회 - 사용자 Id: {}, 팀스페이스 Id: {}", userId, teamspaceId);
+	}
+
+	@MessageMapping("/teamspaces/{teamspaceId}/chat-channels/{chatChannelId}/messages/{messageId}/read")
+	public void markMessageAsRead(
+		@DestinationVariable Long teamspaceId,
+		@DestinationVariable Long chatChannelId,
+		@DestinationVariable Long messageId,
+		StompHeaderAccessor headerAccessor) {
+
+		Long userId = getUserIdFromHeaderAccessor(headerAccessor);
+
+		chatWebSocketService.markMessageAsRead(userId, teamspaceId, chatChannelId, messageId);
+
+		log.info("메시지 읽음 상태 업데이트 - 사용자 Id: {}, 팀스페이스 Id: {}, 채널 Id: {}, 메시지 Id: {}", userId, teamspaceId, chatChannelId,
+			messageId);
 	}
 
 	private Long getUserIdFromHeaderAccessor(StompHeaderAccessor headerAccessor) {

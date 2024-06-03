@@ -1,5 +1,6 @@
 package one.colla.chat.application;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
@@ -68,21 +69,27 @@ public class ChatChannelService {
 		final Teamspace teamspace = teamspaceService.getUserTeamspace(userDetails, teamspaceId).getTeamspace();
 
 		List<ChatChannelInfoDto> chatChannels = teamspace.getChatChannels().stream()
-			.map(this::createChatChannelInfoDto)
+			.map(cc -> createChatChannelInfoDto(cc, userDetails.getUserId()))
+			.sorted(Comparator.comparing(ChatChannelInfoDto::lastChatCreatedAt,
+				Comparator.nullsLast(Comparator.reverseOrder())))
 			.toList();
 		log.info("채팅 채널 목록 조회 - 팀스페이스 Id: {}, 조회한 사용자 Id: {}", teamspaceId, userDetails.getUserId());
 		return ChatChannelsResponse.from(chatChannels);
 	}
 
-	private ChatChannelInfoDto createChatChannelInfoDto(ChatChannel chatChannel) {
+	public ChatChannelInfoDto createChatChannelInfoDto(ChatChannel chatChannel, Long userId) {
 		Long lastChatId = chatChannel.getLastChatId();
+
+		int unreadMessageCount = calculateUnreadMessageCount(userId, chatChannel);
 		if (lastChatId == null) {
-			return ChatChannelInfoDto.of(chatChannel, null, null);
+			return ChatChannelInfoDto.of(chatChannel, null, null, unreadMessageCount);
 		}
 
 		return chatChannelMessageRepository.findById(lastChatId)
-			.map(msg -> ChatChannelInfoDto.of(chatChannel, msg.getContent().getValue(), msg.getCreatedAt()))
-			.orElseGet(() -> ChatChannelInfoDto.of(chatChannel, null, null));
+			.map(msg -> ChatChannelInfoDto.of(chatChannel, msg.getContent().getValue(), msg.getCreatedAt(),
+				unreadMessageCount))
+			.orElseGet(() -> ChatChannelInfoDto.of(chatChannel, null, null,
+				unreadMessageCount));
 	}
 
 	@Transactional
@@ -95,6 +102,20 @@ public class ChatChannelService {
 
 		log.info("채팅 채널 이름 수정 - 팀스페이스 Id: {}, 수정한 사용자 Id: {}, 수정한 채팅 채널 Id: {}",
 			teamspaceId, userDetails.getUserId(), request.chatChannelId());
+	}
+
+	private int calculateUnreadMessageCount(Long userId, ChatChannel chatChannel) {
+		return userChatChannelRepository.findByUserIdAndChatChannelId(userId, chatChannel.getId())
+			.map(userChatChannel -> {
+				Long lastReadMessageId = userChatChannel.getLastReadMessageId();
+				if (lastReadMessageId == null) {
+					return chatChannelMessageRepository.countByChatChannel(chatChannel);
+				} else {
+					return chatChannelMessageRepository.countByChatChannelAndIdGreaterThan(chatChannel,
+						lastReadMessageId);
+				}
+			})
+			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_USER_CHAT_CHANNEL));
 	}
 
 	private void processChatChannelNameUpdate(UpdateChatChannelNameRequest request, Teamspace teamspace) {
