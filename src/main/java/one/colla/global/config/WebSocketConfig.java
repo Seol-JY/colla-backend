@@ -32,11 +32,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws-stomp")
 			.addInterceptors(httpHandshakeInterceptor)
-			.setAllowedOrigins(allowedOrigins)
+			.setAllowedOriginPatterns(allowedOrigins)
 			.withSockJS();
 		registry.addEndpoint("/ws-stomp")
 			.addInterceptors(httpHandshakeInterceptor)
-			.setAllowedOrigins(allowedOrigins);
+			.setAllowedOriginPatterns(allowedOrigins);
 	}
 
 }
