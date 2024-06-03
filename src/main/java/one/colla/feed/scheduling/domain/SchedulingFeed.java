@@ -64,6 +64,14 @@ public class SchedulingFeed extends Feed {
 		this.schedulingFeedTargetDates.addAll(schedulingFeedTargetDates);
 	}
 
+	public void increaseNumOfParticipants() {
+		this.numOfParticipants++;
+	}
+
+	public void decreaseNumOfParticipants() {
+		this.numOfParticipants--;
+	}
+
 	private SchedulingFeed(
 		final User user,
 		final Teamspace teamspace,
