@@ -33,6 +33,7 @@ public class CorsConfig {
 			HttpHeaders.ACCEPT,
 			HttpHeaders.UPGRADE,
 			HttpHeaders.CONNECTION,
+			HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
 			"Sec-WebSocket-Accept",
 			"Sec-WebSocket-Protocol")
 		);
