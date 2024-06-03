@@ -34,6 +34,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 			.addInterceptors(httpHandshakeInterceptor)
 			.setAllowedOrigins(allowedOrigins)
 			.withSockJS();
+		registry.addEndpoint("/ws-stomp")
+			.addInterceptors(httpHandshakeInterceptor)
+			.setAllowedOrigins(allowedOrigins);
 	}
 
 }
