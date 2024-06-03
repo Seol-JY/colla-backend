@@ -16,15 +16,17 @@ public record ChatChannelInfoDto(
 	String lastChatMessage,
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
-	LocalDateTime lastChatCreatedAt
+	LocalDateTime lastChatCreatedAt,
+	int unreadMessageCount
 ) {
 	public static ChatChannelInfoDto of(ChatChannel chatChannel, String lastChatMessage,
-		LocalDateTime lastChatCreatedAt) {
+		LocalDateTime lastChatCreatedAt, int unreadMessageCount) {
 		return ChatChannelInfoDto.builder()
 			.id(chatChannel.getId())
 			.name(chatChannel.getChatChannelName().getValue())
 			.lastChatMessage(lastChatMessage)
 			.lastChatCreatedAt(lastChatCreatedAt)
+			.unreadMessageCount(unreadMessageCount)
 			.build();
 	}
 }

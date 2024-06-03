@@ -126,7 +126,7 @@ class ChatControllerTest extends ControllerTest {
 		final Long teamspaceId = 1L;
 		final List<ChatChannelInfoDto> chatChannelInfoDtos = List.of(
 			new ChatChannelInfoDto(1L, "프론트엔드", "안녕하세요",
-				LocalDateTime.of(2024, 5, 8, 4, 12, 34))
+				LocalDateTime.of(2024, 5, 8, 4, 12, 34), 0)
 		);
 		final ChatChannelsResponse response = ChatChannelsResponse.from(chatChannelInfoDtos);
 
@@ -146,7 +146,8 @@ class ChatControllerTest extends ControllerTest {
 					fieldWithPath("chatChannels[].id").description("채팅 채널 ID"),
 					fieldWithPath("chatChannels[].name").description("채팅 채널 이름"),
 					fieldWithPath("chatChannels[].lastChatMessage").description("채팅 채널 마지막 메시지 내용"),
-					fieldWithPath("chatChannels[].lastChatCreatedAt").description("채팅 채널 마지막 메시지 생성 시간")
+					fieldWithPath("chatChannels[].lastChatCreatedAt").description("채팅 채널 마지막 메시지 생성 시간"),
+					fieldWithPath("chatChannels[].unreadMessageCount").description("채팅 채널 안읽은 메시지 개수")
 				),
 				"ApiResponse<ChatChannelsResponse>"
 			);

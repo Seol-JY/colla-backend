@@ -40,6 +40,7 @@ public enum ExceptionCode {
 	/* 405xx CHAT */
 	NOT_FOUND_CHAT_CHANNEL(HttpStatus.NOT_FOUND, 40501, "해당 채팅 채널을 찾을 수 없습니다."),
 	NOT_FOUND_CHAT_CHANNEL_MESSAGE(HttpStatus.NOT_FOUND, 40502, "선택하신 채팅 채널에서 해당 메시지를 찾을 수 없습니다."),
+	NOT_FOUND_USER_CHAT_CHANNEL(HttpStatus.NOT_FOUND, 40503, "선택하신 채팅 채널에서 해당 유저를 찾을 수 없습니다."),
 
 	/* FEED-COMMON */
 	NOT_FOUND_FEED(HttpStatus.NOT_FOUND, 47101, "접근 권한이 없거나 존재하지 않는 피드입니다."),

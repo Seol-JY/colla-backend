@@ -55,6 +55,12 @@ public class ChatChannel extends BaseEntity {
 		return new ChatChannel(teamspace, name);
 	}
 
+	public UserChatChannel participateTeamspaceUser(UserTeamspace userTeamspace) {
+		UserChatChannel participateUser = UserChatChannel.of(userTeamspace.getUser(), this);
+		this.userChatChannels.add(participateUser);
+		return participateUser;
+	}
+
 	public List<UserChatChannel> participateAllTeamspaceUser(List<UserTeamspace> userTeamspaces) {
 		List<UserChatChannel> userChatChannelList = userTeamspaces.stream()
 			.map(ut -> UserChatChannel.of(ut.getUser(), this))

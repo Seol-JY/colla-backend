@@ -1,6 +1,7 @@
 package one.colla.chat.application;
 
 import static one.colla.common.fixtures.ChatChannelFixtures.*;
+import static one.colla.common.fixtures.ChatChannelMessageFixtures.*;
 import static one.colla.common.fixtures.TeamspaceFixtures.*;
 import static one.colla.common.fixtures.UserFixtures.*;
 import static one.colla.common.fixtures.UserTeamspaceFixtures.*;
@@ -18,10 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import one.colla.chat.application.dto.request.ChatCreateRequest;
 import one.colla.chat.application.dto.response.ChatChannelMessageResponse;
+import one.colla.chat.application.dto.response.ChatChannelStatusResponse;
 import one.colla.chat.domain.ChatChannel;
 import one.colla.chat.domain.ChatChannelMessage;
 import one.colla.chat.domain.ChatChannelMessageRepository;
 import one.colla.chat.domain.ChatType;
+import one.colla.chat.domain.UserChatChannel;
 import one.colla.common.ServiceTest;
 import one.colla.common.security.authentication.CustomUserDetails;
 import one.colla.global.exception.CommonException;
@@ -50,10 +53,15 @@ class ChatWebSocketServiceTest extends ServiceTest {
 	User USER2;
 	CustomUserDetails USER1_DETAILS;
 	Teamspace OS_TEAMSPACE;
+	Teamspace DB_TEAMSPACE;
 	UserTeamspace USER1_OS_USERTEAMSPACE;
 	UserTeamspace USER2_OS_USERTEAMSPACE;
 	ChatChannel FRONTEND_CHAT_CHANNEL;
 	ChatChannel BACKEND_CHAT_CHANNEL;
+	ChatChannel NO_EXIST_CHAT_CHANNEL;
+	ChatChannelMessage CHAT_MESSAGE;
+	List<UserChatChannel> USERS_PARTICIPATED_IN_FRONTEND_CHAT_CHANNEL;
+	List<UserChatChannel> USERS_PARTICIPATED_IN_BACKEND_CHAT_CHANNEL;
 
 	@BeforeEach
 	void setUp() {
@@ -62,18 +70,20 @@ class ChatWebSocketServiceTest extends ServiceTest {
 		USER1_DETAILS = createCustomUserDetailsByUser(USER1);
 
 		OS_TEAMSPACE = testFixtureBuilder.buildTeamspace(OS_TEAMSPACE());
+		DB_TEAMSPACE = testFixtureBuilder.buildTeamspace(DATABASE_TEAMSPACE());
 		USER1_OS_USERTEAMSPACE = testFixtureBuilder.buildUserTeamspace(LEADER_USERTEAMSPACE(USER1, OS_TEAMSPACE));
 		USER2_OS_USERTEAMSPACE = testFixtureBuilder.buildUserTeamspace(MEMBER_USERTEAMSPACE(USER2, OS_TEAMSPACE));
 
 		FRONTEND_CHAT_CHANNEL = testFixtureBuilder.buildChatChannel(FRONTEND_CHAT_CHANNEL(OS_TEAMSPACE));
 		BACKEND_CHAT_CHANNEL = testFixtureBuilder.buildChatChannel(BACKEND_CHAT_CHANNEL(OS_TEAMSPACE));
+		NO_EXIST_CHAT_CHANNEL = testFixtureBuilder.buildChatChannel(NO_EXIST_CHAT_CHANNEL(DB_TEAMSPACE));
 
 		OS_TEAMSPACE.addChatChannel(FRONTEND_CHAT_CHANNEL);
 		OS_TEAMSPACE.addChatChannel(BACKEND_CHAT_CHANNEL);
 
-		testFixtureBuilder.buildUserChatChannel(
+		USERS_PARTICIPATED_IN_FRONTEND_CHAT_CHANNEL = testFixtureBuilder.buildUserChatChannel(
 			FRONTEND_CHAT_CHANNEL.participateAllTeamspaceUser(OS_TEAMSPACE.getUserTeamspaces()));
-		testFixtureBuilder.buildUserChatChannel(
+		USERS_PARTICIPATED_IN_BACKEND_CHAT_CHANNEL = testFixtureBuilder.buildUserChatChannel(
 			BACKEND_CHAT_CHANNEL.participateAllTeamspaceUser(OS_TEAMSPACE.getUserTeamspaces()));
 	}
 
@@ -212,4 +222,116 @@ class ChatWebSocketServiceTest extends ServiceTest {
 				.hasMessageContaining(ExceptionCode.NOT_FOUND_CHAT_CHANNEL.getMessage());
 		}
 	}
+
+	@Nested
+	@DisplayName("채팅 채널 상태 조회시")
+	class GetChatChannelsStatusTest {
+
+		@Test
+		@DisplayName("채팅 채널 상태 조회에 성공한다.")
+		void getChatChannelsStatus_Success() {
+			// given
+			CHAT_MESSAGE = testFixtureBuilder.buildChatChannelMessage(
+				CHAT_MESSAGE1(USER1, OS_TEAMSPACE, FRONTEND_CHAT_CHANNEL));
+
+			FRONTEND_CHAT_CHANNEL.updateLastChatMessage(CHAT_MESSAGE.getId());
+
+			// when
+			ChatChannelStatusResponse response = chatWebSocketService.getChatChannelsStatus(USER1.getId(),
+				OS_TEAMSPACE.getId());
+
+			// then
+			SoftAssertions.assertSoftly(softly -> {
+				softly.assertThat(response).isNotNull();
+				softly.assertThat(response.chatChannelsResponse()).hasSize(2);
+				softly.assertThat(response.chatChannelsResponse().get(0).id()).isEqualTo(FRONTEND_CHAT_CHANNEL.getId());
+				softly.assertThat(response.chatChannelsResponse().get(0).lastChatMessage())
+					.isEqualTo(CHAT_MESSAGE.getContent().getValue());
+				softly.assertThat(response.chatChannelsResponse().get(1).id()).isEqualTo(BACKEND_CHAT_CHANNEL.getId());
+				softly.assertThat(response.chatChannelsResponse().get(1).lastChatMessage()).isEqualTo(null);
+
+			});
+		}
+
+		@Test
+		@DisplayName("존재하지 않는 유저로 채널 상태 조회 시도시 예외가 발생한다.")
+		void getChatChannelsStatus_Fail_UserNotFound() {
+			// when & then
+			assertThatThrownBy(() -> chatWebSocketService.getChatChannelsStatus(999L, OS_TEAMSPACE.getId()))
+				.isExactlyInstanceOf(CommonException.class)
+				.hasMessageContaining(ExceptionCode.NOT_FOUND_USER.getMessage());
+		}
+
+		@Test
+		@DisplayName("팀스페이스에 참여하지 않은 유저가 채널 상태 조회 시도시 예외가 발생한다.")
+		void getChatChannelsStatus_Fail_UserNotInTeamspace() {
+			// given
+			User OTHER_USER = testFixtureBuilder.buildUser(RANDOMUSER());
+
+			// when & then
+			assertThatThrownBy(
+				() -> chatWebSocketService.getChatChannelsStatus(OTHER_USER.getId(), OS_TEAMSPACE.getId()))
+				.isExactlyInstanceOf(CommonException.class)
+				.hasMessageContaining(ExceptionCode.FORBIDDEN_TEAMSPACE.getMessage());
+		}
+	}
+
+	@Nested
+	@DisplayName("메시지 읽음 처리시")
+	class MarkMessageAsReadTest {
+
+		@Test
+		@DisplayName("메시지를 읽음으로 표시한다")
+		void markMessageAsRead_Success() {
+			// given
+			CHAT_MESSAGE = testFixtureBuilder.buildChatChannelMessage(
+				CHAT_MESSAGE1(USER1, OS_TEAMSPACE, FRONTEND_CHAT_CHANNEL));
+
+			FRONTEND_CHAT_CHANNEL.updateLastChatMessage(CHAT_MESSAGE.getId());
+
+			// when
+			chatWebSocketService.markMessageAsRead(USER1.getId(), OS_TEAMSPACE.getId(), FRONTEND_CHAT_CHANNEL.getId(),
+				CHAT_MESSAGE.getId());
+
+			// then
+			assertThat(USERS_PARTICIPATED_IN_FRONTEND_CHAT_CHANNEL.get(0).getLastReadMessageId()).isEqualTo(
+				CHAT_MESSAGE.getId());
+		}
+
+		@Test
+		@DisplayName("팀스페이스 권한이 없는 경우 예외가 발생한다.")
+		void markMessageAsRead_UserNotFound() {
+			// given
+			User OTHER_USER = testFixtureBuilder.buildUser(RANDOMUSER());
+			CHAT_MESSAGE = testFixtureBuilder.buildChatChannelMessage(
+				CHAT_MESSAGE1(USER1, OS_TEAMSPACE, FRONTEND_CHAT_CHANNEL));
+
+			FRONTEND_CHAT_CHANNEL.updateLastChatMessage(CHAT_MESSAGE.getId());
+
+			// when & then
+			assertThatThrownBy(
+				() -> chatWebSocketService.markMessageAsRead(OTHER_USER.getId(), OS_TEAMSPACE.getId(),
+					FRONTEND_CHAT_CHANNEL.getId(), CHAT_MESSAGE.getId()))
+				.isInstanceOf(CommonException.class)
+				.hasMessageContaining(ExceptionCode.FORBIDDEN_TEAMSPACE.getMessage());
+		}
+
+		@Test
+		@DisplayName("채널이 존재하지 않을 때 예외가 발생한다.")
+		void markMessageAsRead_ChannelNotFound() {
+			// given
+			CHAT_MESSAGE = testFixtureBuilder.buildChatChannelMessage(
+				CHAT_MESSAGE1(USER1, OS_TEAMSPACE, FRONTEND_CHAT_CHANNEL));
+
+			FRONTEND_CHAT_CHANNEL.updateLastChatMessage(CHAT_MESSAGE.getId());
+
+			// when & then
+			assertThatThrownBy(
+				() -> chatWebSocketService.markMessageAsRead(USER1.getId(), OS_TEAMSPACE.getId(),
+					NO_EXIST_CHAT_CHANNEL.getId(), CHAT_MESSAGE.getId()))
+				.isInstanceOf(CommonException.class)
+				.hasMessageContaining(ExceptionCode.NOT_FOUND_CHAT_CHANNEL.getMessage());
+		}
+	}
+
 }
