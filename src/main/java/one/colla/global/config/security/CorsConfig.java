@@ -26,27 +26,9 @@ public class CorsConfig {
 		));
 		configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"));
 		configuration.setAllowedHeaders(List.of("*"));
-		configuration.setExposedHeaders(List.of(
-			HttpHeaders.AUTHORIZATION,
-			HttpHeaders.SET_COOKIE,
-			HttpHeaders.CONTENT_TYPE,
-			HttpHeaders.ACCEPT,
-			HttpHeaders.UPGRADE,
-			HttpHeaders.CONNECTION,
-			HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
-			HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
-			HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
-			HttpHeaders.ACCESS_CONTROL_MAX_AGE,
-			HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
-			HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS,
-			HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD,
-
-			"Sec-WebSocket-Accept",
-			"Sec-WebSocket-Protocol")
-		);
+		configuration.setExposedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.SET_COOKIE));
 		configuration.setMaxAge(3600L);
 		configuration.setAllowCredentials(true);
-		configuration.addExposedHeader("Access-Control-Allow-Origin");
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
