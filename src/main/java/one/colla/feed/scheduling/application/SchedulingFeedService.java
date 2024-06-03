@@ -121,4 +121,43 @@ public class SchedulingFeedService {
 
 		schedulingFeedRepository.save(feed);
 	}
+
+	@Transactional
+	public void deleteSchedulingAvailability(
+		final CustomUserDetails userDetails,
+		final Long teamspaceId,
+		final Long feedId
+	) {
+		UserTeamspace userTeamspace = teamspaceService.getUserTeamspace(userDetails, teamspaceId);
+		Teamspace teamspace = userTeamspace.getTeamspace();
+		User user = userTeamspace.getUser();
+
+		SchedulingFeed feed
+			= (SchedulingFeed)feedService.findFeedByTeamspaceAndType(teamspace, feedId, FeedType.SCHEDULING);
+
+		if (DateTimeUtil.isDeadlinePassed(feed.getDueAt())) {
+			log.warn(
+				"피드(일정 조율) 삭제 시도 - 팀스페이스 Id: {}, 사용자 Id: {}, 피드 Id: {} (마감일이 지남)",
+				teamspaceId, userDetails.getUserId(), feedId
+			);
+			throw new CommonException(ExceptionCode.FORBIDDEN_ACTION_DEADLINE_PASSED);
+		}
+
+		boolean removedSuccessfully = false;
+		for (SchedulingFeedTargetDate targetDate : feed.getSchedulingFeedTargetDates()) {
+			removedSuccessfully = targetDate.removeSchedulingFeedAvailableTimeByUser(user);
+		}
+
+		if (removedSuccessfully) {
+			feed.decreaseNumOfParticipants();
+		}
+
+		log.info(
+			"피드(일정 조율 제거)  - 팀스페이스 Id: {}, 생성한 사용자 Id: {}, 피드 Id: {}",
+			teamspaceId, user.getId(), feed.getId()
+		);
+
+		schedulingFeedRepository.save(feed);
+
+	}
 }

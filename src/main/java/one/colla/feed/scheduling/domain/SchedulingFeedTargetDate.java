@@ -56,6 +56,17 @@ public class SchedulingFeedTargetDate {
 		return Optional.empty();
 	}
 
+	public boolean removeSchedulingFeedAvailableTimeByUser(User user) {
+		for (SchedulingFeedAvailableTime availableTime : this.schedulingFeedAvailableTimes) {
+			if (availableTime.getUser().equals(user)) {
+				this.schedulingFeedAvailableTimes.remove(availableTime);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public void addSchedulingFeedAvailableTime(SchedulingFeedAvailableTime schedulingFeedAvailableTime) {
 		this.schedulingFeedAvailableTimes.add(schedulingFeedAvailableTime);
 	}
