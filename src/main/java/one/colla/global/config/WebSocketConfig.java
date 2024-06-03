@@ -31,7 +31,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws-stomp")
-			// .addInterceptors(httpHandshakeInterceptor)
+			.addInterceptors(httpHandshakeInterceptor)
 			.setAllowedOriginPatterns("http://localhost:3000", "http://localhost:8080", "https://colla.so")
 			.withSockJS();
 	}
