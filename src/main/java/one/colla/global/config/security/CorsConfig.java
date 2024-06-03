@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -22,10 +21,11 @@ public class CorsConfig {
 			"https://api.colla.so",
 			"https://colla.so",
 			"http://localhost:3000"
+
 		));
 		configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"));
 		configuration.setAllowedHeaders(List.of("*"));
-		configuration.setExposedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.SET_COOKIE));
+		configuration.setExposedHeaders(List.of("*"));
 		configuration.setMaxAge(3600L);
 		configuration.setAllowCredentials(true);
 
