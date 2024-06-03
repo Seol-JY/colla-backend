@@ -16,10 +16,10 @@ public class LocalDateListDeserializer extends JsonDeserializer<List<LocalDate>>
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	@Override
-	public List<LocalDate> deserialize(JsonParser p, DeserializationContext ctxt) throws
+	public List<LocalDate> deserialize(JsonParser pa, DeserializationContext ctxt) throws
 		IOException {
 		List<LocalDate> localDates = new ArrayList<>();
-		JsonNode node = p.getCodec().readTree(p);
+		JsonNode node = pa.getCodec().readTree(pa);
 		if (node.isArray()) {
 			for (JsonNode dateNode : node) {
 				localDates.add(LocalDate.parse(dateNode.asText(), formatter));
