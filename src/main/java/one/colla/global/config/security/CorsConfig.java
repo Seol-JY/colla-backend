@@ -34,11 +34,19 @@ public class CorsConfig {
 			HttpHeaders.UPGRADE,
 			HttpHeaders.CONNECTION,
 			HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
+			HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+			HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
+			HttpHeaders.ACCESS_CONTROL_MAX_AGE,
+			HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
+			HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS,
+			HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD,
+
 			"Sec-WebSocket-Accept",
 			"Sec-WebSocket-Protocol")
 		);
 		configuration.setMaxAge(3600L);
 		configuration.setAllowCredentials(true);
+		configuration.addExposedHeader("Access-Control-Allow-Origin");
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
