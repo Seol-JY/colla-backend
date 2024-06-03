@@ -33,7 +33,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 		registry.addEndpoint("/ws-stomp")
 			.addInterceptors(httpHandshakeInterceptor)
 			.setAllowedOriginPatterns(allowedOrigins)
-			.withSockJS();
+			.withSockJS()
+			.setClientLibraryUrl("https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js");
 		registry.addEndpoint("/ws-stomp")
 			.addInterceptors(httpHandshakeInterceptor)
 			.setAllowedOriginPatterns(allowedOrigins);
