@@ -38,4 +38,12 @@ public class SchedulingFeedTargetDate {
 	@OneToMany(mappedBy = "schedulingFeedTargetDate", fetch = FetchType.LAZY)
 	private final List<SchedulingFeedAvailableTime> schedulingFeedAvailableTimes = new ArrayList<>();
 
+	public static SchedulingFeedTargetDate of(SchedulingFeed schedulingFeed, LocalDate targetDate) {
+		return new SchedulingFeedTargetDate(schedulingFeed, targetDate);
+	}
+
+	private SchedulingFeedTargetDate(SchedulingFeed schedulingFeed, LocalDate targetDate) {
+		this.schedulingFeed = schedulingFeed;
+		this.targetDate = targetDate;
+	}
 }
