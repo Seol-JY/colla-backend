@@ -9,6 +9,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -49,7 +50,7 @@ class AttachmentControllerTest extends ControllerTest {
 		final AttachmentAuthorDto author = new AttachmentAuthorDto(1L, username, "https://example.com");
 		final List<AttachmentInfoDto> attachmentInfoDtos = List.of(
 			new AttachmentInfoDto(1L, "filename", type, 1024L, attachType, "https://example.jpg",
-				author)
+				LocalDateTime.of(2024, 6, 5, 0, 23), author)
 		);
 		final StorageResponse response = StorageResponse.of(1024L, attachmentInfoDtos);
 
@@ -74,6 +75,7 @@ class AttachmentControllerTest extends ControllerTest {
 					fieldWithPath("attachments[].size").description("첨부파일 크기"),
 					fieldWithPath("attachments[].attachType").description("첨부파일 확장자"),
 					fieldWithPath("attachments[].fileUrl").description("첨부파일 주소"),
+					fieldWithPath("attachments[].createdAt").description("첨부파일 생성 일시"),
 					fieldWithPath("attachments[].author").description("첨부파일 소유자"),
 					fieldWithPath("attachments[].author.id").description("첨부파일 소유자 ID"),
 					fieldWithPath("attachments[].author.username").description("첨부파일 소유자 이름"),
