@@ -21,8 +21,8 @@ public class CorsConfig {
 		configuration.setAllowedOrigins(List.of(
 			"https://api.colla.so",
 			"https://colla.so",
-			"http://localhost:3000"
-
+			"http://localhost:3000",
+			"http://colla.so"
 		));
 		configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"));
 		configuration.setAllowedHeaders(List.of("*"));
