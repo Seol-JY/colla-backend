@@ -79,17 +79,14 @@ public class ChatChannelService {
 
 	public ChatChannelInfoDto createChatChannelInfoDto(ChatChannel chatChannel, Long userId) {
 		Long lastChatId = chatChannel.getLastChatId();
+		log.info(lastChatId.toString());
 
 		int unreadMessageCount = calculateUnreadMessageCount(userId, chatChannel);
-		if (lastChatId == null) {
-			return ChatChannelInfoDto.of(chatChannel, null, null, unreadMessageCount);
-		}
-
 		return chatChannelMessageRepository.findById(lastChatId)
 			.map(msg -> ChatChannelInfoDto.of(chatChannel, msg.getContent().getValue(), msg.getCreatedAt(),
 				unreadMessageCount))
 			.orElseGet(() -> ChatChannelInfoDto.of(chatChannel, null, null,
-				unreadMessageCount));
+				0));
 	}
 
 	@Transactional
@@ -104,7 +101,7 @@ public class ChatChannelService {
 			teamspaceId, userDetails.getUserId(), request.chatChannelId());
 	}
 
-	private int calculateUnreadMessageCount(Long userId, ChatChannel chatChannel) {
+	public int calculateUnreadMessageCount(Long userId, ChatChannel chatChannel) {
 		return userChatChannelRepository.findByUserIdAndChatChannelId(userId, chatChannel.getId())
 			.map(userChatChannel -> {
 				Long lastReadMessageId = userChatChannel.getLastReadMessageId();

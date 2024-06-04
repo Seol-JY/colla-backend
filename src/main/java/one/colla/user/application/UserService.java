@@ -8,12 +8,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import one.colla.chat.domain.ChatChannelMessageRepository;
+import one.colla.chat.domain.UserChatChannelRepository;
 import one.colla.common.security.authentication.CustomUserDetails;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
 import one.colla.infra.redis.lastseen.LastSeenTeamspace;
 import one.colla.infra.redis.lastseen.LastSeenTeamspaceService;
 import one.colla.teamspace.application.TeamspaceService;
+import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.user.application.dto.request.LastSeenUpdateRequest;
 import one.colla.user.application.dto.request.UpdateUserSettingRequest;
@@ -32,6 +35,8 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final LastSeenTeamspaceService lastSeenTeamspaceService;
 	private final TeamspaceService teamspaceService;
+	private final UserChatChannelRepository userChatChannelRepository;
+	private final ChatChannelMessageRepository chatChannelMessageRepository;
 
 	@Transactional(readOnly = true)
 	public Optional<User> getUserById(Long id) {
@@ -51,14 +56,32 @@ public class UserService {
 
 		List<ParticipatedTeamspaceDto> participatedTeamspaces = user.getUserTeamspaces().stream()
 			.map(ut -> ParticipatedTeamspaceDto.of(
-				ut.getTeamspace().getId(),
-				ut,
-				getNumOfTeamspaceParticipants(ut))
+					ut.getTeamspace().getId(),
+					ut,
+					getNumOfTeamspaceParticipants(ut),
+					calculateUnreadMessageCount(ut.getUser().getId(), ut.getTeamspace())
+				)
 			)
 			.toList();
 
 		log.info("사용자 관련 정보 조회 - 사용자 Id: {}", userDetails.getUserId());
 		return UserStatusResponse.of(profile, participatedTeamspaces);
+	}
+
+	private int calculateUnreadMessageCount(Long userId, Teamspace teamspace) {
+		return teamspace.getChatChannels().stream()
+			.mapToInt(chatChannel -> userChatChannelRepository.findByUserIdAndChatChannelId(userId, chatChannel.getId())
+				.map(userChatChannel -> {
+					Long lastReadMessageId = userChatChannel.getLastReadMessageId();
+					if (lastReadMessageId == null) {
+						return chatChannelMessageRepository.countByChatChannel(chatChannel);
+					} else {
+						return chatChannelMessageRepository.countByChatChannelAndIdGreaterThan(chatChannel,
+							lastReadMessageId);
+					}
+				})
+				.orElse(0))
+			.sum();
 	}
 
 	@Transactional

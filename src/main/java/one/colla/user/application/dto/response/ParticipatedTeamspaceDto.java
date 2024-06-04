@@ -10,18 +10,21 @@ public record ParticipatedTeamspaceDto(
 	String name,
 	String profileImageUrl,
 	TeamspaceRole teamspaceRole,
-	int numOfParticipants
+	int numOfParticipants,
+	int unreadMessageCount
 ) {
 	public static ParticipatedTeamspaceDto of(
 		Long teamspaceId,
 		UserTeamspace userTeamspace,
-		int numOfTeamspaceParticipants) {
+		int numOfTeamspaceParticipants,
+		int unreadMessageCount) {
 		return ParticipatedTeamspaceDto.builder()
 			.teamspaceId(teamspaceId)
 			.name(userTeamspace.getTeamspace().getTeamspaceNameValue())
 			.profileImageUrl(userTeamspace.getTeamspace().getProfileImageUrlValue())
 			.teamspaceRole(userTeamspace.getTeamspaceRole())
 			.numOfParticipants(numOfTeamspaceParticipants)
+			.unreadMessageCount(unreadMessageCount)
 			.build();
 
 	}
