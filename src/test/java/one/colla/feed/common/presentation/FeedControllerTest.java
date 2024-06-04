@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -266,6 +267,49 @@ class FeedControllerTest extends ControllerTest {
 					resource(ResourceSnippetParameters.builder()
 						.tag("feed-controller-common")
 						.description("피드 단건을 조회합니다.")
+						.responseFields(responseFields)
+						.responseSchema(Schema.schema(responseSchemaTitle))
+						.build()
+					)
+				)).andDo(print());
+		}
+	}
+
+	@Nested
+	@DisplayName("피드 삭제 문서화")
+	class DeleteFeedsDocs {
+		Long teamspaceId = 1L;
+		Long feedId = 1L;
+
+		@DisplayName("삭제 성공")
+		@WithMockCustomUser
+		@Test
+		void deleteFeedsSuccessfully() throws Exception {
+			willDoNothing().given(feedService).delete(any(CustomUserDetails.class), eq(teamspaceId), eq(feedId));
+			doTest(
+				ApiResponse.createSuccessResponse(Map.of()),
+				status().isOk(),
+				apiDocHelper.createSuccessResponseFields(
+				),
+				"ApiResponse"
+			);
+		}
+
+		private void doTest(
+			ApiResponse<?> response,
+			ResultMatcher statusMatcher,
+			FieldDescriptor[] responseFields,
+			String responseSchemaTitle
+		) throws Exception {
+			mockMvc.perform(delete("/api/v1/teamspaces/{teamspaceId}/feeds/{feedId}", teamspaceId, feedId)
+					.with(csrf())
+					.accept(MediaType.APPLICATION_JSON))
+				.andExpect(statusMatcher)
+				.andExpect(content().json(objectMapper.writeValueAsString(response)))
+				.andDo(restDocs.document(
+					resource(ResourceSnippetParameters.builder()
+						.tag("feed-controller-common")
+						.description("피드를 삭제합니다.")
 						.responseFields(responseFields)
 						.responseSchema(Schema.schema(responseSchemaTitle))
 						.build()
