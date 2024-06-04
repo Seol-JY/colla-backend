@@ -1,8 +1,11 @@
 package one.colla.feed.common.presentation;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +56,19 @@ public class FeedController {
 			ApiResponse.createSuccessResponse(
 				feedService.readFeed(userDetails, teamspaceId, feedId)
 			)
+		);
+	}
+
+	@DeleteMapping("/{feedId}")
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<ApiResponse<Object>> deleteFeed(
+		@AuthenticationPrincipal final CustomUserDetails userDetails,
+		@PathVariable final Long teamspaceId,
+		@PathVariable final Long feedId
+	) {
+		feedService.delete(userDetails, teamspaceId, feedId);
+		return ResponseEntity.ok().body(
+			ApiResponse.createSuccessResponse(Map.of())
 		);
 	}
 }
