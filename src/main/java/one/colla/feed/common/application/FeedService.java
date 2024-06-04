@@ -27,8 +27,10 @@ import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
 import one.colla.teamspace.application.TeamspaceService;
 import one.colla.teamspace.domain.Teamspace;
+import one.colla.teamspace.domain.TeamspaceRole;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.teamspace.domain.UserTeamspaceRepository;
+import one.colla.user.domain.User;
 
 @Slf4j
 @Service
@@ -91,6 +93,33 @@ public class FeedService {
 			teamspaceId, userDetails.getUserId(), feedId
 		);
 		return toCommonReadFeedResponse(feed);
+	}
+
+	@Transactional
+	public void delete(
+		final CustomUserDetails userDetails,
+		final Long teamspaceId,
+		final Long feedId
+	) {
+		UserTeamspace userTeamspace = teamspaceService.getUserTeamspace(userDetails, teamspaceId);
+		Teamspace teamspace = userTeamspace.getTeamspace();
+		User user = userTeamspace.getUser();
+
+		Feed feed = feedRepository.findByIdAndTeamspace(feedId, teamspace)
+			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_FEED));
+
+		if (userTeamspace.getTeamspaceRole() == TeamspaceRole.LEADER || feed.getUser().equals(user)) {
+			feed.getUser().removeFeed(feed);
+			teamspace.removeFeed(feed);
+			feedRepository.delete(feed);
+		} else {
+			throw new CommonException(ExceptionCode.NOT_FOUND_FEED);
+		}
+
+		log.info(
+			"피드 삭제 - 팀스페이스 Id: {}, 사용자 Id: {}, 삭제 피드 Id: {}",
+			teamspaceId, userDetails.getUserId(), feedId
+		);
 	}
 
 	public Feed findFeedByTeamspaceAndType(Teamspace teamspace, Long feedId, FeedType feedType) {

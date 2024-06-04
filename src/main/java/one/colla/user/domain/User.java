@@ -139,4 +139,8 @@ public class User extends BaseEntity {
 	public void deleteProfileImageUrl() {
 		this.userProfileImageUrl = null;
 	}
+
+	public void removeFeed(Feed feed) {
+		this.feeds.remove(feed);
+	}
 }

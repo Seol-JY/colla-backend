@@ -1,5 +1,6 @@
 package one.colla.feed.common.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -29,7 +30,7 @@ public class FeedAttachment {
 	private Feed feed;
 
 	@MapsId("attachmentId")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "attachment_id", nullable = false, updatable = false)
 	private Attachment attachment;
 

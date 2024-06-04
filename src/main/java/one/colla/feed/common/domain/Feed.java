@@ -61,7 +61,7 @@ public abstract class Feed extends BaseEntity {
 	@OrderBy("createdAt ASC")
 	private final List<Comment> comments = new ArrayList<>();
 
-	@OneToMany(mappedBy = "feed", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@OneToMany(mappedBy = "feed", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private final List<FeedAttachment> feedAttachments = new ArrayList<>();
 
 	protected Feed(

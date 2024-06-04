@@ -99,4 +99,8 @@ public class Teamspace extends BaseEntity {
 	public void removeChatChannel(ChatChannel chatChannel) {
 		this.chatChannels.remove(chatChannel);
 	}
+
+	public void removeFeed(final Feed feed) {
+		this.feeds.remove(feed);
+	}
 }
