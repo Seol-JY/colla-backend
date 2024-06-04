@@ -74,6 +74,8 @@ public class ChatWebSocketController {
 
 		log.info("메시지 읽음 상태 업데이트 - 사용자 Id: {}, 팀스페이스 Id: {}, 채널 Id: {}, 메시지 Id: {}", userId, teamspaceId, chatChannelId,
 			messageId);
+
+		template.convertAndSend("/topic/teamspaces/" + teamspaceId + "/receive-message", Map.of());
 	}
 
 	private Long getUserIdFromHeaderAccessor(StompHeaderAccessor headerAccessor) {
