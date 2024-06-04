@@ -42,7 +42,7 @@ class FileUrlTest {
 	@DisplayName("유효한 파일 URL을 생성할 수 있다.")
 	void testValidFileUrl() {
 		// given
-		String validUrl = "https://cdn.colla.so/file.jpg";
+		String validUrl = "https://cdn.colla.so/한글.jpg";
 
 		// when
 		FileUrl fileUrl = new FileUrl(validUrl);
