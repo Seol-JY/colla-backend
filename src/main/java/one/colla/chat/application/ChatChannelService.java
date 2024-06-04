@@ -78,10 +78,14 @@ public class ChatChannelService {
 	}
 
 	public ChatChannelInfoDto createChatChannelInfoDto(ChatChannel chatChannel, Long userId) {
+
 		Long lastChatId = chatChannel.getLastChatId();
-		log.info(lastChatId.toString());
 
 		int unreadMessageCount = calculateUnreadMessageCount(userId, chatChannel);
+		if (lastChatId == null) {
+			return ChatChannelInfoDto.of(chatChannel, null, null, unreadMessageCount);
+		}
+
 		return chatChannelMessageRepository.findById(lastChatId)
 			.map(msg -> {
 				String contentValue = (msg.getContent() != null) ? msg.getContent().getValue() : null;

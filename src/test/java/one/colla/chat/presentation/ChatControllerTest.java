@@ -416,7 +416,7 @@ class ChatControllerTest extends ControllerTest {
 						)
 						.queryParameters(
 							parameterWithName("before").description("이전 채팅 메시지를 조회할 기준 채팅 메시지 ID").optional(),
-							parameterWithName("limit").description("조회할 메시지 개수")
+							parameterWithName("limit").description("조회할 메시지 개수").optional()
 						)
 						.responseFields(responseFields)
 						.responseSchema(Schema.schema(responseSchemaTitle))

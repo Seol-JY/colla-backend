@@ -65,6 +65,7 @@ class UserControllerTest extends ControllerTest {
 		final Long osTeamspaceId = 1L;
 		final Long dbTeamspaceId = 2L;
 		final Long lastSeenTeamspaceId = 2L;
+		final int unreadMessageCount = 20;
 		final int numOfOsTeamspaceParticipants = 5;
 		final int numOfDbTeamspaceParticipants = 4;
 
@@ -79,9 +80,12 @@ class UserControllerTest extends ControllerTest {
 			final UserTeamspace osUserTeamspace = MEMBER_USERTEAMSPACE(user, osTeamspace);
 			final UserTeamspace dbUserTeamspace = MEMBER_USERTEAMSPACE(user, dbTeamspace);
 			final ProfileDto profile = ProfileDto.of(userId, user, lastSeenTeamspaceId);
+
 			final List<ParticipatedTeamspaceDto> participatedTeamspaceDto = List.of(
-				ParticipatedTeamspaceDto.of(osTeamspaceId, osUserTeamspace, numOfOsTeamspaceParticipants),
-				ParticipatedTeamspaceDto.of(dbTeamspaceId, dbUserTeamspace, numOfDbTeamspaceParticipants)
+				ParticipatedTeamspaceDto.of(osTeamspaceId, osUserTeamspace, numOfOsTeamspaceParticipants,
+					unreadMessageCount),
+				ParticipatedTeamspaceDto.of(dbTeamspaceId, dbUserTeamspace, numOfDbTeamspaceParticipants,
+					unreadMessageCount)
 			);
 			UserStatusResponse userStatusResponse = UserStatusResponse.of(profile, participatedTeamspaceDto);
 
@@ -114,6 +118,8 @@ class UserControllerTest extends ControllerTest {
 					fieldWithPath("participatedTeamspaces[].teamspaceRole").description("팀스페이스에서의 역할")
 						.type(JsonFieldType.STRING),
 					fieldWithPath("participatedTeamspaces[].numOfParticipants").description("팀스페이스 참여 인원 수")
+						.type(JsonFieldType.NUMBER),
+					fieldWithPath("participatedTeamspaces[].unreadMessageCount").description("해당 팀스페이스 읽지 않은 메시지 개수")
 						.type(JsonFieldType.NUMBER)
 				),
 				"ApiResponse<UserStatusResponse>"
