@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import one.colla.chat.domain.ChatChannel;
+import one.colla.chat.domain.ChatChannelRepository;
 import one.colla.chat.domain.UserChatChannel;
 import one.colla.chat.domain.UserChatChannelRepository;
 import one.colla.common.security.authentication.CustomUserDetails;
@@ -54,6 +56,8 @@ public class TeamspaceService {
 	private static final int SECONDS_PER_HOUR = 3_600;
 	private static final int MAX_TEAMSPACE_USERS = 10;
 
+	private static final String INITIAL_CHAT_CHANNEL_NAME = "일반";
+
 	private final InviteCodeService inviteCodeService;
 	private final TeamspaceRepository teamspaceRepository;
 	private final UserTeamspaceRepository userTeamspaceRepository;
@@ -62,6 +66,7 @@ public class TeamspaceService {
 	private final ApplicationEventPublisher publisher;
 	private final RandomCodeGenerator randomCodeGenerator;
 	private final UserChatChannelRepository userChatChannelRepository;
+	private final ChatChannelRepository chatChannelRepository;
 
 	@Transactional
 	public CreateTeamspaceResponse create(final CustomUserDetails userDetails, final CreateTeamspaceRequest request) {
@@ -70,7 +75,12 @@ public class TeamspaceService {
 
 		final Teamspace createdTeamspace = teamspaceRepository.save(Teamspace.from(request.teamspaceName()));
 		final UserTeamspace participatedUserTeamspace = user.participate(createdTeamspace, TeamspaceRole.LEADER);
+		final ChatChannel chatChannel = ChatChannel.of(createdTeamspace, INITIAL_CHAT_CHANNEL_NAME);
+		final UserChatChannel participatedUserChatChannel = chatChannel.participateTeamspaceUser(
+			participatedUserTeamspace);
 
+		chatChannelRepository.save(chatChannel);
+		userChatChannelRepository.save(participatedUserChatChannel);
 		userTeamspaceRepository.save(participatedUserTeamspace);
 
 		log.info("팀스페이스 생성 - 팀스페이스 Id: {}, 생성한 사용자 Id: {}", createdTeamspace.getId(), user.getId());
