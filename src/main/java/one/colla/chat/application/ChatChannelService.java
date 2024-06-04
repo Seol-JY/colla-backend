@@ -83,10 +83,11 @@ public class ChatChannelService {
 
 		int unreadMessageCount = calculateUnreadMessageCount(userId, chatChannel);
 		return chatChannelMessageRepository.findById(lastChatId)
-			.map(msg -> ChatChannelInfoDto.of(chatChannel, msg.getContent().getValue(), msg.getCreatedAt(),
-				unreadMessageCount))
-			.orElseGet(() -> ChatChannelInfoDto.of(chatChannel, null, null,
-				0));
+			.map(msg -> {
+				String contentValue = (msg.getContent() != null) ? msg.getContent().getValue() : null;
+				return ChatChannelInfoDto.of(chatChannel, contentValue, msg.getCreatedAt(), unreadMessageCount);
+			})
+			.orElseGet(() -> ChatChannelInfoDto.of(chatChannel, null, null, 0));
 	}
 
 	@Transactional
