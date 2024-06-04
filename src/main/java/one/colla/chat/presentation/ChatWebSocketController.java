@@ -41,7 +41,8 @@ public class ChatWebSocketController {
 			chatChannelMessageResponse);
 		log.info("채팅 메시지 전송 - 사용자 Id: {}, 팀스페이스 Id: {}, 채널 Id: {}", userId, teamspaceId, chatChannelId);
 
-		template.convertAndSend("/topic/teamspaces/" + teamspaceId + "/receive-message");
+		template.convertAndSend("/topic/teamspaces/" + teamspaceId + "/receive-message", Map.of());
+		log.info("팀스페이스 전역 채팅 메시지 수신 - 팀스페이스 Id: {}", teamspaceId);
 
 	}
 
@@ -57,7 +58,6 @@ public class ChatWebSocketController {
 		template.convertAndSend(
 			"/topic/teamspaces/" + teamspaceId + "/users/" + userId + "/chat-channels/status",
 			response);
-
 		log.info("채팅 채널 상태 조회 - 사용자 Id: {}, 팀스페이스 Id: {}", userId, teamspaceId);
 	}
 
