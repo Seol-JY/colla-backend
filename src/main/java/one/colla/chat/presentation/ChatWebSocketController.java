@@ -41,17 +41,22 @@ public class ChatWebSocketController {
 			chatChannelMessageResponse);
 		log.info("채팅 메시지 전송 - 사용자 Id: {}, 팀스페이스 Id: {}, 채널 Id: {}", userId, teamspaceId, chatChannelId);
 
+		template.convertAndSend("/topic/teamspaces/" + teamspaceId + "/receive-message");
+
 	}
 
-	@MessageMapping("/teamspaces/{teamspaceId}/chat-channels/status")
+	@MessageMapping("/teamspaces/{teamspaceId}/users/{userId}/chat-channels/status")
 	public void getChatChannelsStatus(
 		@DestinationVariable Long teamspaceId,
+		@DestinationVariable Long userId,
 		StompHeaderAccessor headerAccessor) {
 
-		Long userId = getUserIdFromHeaderAccessor(headerAccessor);
+		Long connectedUserId = getUserIdFromHeaderAccessor(headerAccessor);
 
-		ChatChannelStatusResponse response = chatWebSocketService.getChatChannelsStatus(userId, teamspaceId);
-		template.convertAndSend("/topic/teamspaces/" + teamspaceId + "/chat-channels/status", response);
+		ChatChannelStatusResponse response = chatWebSocketService.getChatChannelsStatus(connectedUserId, teamspaceId);
+		template.convertAndSend(
+			"/topic/teamspaces/" + teamspaceId + "/users/" + userId + "/chat-channels/status",
+			response);
 
 		log.info("채팅 채널 상태 조회 - 사용자 Id: {}, 팀스페이스 Id: {}", userId, teamspaceId);
 	}
