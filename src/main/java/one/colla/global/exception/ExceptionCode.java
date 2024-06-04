@@ -47,6 +47,9 @@ public enum ExceptionCode {
 	FORBIDDEN_ACCESS_COMMENT(HttpStatus.FORBIDDEN, 47102, "접근 권한이 없거나 존재하지 않는 댓글입니다."),
 	FORBIDDEN_ACTION_DEADLINE_PASSED(HttpStatus.FORBIDDEN, 47103, "마감일이 지나 수행할 수 없습니다."),
 
+	/* FEED-SCHEDULING */
+	FORBIDDEN_SCHEDULING_RESPONSE(HttpStatus.FORBIDDEN, 47401, "일정 조율 응답의 날짜가 누락되었습니다."),
+
 	/* FEED-COLLECT */
 	FORBIDDEN_COLLECT_RESPONSE(HttpStatus.FORBIDDEN, 47501, "접근 권한이 없거나 존재하지 않는 하위 입력입니다."),
 

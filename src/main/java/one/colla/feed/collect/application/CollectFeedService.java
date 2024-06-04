@@ -118,7 +118,7 @@ public class CollectFeedService {
 		CollectFeed feed = (CollectFeed)feedService.findFeedByTeamspaceAndType(teamspace, feedId, FeedType.COLLECT);
 		if (DateTimeUtil.isDeadlinePassed(feed.getDueAt())) {
 			log.warn(
-				"피드 수정 시도 - 팀스페이스 Id: {}, 사용자 Id: {}, 피드 Id: {} (마감일이 지남)",
+				"피드(자료수집 응답) 수정 시도 - 팀스페이스 Id: {}, 사용자 Id: {}, 피드 Id: {} (마감일이 지남)",
 				teamspaceId, userDetails.getUserId(), feedId
 			);
 			throw new CommonException(ExceptionCode.FORBIDDEN_ACTION_DEADLINE_PASSED);
