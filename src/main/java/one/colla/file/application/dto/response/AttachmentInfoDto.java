@@ -2,6 +2,10 @@ package one.colla.file.application.dto.response;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+
 import lombok.Builder;
 import one.colla.file.domain.Attachment;
 import one.colla.file.domain.AttachmentType;
@@ -14,6 +18,8 @@ public record AttachmentInfoDto(
 	Long size,
 	String attachType,
 	String fileUrl,
+	@JsonSerialize(using = LocalDateTimeSerializer.class)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
 	LocalDateTime createdAt,
 	AttachmentAuthorDto author
 ) {
