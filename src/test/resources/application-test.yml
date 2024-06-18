@@ -1,9 +1,21 @@
 spring:
+  config:
+    activate:
+      on-profile: test
+  application:
+    name:
+      colla-backend
   datasource:
     url: jdbc:h2:mem:testdb;MODE=MYSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     username: sa
     password:
     driver-class-name: org.h2.Driver
+
+  data.redis:
+    host: localhost
+    port: 6379
+    password: test
+
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -16,6 +28,73 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+  mail:
+    host: test
+    port: 1025
+    username: test
+    password: test
+    admin-email: test@example.com
+
+  oauth:
+    google:
+      client-id: test-google-client-id
+      client-secret: test-google-client-secret
+      end-point: https://accounts.google.com/o/oauth2/v2/auth
+      response-type: code
+      access-type: offline
+      scopes: profile,email
+      token-uri: https://oauth2.googleapis.com/token
+      redirect-uri: http://localhost:8080/oauth2/callback/google
+    kakao:
+      client-id: test-kakao-client-id
+      client-secret: test-kakao-client-secret
+      end-point: https://kauth.kakao.com/oauth/authorize
+      response-type: code
+      access-type: offline
+      scopes: profile,email
+      token-uri: https://kauth.kakao.com/oauth/token
+      redirect-uri: http://localhost:8080/oauth2/callback/kakao
+    naver:
+      client-id: test-naver-client-id
+      client-secret: test-naver-client-secret
+      end-point: https://nid.naver.com/oauth2.0/authorize
+      response-type: code
+      access-type: offline
+      scopes: profile,email
+      token-uri: https://nid.naver.com/oauth2.0/token
+      redirect-uri: http://localhost:8080/oauth2/callback/naver
+
+  websocket:
+    allowed-origins: http://localhost:8080, http://localhost:3000
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    url: /docs/open-api-3.0.1.yaml
+    path: /swagger
+
+jwt:
+  secret-key:
+    access-token: testCollaAccessAccessAccessTokenSecretKeyForCollaSystem
+    refresh-token: testCollaRefreshRefreshRefreshTokenSecretKeyForCollaSystem
+  expiration-time:
+    access-token: 1800000
+    refresh-token: 604800000
+
+cloud:
+  aws:
+    credentials:
+      access-key: test-aws-access-key
+      secret-key: test-aws-secret-key
+    s3:
+      endpoint: http://localhost:4566
+      bucket: test-bucket
+    region:
+      static: us-west-2
+    stack:
+      auto: false
 
 logging:
   level:
