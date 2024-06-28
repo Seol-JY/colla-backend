@@ -19,11 +19,12 @@ public enum ExceptionCode {
 	SOCIAL_EMAIL_ALREADY_REGISTERED(HttpStatus.UNAUTHORIZED, 40107, "소셜 로그인으로 가입한 이메일 입니다."),
 	FORBIDDEN_ACCESS_TOKEN(HttpStatus.FORBIDDEN, 40181, "토큰에 접근 권한이 없습니다."),
 	EMPTY_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, 40182, "토큰이 포함되어 있지 않습니다."),
-	EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, 40183, "사용기간이 만료된 토큰입니다."),
+	EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, 40183, "재 로그인이 필요합니다."),
 	MALFORMED_TOKEN(HttpStatus.UNAUTHORIZED, 40184, "비정상적인 토큰입니다."),
 	TAMPERED_TOKEN(HttpStatus.UNAUTHORIZED, 40185, "서명이 조작된 토큰입니다."),
 	UNSUPPORTED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, 40186, "지원하지 않는 토큰입니다."),
 	TAKEN_AWAY_TOKEN(HttpStatus.FORBIDDEN, 40187, "인증 불가, 관리자에게 문의하세요."),
+	EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, 40188, "재 로그인이 필요합니다."),
 
 	/* 402xx USER */
 	NOT_FOUND_USER(HttpStatus.NOT_FOUND, 40201, "사용자를 찾을 수 없습니다."),
