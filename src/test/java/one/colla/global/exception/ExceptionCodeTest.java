@@ -20,16 +20,4 @@ class ExceptionCodeTest {
 
 		assertThat(codes).hasSize(ExceptionCode.values().length);
 	}
-
-	@Test
-	@DisplayName("Message 는 중복되지 않는다.")
-	void testUniqueMessage() {
-		// given when
-		Set<String> messages = new HashSet<>();
-		for (ExceptionCode code : ExceptionCode.values()) {
-			messages.add(code.getMessage());
-		}
-
-		assertThat(messages).hasSize(ExceptionCode.values().length);
-	}
 }

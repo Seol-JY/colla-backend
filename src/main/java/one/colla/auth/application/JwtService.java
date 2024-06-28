@@ -13,10 +13,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import one.colla.auth.application.dto.JwtPair;
 import one.colla.common.security.jwt.JwtClaims;
-import one.colla.common.security.jwt.JwtProvider;
 import one.colla.common.security.jwt.access.AccessTokenClaim;
+import one.colla.common.security.jwt.access.AccessTokenProvider;
 import one.colla.common.security.jwt.refresh.RefreshTokenClaim;
 import one.colla.common.security.jwt.refresh.RefreshTokenClaimKeys;
+import one.colla.common.security.jwt.refresh.RefreshTokenProvider;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
 import one.colla.infra.redis.forbidden.ForbiddenTokenService;
@@ -28,8 +29,8 @@ import one.colla.user.domain.User;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-	private final JwtProvider accessTokenProvider;
-	private final JwtProvider refreshTokenProvider;
+	private final AccessTokenProvider accessTokenProvider;
+	private final RefreshTokenProvider refreshTokenProvider;
 	private final RefreshTokenService refreshTokenService;
 	private final ForbiddenTokenService forbiddenTokenService;
 
@@ -45,7 +46,12 @@ public class JwtService {
 	}
 
 	public Pair<Long, JwtPair> refresh(String refreshToken) {
-		Map<String, ?> claims = refreshTokenProvider.getJwtClaimsFromToken(refreshToken).getClaims();
+		Map<String, ?> claims;
+		try {
+			claims = refreshTokenProvider.getJwtClaimsFromToken(refreshToken).getClaims();
+		} catch (ExpiredJwtException e) {
+			throw new CommonException(ExceptionCode.EXPIRED_REFRESH_TOKEN);
+		}
 
 		Long userId = Long.parseLong((String)claims.get(RefreshTokenClaimKeys.USER_ID.getValue()));
 		String role = (String)claims.get(RefreshTokenClaimKeys.ROLE.getValue());
@@ -57,7 +63,7 @@ public class JwtService {
 			newRefreshToken = refreshTokenService.refresh(userId, refreshToken,
 				refreshTokenProvider.generateToken(RefreshTokenClaim.of(userId, role)));
 		} catch (IllegalArgumentException e) {
-			throw new CommonException(ExceptionCode.EXPIRED_TOKEN);
+			throw new CommonException(ExceptionCode.EXPIRED_REFRESH_TOKEN);
 		} catch (IllegalStateException e) {
 			throw new CommonException(ExceptionCode.TAKEN_AWAY_TOKEN);
 		}
