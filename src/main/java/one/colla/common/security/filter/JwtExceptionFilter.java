@@ -27,7 +27,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
 	private static final String CHARACTER_ENCODING = "UTF-8";
 
 	private static final Map<Class<? extends JwtException>, ExceptionCode> JWT_EXCEPTION_CODE_MAP = Map.of(
-		ExpiredJwtException.class, ExceptionCode.EXPIRED_TOKEN,
+		ExpiredJwtException.class, ExceptionCode.EXPIRED_ACCESS_TOKEN,
 		MalformedJwtException.class, ExceptionCode.MALFORMED_TOKEN,
 		SignatureException.class, ExceptionCode.TAMPERED_TOKEN,
 		UnsupportedJwtException.class, ExceptionCode.UNSUPPORTED_JWT_TOKEN
