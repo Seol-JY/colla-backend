@@ -19,6 +19,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import one.colla.common.security.jwt.JwtClaims;
 import one.colla.common.security.jwt.JwtProvider;
 import one.colla.common.security.jwt.access.AccessTokenClaimKeys;
@@ -26,6 +27,7 @@ import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
 import one.colla.infra.redis.forbidden.ForbiddenTokenService;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final UserDetailsService userDetailService;
@@ -60,6 +62,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String token = accessTokenProvider.resolveToken(authenticationHeader);
 
 		if (!StringUtils.hasText(token)) {
+			log.info("resolveAccessToken token is empty");
 			throw new CommonException(EMPTY_ACCESS_TOKEN);
 		}
 

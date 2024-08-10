@@ -14,8 +14,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import one.colla.common.presentation.ApiResponse;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	private static final String CHARACTER_ENCODING = "UTF-8";
@@ -25,6 +27,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException authException)
 		throws IOException, ServletException {
+
+		log.info("commence {}", authException.getMessage());
 
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding(CHARACTER_ENCODING);
