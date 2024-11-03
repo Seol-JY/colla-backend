@@ -14,17 +14,17 @@ public interface ChatChannelMessageRepository extends JpaRepository<ChatChannelM
 
 	/**
 	 * 주어진 채팅 채널과 기준에 따라 채팅 메시지를 찾습니다.
-	 * 결과는 생성 날짜 기준 내림차순으로 정렬됩니다.
+	 * 결과는 생성 날짜(`createdAt`) 기준 내림차순으로 정렬되며, 동일한 생성 날짜를 가진 메시지들은 ID 기준으로 추가 정렬됩니다.
 	 *
 	 * @param chatChannel 채팅 메시지를 필터링할 채팅 채널
-	 * @param before 선택적 채팅 메시지 ID로, 이 채팅 메시지의 생성 날짜 이전에 생성된 채팅 메시지들을 필터링합니다
+	 * @param before 선택적 채팅 메시지 ID로, 이 ID에 해당하는 메시지의 생성 날짜 이전에 생성된 채팅 메시지들을 필터링합니다
 	 * @param pageable 페이징 정보
 	 * @return 주어진 기준에 맞는 채팅 메시지 목록
 	 */
 	@Query("SELECT msg FROM ChatChannelMessage msg WHERE msg.chatChannel = :chatChannel "
 		+ "AND (:before IS NULL "
 		+ "OR msg.createdAt < (SELECT bmsg.createdAt FROM ChatChannelMessage bmsg WHERE bmsg.id = :before)) "
-		+ "ORDER BY msg.createdAt DESC")
+		+ "ORDER BY msg.createdAt DESC, msg.id DESC")
 	List<ChatChannelMessage> findChatChannelMessageByChatChannelAndCriteria(
 		@Param("chatChannel") ChatChannel chatChannel,
 		@Param("before") @Nullable Long before,
