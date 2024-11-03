@@ -93,8 +93,11 @@ class ChatChannelMessageRepositoryTest extends RepositoryTest {
 
 		// then
 		assertThat(findMessages).hasSize(5);
-		assertThat(findMessages.get(0).getCreatedAt()).isAfterOrEqualTo(
-			findMessages.get(findMessages.size() - 1).getCreatedAt());
+		for (int i = 0; i < findMessages.size() - 1; i++) {
+			Long currentId = findMessages.get(i).getId();
+			Long nextId = findMessages.get(i + 1).getId();
+			assertThat(currentId).isGreaterThan(nextId);
+		}
 	}
 
 	@Test
