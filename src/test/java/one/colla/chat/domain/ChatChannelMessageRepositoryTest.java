@@ -75,7 +75,7 @@ class ChatChannelMessageRepositoryTest extends RepositoryTest {
 	}
 
 	@Test
-	@DisplayName("채팅 메시지를 생성 날짜 기준 내림차순으로 조회할 수 있다.")
+	@DisplayName("채팅 메시지를 생성 날짜 및 id 기준으로 내림차순으로 조회할 수 있다.")
 	void findChatChannelMessageByChatChannelAndCriteria_Success() {
 		// given
 		List<ChatChannelMessage> messages = new ArrayList<>();
@@ -93,8 +93,11 @@ class ChatChannelMessageRepositoryTest extends RepositoryTest {
 
 		// then
 		assertThat(findMessages).hasSize(5);
-		assertThat(findMessages.get(0).getCreatedAt()).isAfterOrEqualTo(
-			findMessages.get(findMessages.size() - 1).getCreatedAt());
+		for (int i = 0; i < findMessages.size() - 1; i++) {
+			Long currentId = findMessages.get(i).getId();
+			Long nextId = findMessages.get(i + 1).getId();
+			assertThat(currentId).isGreaterThan(nextId);
+		}
 	}
 
 	@Test
