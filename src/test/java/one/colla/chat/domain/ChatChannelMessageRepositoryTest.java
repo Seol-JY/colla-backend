@@ -75,7 +75,7 @@ class ChatChannelMessageRepositoryTest extends RepositoryTest {
 	}
 
 	@Test
-	@DisplayName("채팅 메시지를 id 기준으로 내림차순으로 조회할 수 있다.")
+	@DisplayName("채팅 메시지를 생성 날짜 및 id 기준으로 내림차순으로 조회할 수 있다.")
 	void findChatChannelMessageByChatChannelAndCriteria_Success() {
 		// given
 		List<ChatChannelMessage> messages = new ArrayList<>();
