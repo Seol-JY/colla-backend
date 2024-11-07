@@ -26,8 +26,14 @@ public class EmailEventListener {
 	@Async
 	@TransactionalEventListener(classes = InviteCodeSendMailEvent.class)
 	public void onInviteCodeSendMailEvent(InviteCodeSendMailEvent event) {
-		InviteCodeContentProvider provider = InviteCodeContentProvider.of(event.teamspaceName(), event.inviterName(),
-			event.inviteCode());
+		InviteCodeContentProvider provider = InviteCodeContentProvider.of(
+			event.teamspaceName(),
+			event.inviterName(),
+			event.inviteCode(),
+			event.teamspaceImageUrl(),
+			event.numParticipants()
+		);
+
 		EmailEventHandler handler = new EmailEventHandler(mailService, provider);
 		handler.handleSendMailEvent(event);
 	}
