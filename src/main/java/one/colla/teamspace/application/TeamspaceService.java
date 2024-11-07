@@ -122,10 +122,15 @@ public class TeamspaceService {
 		InviteCode inviteCode = pair.getLeft();
 		UserTeamspace userTeamspace = pair.getRight();
 		String inviterName = userTeamspace.getUser().getUsernameValue();
-		String teamspaceName = userTeamspace.getTeamspace().getTeamspaceNameValue();
+
+		Teamspace teamspace = userTeamspace.getTeamspace();
+		String teamspaceName = teamspace.getTeamspaceNameValue();
+		String teamspaceImageUrl = teamspace.getProfileImageUrlValue();
+		Integer numParticipants = teamspace.getUserTeamspaces().size();
 
 		publisher.publishEvent(
-			new InviteCodeSendMailEvent(request.email(), teamspaceName, inviterName, inviteCode.getCode())
+			new InviteCodeSendMailEvent(request.email(), teamspaceName, inviterName, inviteCode.getCode(),
+				teamspaceImageUrl, numParticipants)
 		);
 
 		log.info("초대코드 생성(Mail) - 팀스페이스 Id: {}, 초대코드: {}", teamspaceId, inviteCode.getCode());

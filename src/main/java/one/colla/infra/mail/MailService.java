@@ -38,11 +38,11 @@ public class MailService {
 	public MimeMessage createMessage(String to, String subject, String content) {
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		try {
-			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, UTF_8);
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, UTF_8);
 			helper.setFrom(adminEmail);
 			helper.setTo(to);
 			helper.setSubject(subject);
-			helper.setText(content);
+			helper.setText(content, true);
 			return mimeMessage;
 		} catch (MessagingException e) {
 			log.error("이메일 메시지 생성 오류 ", e);
