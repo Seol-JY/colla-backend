@@ -69,7 +69,7 @@ class FeedControllerTest extends ControllerTest {
 				"댓글 작성자"
 			);
 			List<CommentDto> comments = List.of(
-				new CommentDto(commentAuthorDto, "댓글 내용", LocalDateTime.of(2021, 1, 1, 0, 0, 0))
+				new CommentDto(1L, commentAuthorDto, "댓글 내용", LocalDateTime.of(2021, 1, 1, 0, 0, 0))
 			);
 			// 이미지와 첨부 파일을 추가하여 페이로드에 포함시킵니다.
 			CommonReadFeedResponse.FileDto imageDto = new CommonReadFeedResponse.FileDto(
@@ -191,7 +191,7 @@ class FeedControllerTest extends ControllerTest {
 				"댓글 작성자"
 			);
 			List<CommentDto> comments = List.of(
-				new CommentDto(commentAuthorDto, "댓글 내용", LocalDateTime.of(2021, 1, 1, 0, 0, 0))
+				new CommentDto(1L, commentAuthorDto, "댓글 내용", LocalDateTime.of(2021, 1, 1, 0, 0, 0))
 			);
 			// 이미지와 첨부 파일을 추가하여 페이로드에 포함시킵니다.
 			CommonReadFeedResponse.FileDto imageDto = new CommonReadFeedResponse.FileDto(
