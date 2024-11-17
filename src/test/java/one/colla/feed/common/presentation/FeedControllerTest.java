@@ -69,7 +69,7 @@ class FeedControllerTest extends ControllerTest {
 				"댓글 작성자"
 			);
 			List<CommentDto> comments = List.of(
-				new CommentDto(commentAuthorDto, "댓글 내용", LocalDateTime.of(2021, 1, 1, 0, 0, 0))
+				new CommentDto(1L, commentAuthorDto, "댓글 내용", LocalDateTime.of(2021, 1, 1, 0, 0, 0))
 			);
 			// 이미지와 첨부 파일을 추가하여 페이로드에 포함시킵니다.
 			CommonReadFeedResponse.FileDto imageDto = new CommonReadFeedResponse.FileDto(
@@ -116,6 +116,7 @@ class FeedControllerTest extends ControllerTest {
 					fieldWithPath("feeds[].title").description("피드 제목"),
 					fieldWithPath("feeds[].createdAt").description("피드 생성 일시"),
 					fieldWithPath("feeds[].details.content").description("피드 내용"),
+					fieldWithPath("feeds[].comments[].id").description("피드 댓글 id"),
 					fieldWithPath("feeds[].comments[].author.id").description("피드 댓글 작성자 id"),
 					fieldWithPath("feeds[].comments[].author.profileImageUrl").description("피드 댓글 작성자 프로필 사진"),
 					fieldWithPath("feeds[].comments[].author.username").description("피드 댓글 작성자 이름"),
@@ -191,7 +192,7 @@ class FeedControllerTest extends ControllerTest {
 				"댓글 작성자"
 			);
 			List<CommentDto> comments = List.of(
-				new CommentDto(commentAuthorDto, "댓글 내용", LocalDateTime.of(2021, 1, 1, 0, 0, 0))
+				new CommentDto(1L, commentAuthorDto, "댓글 내용", LocalDateTime.of(2021, 1, 1, 0, 0, 0))
 			);
 			// 이미지와 첨부 파일을 추가하여 페이로드에 포함시킵니다.
 			CommonReadFeedResponse.FileDto imageDto = new CommonReadFeedResponse.FileDto(
@@ -234,6 +235,7 @@ class FeedControllerTest extends ControllerTest {
 					fieldWithPath("title").description("피드 제목"),
 					fieldWithPath("createdAt").description("피드 생성 일시"),
 					fieldWithPath("details.content").description("피드 내용"),
+					fieldWithPath("comments[].id").description("피드 댓글 id"),
 					fieldWithPath("comments[].author.id").description("피드 댓글 작성자 id"),
 					fieldWithPath("comments[].author.profileImageUrl").description("피드 댓글 작성자 프로필 사진"),
 					fieldWithPath("comments[].author.username").description("피드 댓글 작성자 이름"),
