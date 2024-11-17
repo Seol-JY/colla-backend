@@ -12,6 +12,7 @@ import one.colla.user.domain.User;
 
 @Builder
 public record CommentDto(
+	Long id,
 	CommentAuthorDto author,
 	String content,
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -20,7 +21,7 @@ public record CommentDto(
 ) {
 	public static CommentDto from(Comment comment) {
 		CommentAuthorDto commentAuthorDto = CommentAuthorDto.from(comment.getUser());
-		return new CommentDto(commentAuthorDto, comment.getContent(), comment.getCreatedAt());
+		return new CommentDto(comment.getId(), commentAuthorDto, comment.getContent(), comment.getCreatedAt());
 	}
 
 	public record CommentAuthorDto(
