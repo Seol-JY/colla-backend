@@ -25,6 +25,7 @@ public enum ExceptionCode {
 	UNSUPPORTED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, 40186, "지원하지 않는 토큰입니다."),
 	TAKEN_AWAY_TOKEN(HttpStatus.FORBIDDEN, 40187, "인증 불가, 관리자에게 문의하세요."),
 	EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, 40188, "재 로그인이 필요합니다."),
+	MISSING_REQUIRED_USER_INFO(HttpStatus.BAD_REQUEST, 40189, "네이버 로그인 시 필수 사용자 정보가 누락되었습니다."),
 
 	/* 402xx USER */
 	NOT_FOUND_USER(HttpStatus.NOT_FOUND, 40201, "사용자를 찾을 수 없습니다."),
