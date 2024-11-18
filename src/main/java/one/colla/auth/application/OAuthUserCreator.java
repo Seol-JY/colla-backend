@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import lombok.extern.slf4j.Slf4j;
 import one.colla.auth.application.dto.oauth.OAuthTokenResponse;
 import one.colla.auth.application.dto.oauth.OAuthUserInfo;
 import one.colla.common.util.TokenParser;
@@ -20,6 +21,7 @@ import one.colla.user.domain.OauthProvider;
 import one.colla.user.domain.vo.Username;
 
 @Component
+@Slf4j
 public class OAuthUserCreator {
 
 	private static final String NAVER_PROFILE_URL = "https://openapi.naver.com/v1/nid/me";
@@ -46,9 +48,16 @@ public class OAuthUserCreator {
 		}
 		JsonNode userResourceNode = getNaverUserResource(accessToken);
 		JsonNode userInfo = userResourceNode.get("response");
-		String email = userInfo.get("email").asText();
-		String username = userInfo.get("nickname").asText();
-		String picture = userInfo.get("profile_image").asText();
+
+		String email = userInfo.has("email") ? userInfo.get("email").asText() : null;
+		String username = userInfo.has("nickname") ? userInfo.get("nickname").asText() : null;
+		String picture = userInfo.has("profile_image") ? userInfo.get("profile_image").asText() : null;
+
+		if (email == null || username == null) {
+			log.warn("소셜 로그인 실패 (네이버) - 필수 사용자 정보 누락 (이메일: {}, 닉네임: {})", email, username);
+			throw new CommonException(ExceptionCode.MISSING_REQUIRED_USER_INFO);
+		}
+
 		return new OAuthUserInfo(email, adjustNameLength(username), picture);
 	}
 
