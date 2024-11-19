@@ -10,11 +10,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import one.colla.chat.domain.ChatType;
+import one.colla.global.config.json.NoStrip;
 
 public record ChatCreateRequest(
 	@NotNull(message = "채팅 타입을 입력해주세요.")
 	ChatType chatType,
 
+	@NoStrip
 	@Size(max = 1024, message = "채팅 글자 수는 1024자 이하여야 합니다.")
 	String content,
 
