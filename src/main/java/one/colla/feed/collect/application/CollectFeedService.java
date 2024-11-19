@@ -19,7 +19,6 @@ import one.colla.feed.collect.domain.CollectFeedStatus;
 import one.colla.feed.common.application.FeedService;
 import one.colla.feed.common.application.dto.request.CommonCreateFeedRequest;
 import one.colla.feed.common.domain.FeedType;
-import one.colla.feed.common.util.DateTimeUtil;
 import one.colla.global.exception.CommonException;
 import one.colla.global.exception.ExceptionCode;
 import one.colla.teamspace.application.TeamspaceService;
@@ -116,13 +115,13 @@ public class CollectFeedService {
 		Teamspace teamspace = userTeamspace.getTeamspace();
 
 		CollectFeed feed = (CollectFeed)feedService.findFeedByTeamspaceAndType(teamspace, feedId, FeedType.COLLECT);
-		if (DateTimeUtil.isDeadlinePassed(feed.getDueAt())) {
-			log.warn(
-				"피드(자료수집 응답) 수정 시도 - 팀스페이스 Id: {}, 사용자 Id: {}, 피드 Id: {} (마감일이 지남)",
-				teamspaceId, userDetails.getUserId(), feedId
-			);
-			throw new CommonException(ExceptionCode.FORBIDDEN_ACTION_DEADLINE_PASSED);
-		}
+		// if (DateTimeUtil.isDeadlinePassed(feed.getDueAt())) {
+		// 	log.warn(
+		// 		"피드(자료수집 응답) 수정 시도 - 팀스페이스 Id: {}, 사용자 Id: {}, 피드 Id: {} (마감일이 지남)",
+		// 		teamspaceId, userDetails.getUserId(), feedId
+		// 	);
+		// 	throw new CommonException(ExceptionCode.FORBIDDEN_ACTION_DEADLINE_PASSED);
+		// }
 
 		Optional<CollectFeedResponse> optionalResponse = feed.getCollectFeedResponses().stream()
 			.filter(cfr -> cfr.getUser().getId().equals(userDetails.getUserId()))
