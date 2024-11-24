@@ -1,4 +1,4 @@
-package one.colla.feed.common.factory;
+package one.colla.feed.factory;
 
 import java.util.HashMap;
 import java.util.Map;

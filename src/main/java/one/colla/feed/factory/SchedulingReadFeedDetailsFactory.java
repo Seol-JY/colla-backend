@@ -1,4 +1,4 @@
-package one.colla.feed.common.factory;
+package one.colla.feed.factory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

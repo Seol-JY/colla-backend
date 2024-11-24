@@ -1,4 +1,4 @@
-package one.colla.feed.common.factory;
+package one.colla.feed.factory;
 
 import org.apache.commons.lang3.tuple.Pair;
 
