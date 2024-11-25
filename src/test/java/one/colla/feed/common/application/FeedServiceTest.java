@@ -18,7 +18,7 @@ import one.colla.common.ServiceTest;
 import one.colla.common.security.authentication.CustomUserDetails;
 import one.colla.feed.common.domain.Feed;
 import one.colla.feed.common.domain.FeedRepository;
-import one.colla.feed.common.factory.ReadFeedDetailsFactoryProvider;
+import one.colla.feed.factory.ReadFeedDetailsFactoryProvider;
 import one.colla.teamspace.application.TeamspaceService;
 import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.UserTeamspace;
