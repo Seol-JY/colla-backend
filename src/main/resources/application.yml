@@ -97,8 +97,25 @@ cloud:
       static: ${AWS_SECRET_REGION_STATIC}
     stack:
       auto: false
-
-
+management:
+  endpoints:
+    enabled-by-default: false
+    jmx:
+      exposure:
+        exclude: "*"
+    web:
+      base-path: "/monitor"
+      exposure:
+        include: prometheus, health
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      enabled: true
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
 
 ---
 spring:
@@ -194,3 +211,23 @@ cloud:
       static: ${AWS_SECRET_REGION_STATIC}
     stack:
       auto: false
+
+management:
+  endpoints:
+    enabled-by-default: false
+    jmx:
+      exposure:
+        exclude: "*"
+    web:
+      base-path: ${ACTUATOR_PATH}
+      exposure:
+        include: prometheus, health
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      enabled: true
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
