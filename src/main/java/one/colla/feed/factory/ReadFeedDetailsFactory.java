@@ -7,5 +7,7 @@ import one.colla.feed.common.domain.Feed;
 import one.colla.feed.common.domain.FeedType;
 
 public interface ReadFeedDetailsFactory {
+	FeedType getSupportedFeedType();
+
 	Pair<FeedType, ReadFeedDetails> createReadFeedDetails(Feed feed);
 }

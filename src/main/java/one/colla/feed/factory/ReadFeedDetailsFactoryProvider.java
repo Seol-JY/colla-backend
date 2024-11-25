@@ -1,31 +1,42 @@
 package one.colla.feed.factory;
 
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import one.colla.feed.collect.domain.CollectFeed;
 import one.colla.feed.common.domain.Feed;
-import one.colla.feed.normal.domain.NormalFeed;
-import one.colla.feed.scheduling.domain.SchedulingFeed;
+import one.colla.feed.common.domain.FeedType;
+import one.colla.global.exception.CommonException;
+import one.colla.global.exception.ExceptionCode;
 
 @Component
 public class ReadFeedDetailsFactoryProvider {
-	private final Map<Class<? extends Feed>, ReadFeedDetailsFactory> factories = new HashMap<>();
+	private final Map<FeedType, ReadFeedDetailsFactory> factoriesByType;
 
-	public ReadFeedDetailsFactoryProvider() {
-		factories.put(NormalFeed.class, new NormalReadFeedDetailsFactory());
-		factories.put(CollectFeed.class, new CollectReadFeedDetailsFactory());
-		factories.put(SchedulingFeed.class, new SchedulingReadFeedDetailsFactory());
-		// 다른 피드 타입의 팩토리도 여기에 추가
+	public ReadFeedDetailsFactoryProvider(List<ReadFeedDetailsFactory> factories) {
+		this.factoriesByType = factories.stream()
+			.collect(Collectors.toUnmodifiableMap(
+				ReadFeedDetailsFactory::getSupportedFeedType,
+				factory -> factory
+			));
 	}
 
 	public ReadFeedDetailsFactory getFactory(Feed feed) {
-		ReadFeedDetailsFactory factory = factories.get(feed.getClass());
+		FeedType feedType = Arrays.stream(FeedType.values())
+			.filter(type -> type.getFeedClass().isInstance(feed))
+			.findFirst()
+			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_FEED));
 
+		return getFactory(feedType);
+	}
+
+	public ReadFeedDetailsFactory getFactory(FeedType feedType) {
+		ReadFeedDetailsFactory factory = factoriesByType.get(feedType);
 		if (factory == null) {
-			throw new IllegalArgumentException("No factory for feed type: " + feed.getClass().getName());
+			throw new CommonException(ExceptionCode.NOT_FOUND_FEED);
 		}
 		return factory;
 	}

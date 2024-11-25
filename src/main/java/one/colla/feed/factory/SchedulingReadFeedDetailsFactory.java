@@ -7,10 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.stereotype.Component;
 
 import one.colla.feed.common.application.dto.response.ReadFeedDetails;
-import one.colla.feed.common.domain.Feed;
 import one.colla.feed.common.domain.FeedType;
 import one.colla.feed.common.util.DateTimeUtil;
 import one.colla.feed.scheduling.application.dto.response.ReadSchedulingFeedDetails;
@@ -19,67 +18,89 @@ import one.colla.feed.scheduling.domain.SchedulingFeedAvailableTime;
 import one.colla.feed.scheduling.domain.SchedulingFeedTargetDate;
 import one.colla.user.domain.User;
 
-public class SchedulingReadFeedDetailsFactory implements ReadFeedDetailsFactory {
+@Component
+public class SchedulingReadFeedDetailsFactory extends AbstractReadFeedDetailsFactory<SchedulingFeed> {
+	public SchedulingReadFeedDetailsFactory() {
+		super(FeedType.SCHEDULING);
+	}
+
 	@Override
-	public Pair<FeedType, ReadFeedDetails> createReadFeedDetails(Feed feed) {
-		if (feed instanceof SchedulingFeed schedulingFeed) {
-			LocalDateTime dueAt =
-				schedulingFeed.getDueAt().equals(DateTimeUtil.INFINITY) ? null : schedulingFeed.getDueAt();
-			boolean isClosed = DateTimeUtil.isDeadlinePassed(schedulingFeed.getDueAt());
+	protected ReadFeedDetails createDetails(SchedulingFeed schedulingFeed) {
+		LocalDateTime dueAt =
+			schedulingFeed.getDueAt().equals(DateTimeUtil.INFINITY) ? null : schedulingFeed.getDueAt();
+		boolean isClosed = DateTimeUtil.isDeadlinePassed(schedulingFeed.getDueAt());
 
-			Map<LocalDate, byte[]> totalAvailability = new HashMap<>();
-			for (SchedulingFeedTargetDate targetDate : schedulingFeed.getSchedulingFeedTargetDates()) {
-				byte[] totalAvailabilityForDate = new byte[48];
-				for (SchedulingFeedAvailableTime availableTime : targetDate.getSchedulingFeedAvailableTimes()) {
-					byte[] availableTimeArray = availableTime.getAvailableTimeSegmentArray();
-					for (int i = 0; i < totalAvailabilityForDate.length; i++) {
-						totalAvailabilityForDate[i] += availableTimeArray[i];
-					}
-				}
-				totalAvailability.put(targetDate.getTargetDate(), totalAvailabilityForDate);
-			}
+		Map<LocalDate, byte[]> totalAvailability = calculateTotalAvailability(schedulingFeed);
+		Map<User, UserAvailabilityInfo> userAvailabilityInfos = calculateUserAvailabilities(schedulingFeed);
+		List<ReadSchedulingFeedDetails.SchedulingAvailability> responses = createResponses(userAvailabilityInfos);
 
-			Map<User, Map<LocalDate, byte[]>> userAvailabilitiesMap = new HashMap<>();
-			Map<User, LocalDateTime> userCreatedAtMap = new HashMap<>();
+		return ReadSchedulingFeedDetails.of(
+			dueAt,
+			isClosed,
+			schedulingFeed.getMinTimeSegment(),
+			schedulingFeed.getMaxTimeSegment(),
+			schedulingFeed.getNumOfParticipants(),
+			totalAvailability,
+			responses
+		);
+	}
 
-			for (SchedulingFeedTargetDate targetDate : schedulingFeed.getSchedulingFeedTargetDates()) {
-				for (SchedulingFeedAvailableTime availableTime : targetDate.getSchedulingFeedAvailableTimes()) {
-					User user = availableTime.getUser();
-					LocalDateTime createdAt = availableTime.getCreatedAt();
-					Map<LocalDate, byte[]> availabilities = userAvailabilitiesMap.getOrDefault(user, new HashMap<>());
+	private Map<LocalDate, byte[]> calculateTotalAvailability(SchedulingFeed schedulingFeed) {
+		Map<LocalDate, byte[]> totalAvailability = new HashMap<>();
 
-					availabilities.put(targetDate.getTargetDate(), availableTime.getAvailableTimeSegmentArray());
-					userAvailabilitiesMap.put(user, availabilities);
-
-					// 가장 최근 작성 일시를 저장
-					if (!userCreatedAtMap.containsKey(user) || userCreatedAtMap.get(user).isBefore(createdAt)) {
-						userCreatedAtMap.put(user, createdAt);
-					}
+		for (SchedulingFeedTargetDate targetDate : schedulingFeed.getSchedulingFeedTargetDates()) {
+			byte[] totalAvailabilityForDate = new byte[48];
+			for (SchedulingFeedAvailableTime availableTime : targetDate.getSchedulingFeedAvailableTimes()) {
+				byte[] availableTimeArray = availableTime.getAvailableTimeSegmentArray();
+				for (int i = 0; i < totalAvailabilityForDate.length; i++) {
+					totalAvailabilityForDate[i] += availableTimeArray[i];
 				}
 			}
-
-			List<ReadSchedulingFeedDetails.SchedulingAvailability> responses = userAvailabilitiesMap.entrySet().stream()
-				.map(entry -> ReadSchedulingFeedDetails.SchedulingAvailability.of(
-					entry.getValue(),
-					userCreatedAtMap.get(entry.getKey()),
-					ReadSchedulingFeedDetails.AuthorDto.from(entry.getKey())
-				))
-				.collect(Collectors.toList());
-
-			ReadSchedulingFeedDetails details = ReadSchedulingFeedDetails.of(
-				dueAt,
-				isClosed,
-				schedulingFeed.getMinTimeSegment(),
-				schedulingFeed.getMaxTimeSegment(),
-				schedulingFeed.getNumOfParticipants(),
-				totalAvailability,
-				responses
-			);
-
-			return Pair.of(FeedType.SCHEDULING, details);
-
-		} else {
-			throw new IllegalArgumentException("Unsupported feed type");
+			totalAvailability.put(targetDate.getTargetDate(), totalAvailabilityForDate);
 		}
+		return totalAvailability;
+	}
+
+	private static class UserAvailabilityInfo {
+		final Map<LocalDate, byte[]> availabilities = new HashMap<>();
+		LocalDateTime lastCreatedAt;
+
+		void updateAvailability(LocalDate date, byte[] availability, LocalDateTime createdAt) {
+			availabilities.put(date, availability);
+			if (lastCreatedAt == null || lastCreatedAt.isBefore(createdAt)) {
+				lastCreatedAt = createdAt;
+			}
+		}
+	}
+
+	private Map<User, UserAvailabilityInfo> calculateUserAvailabilities(SchedulingFeed schedulingFeed) {
+		Map<User, UserAvailabilityInfo> userAvailabilityInfos = new HashMap<>();
+
+		for (SchedulingFeedTargetDate targetDate : schedulingFeed.getSchedulingFeedTargetDates()) {
+			for (SchedulingFeedAvailableTime availableTime : targetDate.getSchedulingFeedAvailableTimes()) {
+				User user = availableTime.getUser();
+				UserAvailabilityInfo info = userAvailabilityInfos.computeIfAbsent(user,
+					k -> new UserAvailabilityInfo());
+
+				info.updateAvailability(
+					targetDate.getTargetDate(),
+					availableTime.getAvailableTimeSegmentArray(),
+					availableTime.getCreatedAt()
+				);
+			}
+		}
+
+		return userAvailabilityInfos;
+	}
+
+	private List<ReadSchedulingFeedDetails.SchedulingAvailability> createResponses(
+		Map<User, UserAvailabilityInfo> userAvailabilityInfos) {
+		return userAvailabilityInfos.entrySet().stream()
+			.map(entry -> ReadSchedulingFeedDetails.SchedulingAvailability.of(
+				entry.getValue().availabilities,
+				entry.getValue().lastCreatedAt,
+				ReadSchedulingFeedDetails.AuthorDto.from(entry.getKey())
+			))
+			.collect(Collectors.toList());
 	}
 }
