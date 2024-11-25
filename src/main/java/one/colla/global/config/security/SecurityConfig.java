@@ -1,5 +1,6 @@
 package one.colla.global.config.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,9 @@ public class SecurityConfig {
 	private static final String[] ANONYMOUS_ENDPOINTS = {"/api/v1/auth/**"};
 	private static final String[] CONDITIONAL_AUTHENTICATION_GET_ENDPOINTS = {"/api/v1/teamspaces"};
 
+	@Value("${management.endpoints.web.base-path}")
+	private String actuatorPath;
+
 	private final CorsConfigurationSource corsConfigurationSource;
 	private final AccessDeniedHandler accessDeniedHandler;
 	private final AuthenticationEntryPoint authenticationEntryPoint;
@@ -46,6 +50,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(
 				request -> defaultAuthorizeHttpRequests(request)
 					.requestMatchers(SWAGGER_ENDPOINTS).permitAll()
+					.requestMatchers(actuatorPath + "/**").permitAll()
 					.anyRequest().authenticated()
 			).build();
 	}
