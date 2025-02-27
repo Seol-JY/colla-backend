@@ -66,6 +66,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: linux/arm64
 
   deploy-instance1:
     needs: build-and-upload
