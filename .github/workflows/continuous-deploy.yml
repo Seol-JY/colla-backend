@@ -8,6 +8,9 @@ on:
 env:
   CONTAINER_NAME: colla
   IMAGE_NAME: ${{ github.repository }}
+  HEALTH_CHECK_PATH: ${{ secrets.HEALTH_CHECK_PATH }}
+  HEALTH_CHECK_RETRIES: 5
+  HEALTH_CHECK_RETRY_DELAY: 10
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -63,11 +66,12 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-  
-  
-  deploy:
+
+  deploy-instance1:
     needs: build-and-upload
-    runs-on: [ self-hosted, deploy ]
+    runs-on: [ self-hosted, instance1 ]
+    outputs:
+      instance1-status: ${{ steps.health-check.outputs.status }}
     steps:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -79,7 +83,76 @@ jobs:
       - name: Pull the Docker image
         run: docker pull ${{ needs.build-and-upload.outputs.image-tag }}
 
-      - name: Run the Docker container
+      - name: Generate health check token
+        id: generate-token
         run: |
-          docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q) && docker rmi $(docker images -q)
-          docker run -d --name ${{ env.CONTAINER_NAME }} -p 8080:8080 -v /home/ubuntu/logs:/logs -e TZ=Asia/Seoul ${{ needs.build-and-upload.outputs.image-tag }}
+          echo "::add-mask::${{ env.HEALTH_CHECK_TOKEN }}"
+          echo "token=${{ env.HEALTH_CHECK_TOKEN }}" >> $GITHUB_OUTPUT
+
+      - name: Run the Docker container on Instance 1
+        run: |
+          # Stop and remove existing containers
+          docker stop ${{ env.CONTAINER_NAME }} || true
+          docker rm ${{ env.CONTAINER_NAME }} || true
+          
+          # Remove unused images to free up space
+          docker image prune -f
+          
+          # Run new container
+          docker run -d --name ${{ env.CONTAINER_NAME }} -p 80:8080 -v /home/ubuntu/logs:/logs -e TZ=Asia/Seoul -e HEALTH_CHECK_TOKEN=${{ steps.generate-token.outputs.token }} ${{ needs.build-and-upload.outputs.image-tag }}
+
+      - name: Health check for Instance 1
+        id: health-check
+        run: |
+          # Wait for container to start
+          sleep 20
+          
+          # Perform health check with retries
+          status="DOWN"
+          for i in $(seq 1 ${{ env.HEALTH_CHECK_RETRIES }}); do
+            response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/${{ env.HEALTH_CHECK_PATH }}/health)
+          
+            if [[ "$response" == "200" ]]; then
+              status="UP"
+              break
+            fi
+          
+            echo "Health check attempt $i failed, retrying in ${{ env.HEALTH_CHECK_RETRY_DELAY }} seconds..."
+            sleep ${{ env.HEALTH_CHECK_RETRY_DELAY }}
+          done
+          
+          echo "status=$status" >> $GITHUB_OUTPUT
+          
+          if [[ "$status" != "UP" ]]; then
+            echo "Instance 1 deployment failed health check after ${{ env.HEALTH_CHECK_RETRIES }} attempts"
+            exit 1
+          fi
+          
+          echo "Instance 1 successfully deployed and health check passed"
+
+  deploy-instance2:
+    needs: [ build-and-upload, deploy-instance1 ]
+    runs-on: [ self-hosted, instance2 ]
+    if: needs.deploy-instance1.outputs.instance1-status == 'UP'
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull the Docker image
+        run: docker pull ${{ needs.build-and-upload.outputs.image-tag }}
+
+      - name: Run the Docker container on Instance 2
+        run: |
+          # Stop and remove existing containers
+          docker stop ${{ env.CONTAINER_NAME }} || true
+          docker rm ${{ env.CONTAINER_NAME }} || true
+          
+          # Remove unused images to free up space
+          docker image prune -f
+          
+          # Run new container
+          docker run -d --name ${{ env.CONTAINER_NAME }} -p 80:8080 -v /home/ubuntu/logs:/logs -e TZ=Asia/Seoul ${{ needs.build-and-upload.outputs.image-tag }}
