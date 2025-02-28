@@ -100,7 +100,7 @@ jobs:
           docker image prune -f
           
           # Run new container
-          docker run -d --name ${{ env.CONTAINER_NAME }} -p 80:8080 -v /home/ubuntu/logs:/logs -e TZ=Asia/Seoul -e HEALTH_CHECK_TOKEN=${{ steps.generate-token.outputs.token }} ${{ needs.build-and-upload.outputs.image-tag }}
+          docker run -d --name ${{ env.CONTAINER_NAME }} --network host -v /home/ubuntu/logs:/logs -e TZ=Asia/Seoul -e HEALTH_CHECK_TOKEN=${{ steps.generate-token.outputs.token }} ${{ needs.build-and-upload.outputs.image-tag }}
 
       - name: Health check for Instance 1
         id: health-check
@@ -156,4 +156,4 @@ jobs:
           docker image prune -f
           
           # Run new container
-          docker run -d --name ${{ env.CONTAINER_NAME }} -p 80:8080 -v /home/ubuntu/logs:/logs -e TZ=Asia/Seoul ${{ needs.build-and-upload.outputs.image-tag }}
+          docker run -d --name ${{ env.CONTAINER_NAME }} --network host -v /home/ubuntu/logs:/logs -e TZ=Asia/Seoul ${{ needs.build-and-upload.outputs.image-tag }}

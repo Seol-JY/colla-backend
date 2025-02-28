@@ -228,6 +228,7 @@ management:
     health:
       enabled: true
 server:
+  port: 80
   tomcat:
     mbeanregistry:
       enabled: true
