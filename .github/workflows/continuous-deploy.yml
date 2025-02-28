@@ -111,15 +111,15 @@ jobs:
           # Perform health check with retries
           status="DOWN"
           for i in $(seq 1 ${{ env.HEALTH_CHECK_RETRIES }}); do
-            response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/${{ env.HEALTH_CHECK_PATH }}/health)
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/${{ env.HEALTH_CHECK_PATH }}/health || echo "Failed")
           
-            if [[ "$response" == "200" ]]; then
-              status="UP"
-              break
-            fi
+          if [[ "$response" == "200" ]]; then
+          status="UP"
+          break
+          fi
           
-            echo "Health check attempt $i failed, retrying in ${{ env.HEALTH_CHECK_RETRY_DELAY }} seconds..."
-            sleep ${{ env.HEALTH_CHECK_RETRY_DELAY }}
+          echo "Health check attempt $i failed, retrying in ${{ env.HEALTH_CHECK_RETRY_DELAY }} seconds..."
+          sleep ${{ env.HEALTH_CHECK_RETRY_DELAY }}
           done
           
           echo "status=$status" >> $GITHUB_OUTPUT
