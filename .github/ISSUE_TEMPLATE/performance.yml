@@ -1,0 +1,69 @@
+name: "🚀 성능 개선"
+description: "성능 개선이 필요한 부분이 있나요?"
+labels: ["🚀 Performance"]
+body:
+  - type: textarea
+    attributes:
+      label: 🔍 현재 성능 상태
+      description: 현재 성능 상태와 문제점에 대해 설명해주세요.
+      placeholder: 예) API 응답 시간이 평균 1.5초로 목표치인 500ms보다 느립니다.
+    validations:
+      required: true
+  
+  - type: textarea
+    attributes:
+      label: 📊 성능 측정 결과
+      description: 부하테스트 또는 성능 측정 결과를 공유해주세요.
+      placeholder: |
+        예)
+        - 평균 응답 시간: 1.5초
+        - 95 백분위수 응답 시간: 2.3초
+        - RPS(Request Per Second): 100
+        
+        상세 결과는 노션 문서 [링크 첨부]에서 확인 가능합니다.
+    validations:
+      required: true
+  
+  - type: textarea
+    attributes:
+      label: 🎯 개선 목표
+      description: 성능 개선 후 기대하는 목표치를 작성해주세요.
+      placeholder: |
+        예)
+        - 평균 응답 시간: 500ms 이하
+        - 95 백분위수 응답 시간: 1초 이하
+        - RPS(Request Per Second): 300 이상
+    validations:
+      required: false
+  
+  - type: textarea
+    attributes:
+      label: 🛣️ 영향받는 엔드포인트
+      description: 성능 개선이 필요한 엔드포인트나 서비스 컴포넌트를 나열해주세요.
+      placeholder: |
+        예)
+        - GET /api/products
+        - POST /api/orders
+        - OrderService.processPayment()
+    validations:
+      required: true
+  
+  - type: textarea
+    attributes:
+      label: 💡 개선 방안
+      description: 성능 개선을 위한 개략적인 아이디어나 접근 방법을 제안해주세요.
+      placeholder: |
+        예)
+        - 데이터베이스 쿼리 최적화
+        - 캐싱 도입
+        - N+1 쿼리 문제 해결
+    validations:
+      required: false
+  
+  - type: textarea
+    attributes:
+      label: 📝 비고
+      description: 추가로 공유하고 싶은 내용이 있다면 작성해주세요.
+      placeholder: 관련 이슈 번호나 참고 자료 등을 기재해주세요.
+    validations:
+      required: false
