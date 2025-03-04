@@ -1,6 +1,7 @@
 package one.colla.user.application;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -16,7 +17,6 @@ import one.colla.global.exception.ExceptionCode;
 import one.colla.infra.redis.lastseen.LastSeenTeamspace;
 import one.colla.infra.redis.lastseen.LastSeenTeamspaceService;
 import one.colla.teamspace.application.TeamspaceService;
-import one.colla.teamspace.domain.Teamspace;
 import one.colla.teamspace.domain.UserTeamspace;
 import one.colla.user.application.dto.request.LastSeenUpdateRequest;
 import one.colla.user.application.dto.request.UpdateUserSettingRequest;
@@ -45,44 +45,50 @@ public class UserService {
 
 	@Transactional(readOnly = true)
 	public UserStatusResponse getUserStatus(CustomUserDetails userDetails) {
-		final User user = userRepository.findById(userDetails.getUserId())
+		final User user = userRepository.findByIdWithTeamspaces(userDetails.getUserId())
 			.orElseThrow(() -> new CommonException(ExceptionCode.NOT_FOUND_USER));
 
 		Long lastSeenTeamspaceId = lastSeenTeamspaceService.findByUserId(user.getId())
 			.map(LastSeenTeamspace::getTeamspaceId)
 			.orElse(null);
-
 		ProfileDto profile = ProfileDto.of(user.getId(), user, lastSeenTeamspaceId);
 
+		List<Long> teamspaceIds = user.getUserTeamspaces().stream()
+			.map(ut -> ut.getTeamspace().getId())
+			.toList();
+		Map<Long, Long> participantCountMap = teamspaceService.countParticipantsByTeamspaceIds(teamspaceIds);
 		List<ParticipatedTeamspaceDto> participatedTeamspaces = user.getUserTeamspaces().stream()
-			.map(ut -> ParticipatedTeamspaceDto.of(
-					ut.getTeamspace().getId(),
+			.map(ut -> {
+				Long teamspaceId = ut.getTeamspace().getId();
+				return ParticipatedTeamspaceDto.of(
+					teamspaceId,
 					ut,
-					getNumOfTeamspaceParticipants(ut),
-					calculateUnreadMessageCount(ut.getUser().getId(), ut.getTeamspace())
-				)
-			)
+					participantCountMap.getOrDefault(teamspaceId, 0L).intValue(),
+					1 // 읽지 않은 메세지 임시 처리 (향후 최적화 가능)
+				);
+			})
 			.toList();
 
 		log.info("사용자 관련 정보 조회 - 사용자 Id: {}", userDetails.getUserId());
 		return UserStatusResponse.of(profile, participatedTeamspaces);
 	}
 
-	private int calculateUnreadMessageCount(Long userId, Teamspace teamspace) {
-		return teamspace.getChatChannels().stream()
-			.mapToInt(chatChannel -> userChatChannelRepository.findByUserIdAndChatChannelId(userId, chatChannel.getId())
-				.map(userChatChannel -> {
-					Long lastReadMessageId = userChatChannel.getLastReadMessageId();
-					if (lastReadMessageId == null) {
-						return chatChannelMessageRepository.countByChatChannel(chatChannel);
-					} else {
-						return chatChannelMessageRepository.countByChatChannelAndIdGreaterThan(chatChannel,
-							lastReadMessageId);
-					}
-				})
-				.orElse(0))
-			.sum();
-	}
+	// TODO: API  분리 필요
+	// private int calculateUnreadMessageCount(Long userId, Teamspace teamspace) {
+	// 	return teamspace.getChatChannels().stream()
+	// 		.mapToInt(chatChannel -> userChatChannelRepository.findByUserIdAndChatChannelId(userId, chatChannel.getId())
+	// 			.map(userChatChannel -> {
+	// 				Long lastReadMessageId = userChatChannel.getLastReadMessageId();
+	// 				if (lastReadMessageId == null) {
+	// 					return chatChannelMessageRepository.countByChatChannel(chatChannel);
+	// 				} else {
+	// 					return chatChannelMessageRepository.countByChatChannelAndIdGreaterThan(chatChannel,
+	// 						lastReadMessageId);
+	// 				}
+	// 			})
+	// 			.orElse(0))
+	// 		.sum();
+	// }
 
 	@Transactional
 	public void updateLastSeenTeamspace(CustomUserDetails userDetails, LastSeenUpdateRequest request) {

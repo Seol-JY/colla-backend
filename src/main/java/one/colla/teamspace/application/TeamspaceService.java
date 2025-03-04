@@ -1,7 +1,9 @@
 package one.colla.teamspace.application;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.context.ApplicationEventPublisher;
@@ -296,6 +298,15 @@ public class TeamspaceService {
 			InviteCode.of(generatedCode, userTeamspace.getTeamspace().getId(), validSeconds));
 
 		return Pair.of(inviteCode, userTeamspace);
+	}
+
+	@Transactional(readOnly = true)
+	public Map<Long, Long> countParticipantsByTeamspaceIds(List<Long> teamspaceIds) {
+		return teamspaceRepository.countParticipantsByTeamspaceIds(teamspaceIds).stream()
+			.collect(Collectors.toMap(
+				arr -> (Long)arr[0],  // 팀스페이스 ID
+				arr -> (Long)arr[1]   // 참여자 수
+			));
 	}
 
 	/**
