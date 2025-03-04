@@ -57,3 +57,6 @@ logs/*
 
 ### application*.properties ###
 src/main/resources/*.properties
+
+### p6spy log ###
+spy.log

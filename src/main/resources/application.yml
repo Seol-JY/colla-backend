@@ -68,13 +68,17 @@ spring:
   websocket:
     allowed-origins: http://localhost:8080, http://localhost:3000, ${BASE_URL}
 
-
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
   swagger-ui:
     url: /docs/open-api-3.0.1.yaml
     path: /swagger
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
 
 jwt:
   secret-key:
