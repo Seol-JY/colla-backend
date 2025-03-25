@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Map;
 
 import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import one.colla.feed.common.application.dto.request.CreateFeedDetails;
@@ -13,7 +12,8 @@ public record PutSchedulingAvailabilitiesRequest(
 
 	@NotNull(message = "Availabilities 목록이 포함되어야 합니다.")
 	@Size(min = 1, message = "Availabilities 목록은 최소 1개 이상의 날짜를 포함해야 합니다.")
-	Map<@FutureOrPresent(message = "일자는 과거일 수 없습니다.") LocalDate, byte[]> availabilities
+	Map<LocalDate, byte[]> availabilities
+	// Map<@FutureOrPresent(message = "일자는 과거일 수 없습니다.") LocalDate, byte[]> availabilities
 
 ) implements CreateFeedDetails {
 
